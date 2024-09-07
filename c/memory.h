@@ -1,3 +1,16 @@
+/*******************************************************************************
+*
+* MEMORY MANAGEMENT SYSTEM
+*
+*   SUMMARY
+*       This single-header module implements a simple but effective memory
+*       management system, the M2S. Its functionality is boiled down to:
+*
+*       a) matrix creation, and
+*       b) matrix destruction.
+*
+*******************************************************************************/
+
 #ifndef MEMORY_H_
 #define MEMORY_H_
 
@@ -28,27 +41,41 @@ typedef struct Matrix
 /*    PUBLIC FUNCTIONS                                                        */
 /******************************************************************************/
 
-/* A function that create a matrix and handles all the memory allocation */
-MATRIX* create_matrix(uint32_t rows, uint32_t cols);
+/* Matrix creation, push_matrix:
+ *  - allocates the memory for a matrix, whose dimensions are rows x cols;
+ *  - and pushes the matrix on the stack. */
+MATRIX* push_matrix(uint32_t rows, uint32_t cols);
 
-/* A function that frees all matrices that have not been individually freed */
-void* free_matrices(void *head);
+/* Matrix destruction, pop_matrices:
+ *  - frees the memory of the active matrices;
+ *  - and pops matrices. */
+void* pop_matrices(void *top);
 
 /******************************************************************************/
-/*    IMPLEMENTATION AND INTERNALS                                            */
+/*    PRIVATE DATA AND IMPLEMENTATION                                         */
 /******************************************************************************/
 
-/* A simple linked list */
-typedef struct Node
+/* PRIVATE DATA */
+
+/* A simple stack */
+typedef struct Item
 {
     MATRIX *matrix;
-    struct Node *next;
-} NODE;
+    struct Item *next;
+} ITEM;
 
-static NODE *list = NULL;
+static ITEM *stack = NULL;
+
+/* PRIVATE FUNCTION PROTOTYPES */
+
+static MATRIX* _M2S_malloc(uint32_t rows, uint32_t cols);
+
+static ITEM* _M2S_push(ITEM *stack, MATRIX *A);
+
+static MATRIX* _M2S_free(MATRIX *matrix);
 
 /* Memory allocation-like functions */
-MATRIX* _malloc(uint32_t rows, uint32_t cols)
+static MATRIX* _M2S_malloc(uint32_t rows, uint32_t cols)
 {
     MATRIX *matrix = (MATRIX*)malloc(sizeof(MATRIX));
 
@@ -62,35 +89,19 @@ MATRIX* _malloc(uint32_t rows, uint32_t cols)
     return matrix;
 }
 
-NODE* append(NODE *head, MATRIX *A)
+static ITEM* _M2S_push(ITEM *stack, MATRIX *A)
 {
-    NODE *tail = (NODE*)malloc(sizeof(NODE));
-    tail->matrix = A;
-    /* head is NULL at the very first itr */
-    tail->next = head;
+    ITEM *top = (ITEM*)malloc(sizeof(ITEM));
 
-    return tail;
-}
+    /* stack is NULL at the very first itr */
+    top->next = stack;
+    top->matrix = A;
 
-MATRIX* create_matrix(uint32_t rows, uint32_t cols)
-{
-    MATRIX *A = _malloc(rows, cols);
-
-    if (A == NULL)
-    {
-        return NULL;
-    }
-    else
-    {
-        /* A bit dirty here */
-        list = append(list, A);
-    }
-
-    return A;
+    return top;
 }
 
 /* Memory free-like functions */
-MATRIX* _free(MATRIX *matrix)
+static MATRIX* _M2S_free(MATRIX *matrix)
 {
     if (matrix->val != NULL)
     {
@@ -105,18 +116,37 @@ MATRIX* _free(MATRIX *matrix)
     return (MATRIX*)NULL;
 }
 
-void* free_matrices(void *list)
+/* PUBLIC FUNCTIONS */
+
+MATRIX* push_matrix(uint32_t rows, uint32_t cols)
 {
-    NODE *head = list;
-    while (head != NULL)
+    MATRIX *A = _M2S_malloc(rows, cols);
+
+    if (A == NULL)
     {
-        NODE *tmp = head->next;
-        _free(head->matrix);
-        free(head);
-        head = tmp;
+        return NULL;
+    }
+    else
+    {
+        stack = _M2S_push(stack, A);
     }
 
-    return head;
+    return A;
+}
+
+
+void* pop_matrices(void *stack)
+{
+    ITEM *top = stack;
+    while (top != NULL)
+    {
+        ITEM *tmp = top->next;
+        _M2S_free(top->matrix);
+        free(top);
+        top = tmp;
+    }
+
+    return top;
 }
 
 #ifdef __cplusplus
