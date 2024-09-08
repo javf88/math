@@ -1,0 +1,35 @@
+#*******************************************************************************
+# Project config
+#*******************************************************************************/
+
+cmake_minimum_required(VERSION 3.20)
+project(M1_math
+    LANGUAGES C
+    DESCRIPTION "Some math operators on apple M1")
+
+# Includes
+include(CTest)
+
+# Build options
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON" CACHE BOOL "Export commands for lsp" FORCE)
+
+#*******************************************************************************
+# CMake Submodules
+#*******************************************************************************
+
+find_package(Unity 2.6 REQUIRED)
+if (Unity_FOUND)
+    message(STATUS "Unity has been found")
+endif()
+
+#*******************************************************************************
+# Implementation
+#*******************************************************************************
+
+add_subdirectory(c)
+
+#*******************************************************************************
+# Testing
+#*******************************************************************************
+
+add_subdirectory(tests)
