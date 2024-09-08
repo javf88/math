@@ -46,10 +46,12 @@ typedef struct Matrix
  *  - and pushes the matrix on the stack. */
 MATRIX* push_matrix(uint32_t rows, uint32_t cols);
 
-/* Matrix destruction, pop_matrices:
- *  - frees the memory of the active matrices;
- *  - and pops matrices. */
-void* pop_matrices(void *top);
+/* Matrix destruction, pop_matrix:
+ *  - frees the memory of a matrix;
+ *  - and pops the top item of the stack.
+ *
+ *  void is used because ITEM is defined in the private data */
+void* pop_matrix(void *top);
 
 /******************************************************************************/
 /*    PRIVATE DATA AND IMPLEMENTATION                                         */
@@ -134,19 +136,20 @@ MATRIX* push_matrix(uint32_t rows, uint32_t cols)
     return A;
 }
 
-
-void* pop_matrices(void *stack)
+/* Freeing only one item from the stack */
+void* pop_matrix(void *top)
 {
-    ITEM *top = stack;
-    while (top != NULL)
+    /* Creating a temporal variable, to avoid casting as ((ITEM*)top) */
+    ITEM* _top = top;
+    if (_top != NULL)
     {
-        ITEM *tmp = top->next;
-        _M2S_free(top->matrix);
-        free(top);
-        top = tmp;
+        ITEM *tmp = _top->next;
+        _M2S_free(_top->matrix);
+        free(_top);
+        _top = tmp;
     }
 
-    return top;
+    return _top;
 }
 
 #ifdef __cplusplus
