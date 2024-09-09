@@ -5,7 +5,6 @@
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "algebra.h"
-#include <unity_internals.h>
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
