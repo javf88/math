@@ -19,3 +19,9 @@ target_compile_definitions(apple_log
 
 target_compile_options(apple_log
     INTERFACE -g)
+
+# Matrix algebra
+add_library(apple_algebra INTERFACE)
+
+target_include_directories(apple_algebra
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
