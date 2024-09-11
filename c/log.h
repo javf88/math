@@ -34,6 +34,80 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+/*    PUBLIC FUNCTION-LIKE MACRO                                             */
+/******************************************************************************/
+
+/**
+ * @brief      Prints Error-level message
+ *
+ * @param      ...   Message format + optional arguments
+ *
+ * @example    LOG_ERROR("socket: %s", strerror(errno));
+ */
+#if LOG_LEVEL_ERROR <= LOG_CONFIG
+    #define LOG_ERROR(...) \
+        log_print(LOG_LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#else
+    #define LOG_ERROR(...)
+#endif
+
+/**
+ * @brief      Prints Warning-level message
+ *
+ * @param      ...   Message format + optional arguments
+ *
+ * @example    LOG_WARNING("Unknown sensor ID %u", sensor_id);
+ */
+#if LOG_LEVEL_WARNING <= LOG_CONFIG
+    #define LOG_WARNING(...) \
+    log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, __VA_ARGS__)
+#else
+    #define LOG_WARNING(...)
+#endif
+
+/**
+ * @brief      Prints Info-level message
+ *
+ * @param      ...   Message format + optional arguments
+ *
+ * @example    LOG_INFO("Successful initialization");
+ */
+#if LOG_LEVEL_INFO <= LOG_CONFIG
+    #define LOG_INFO(...) \
+    log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#else
+    #define LOG_INFO(...)
+#endif
+
+/**
+ * @brief      Prints Debug-level message
+ *
+ * @param      ...   Message format + optional arguments
+ *
+ * @example    LOG_DEBUG("Function 'Timer3_ISR' reached");
+ */
+#if LOG_LEVEL_DEBUG <= LOG_CONFIG
+    #define LOG_DEBUG(...) \
+    log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#else
+    #define LOG_DEBUG(...)
+#endif
+
+/**
+ * @brief      Prints Trace-level message
+ *
+ * @param      ...   Message format + optional arguments
+ *
+ * @example    LOG_TRACE("CAN Message ID %d received", m_id);
+ */
+#if LOG_LEVEL_TRACE <= LOG_CONFIG
+    #define LOG_TRACE(...) \
+    log_print(LOG_LEVEL_TRACE, __FILE__, __LINE__, __VA_ARGS__)
+#else
+    #define LOG_TRACE(...)
+#endif
+
+/******************************************************************************/
 /*    PRIVATE DATA                                                            */
 /******************************************************************************/
 

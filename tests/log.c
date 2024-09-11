@@ -83,12 +83,23 @@ void test_get_msg(void)
     free(buffer);
 }
 
+void test_examples(void)
+{
+    LOG_ERROR("This should be an error! LOG_LEVEL_ERROR: %u", LOG_LEVEL_ERROR);
+    LOG_WARNING("This should be an warning! LOG_LEVEL_WARNING: %u", LOG_LEVEL_WARNING);
+    LOG_INFO("This should be an info! LOG_LEVEL_INFO: %u", LOG_LEVEL_INFO);
+    LOG_DEBUG("This should be an debug! LOG_LEVEL_DEBUG: %u", LOG_LEVEL_DEBUG);
+    LOG_TRACE("This should be an trace! LOG_LEVEL_TRACE: %u", LOG_LEVEL_TRACE);
+
+}
+
 int main(void)
 {
     UNITY_BEGIN();
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
+    RUN_TEST(test_examples);
 
     return UNITY_END();
 }
