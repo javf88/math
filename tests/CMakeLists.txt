@@ -19,8 +19,8 @@ add_executable(log
 
 target_link_libraries(log
     PRIVATE unity::framework
-    PRIVATE apple_log
-    PRIVATE apple_memory)
+    PRIVATE apple_log)
+
 
 add_test(NAME log.UnitTest
     COMMAND log)
