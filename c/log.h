@@ -211,7 +211,7 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
                 const char *name, const MATRIX *A)
 {
     char margin[25];
-    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s"), name);
+    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in %ux%u"), name, A->rows, A->cols);
 
     /* a margin can be either "A = " or " " spanned over 8 spaces */
     sprintf(margin, "%5s = ", name);
@@ -224,13 +224,14 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
 
         for (uint32_t j = 0U; j < (A->cols - 1U); j++)
         {
-            sprintf(valAsStr, "%.3f", A->val[j]);
+            uint32_t pos = A->cols * i + j;
+            sprintf(valAsStr, "%.3f", A->val[pos]);
             /* the value is formatted to fit a 7-char margin */
             fprintf(stderr, WHITE("%*s, "), 7, valAsStr);
         }
 
         /* Last entry in A has a trailing "]" */
-        sprintf(valAsStr, "%.3f", A->val[A->cols - 1U]);
+        sprintf(valAsStr, "%.3f", A->val[A->cols * i + A->cols - 1U]);
         fprintf(stderr, WHITE("%*s")BOLD_GRAY("]")"\n", 7, valAsStr);
         /* clearing " A = " to ""  */
         sprintf(margin, "%8s", "");
