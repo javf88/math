@@ -1,6 +1,16 @@
+/*******************************************************************************
+*
+* LOGGING SYSTEM
+*
+*   SUMMARY
+*       This single-header module implements a simple logging system.
+*
+*******************************************************************************/
+
 #ifndef LOG_H_
 #define LOG_H_
 
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,6 +23,8 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "memory.h"
 
 /******************************************************************************/
 /*    DEFINITIONS                                                             */
@@ -107,24 +119,47 @@ extern "C" {
     #define LOG_TRACE(...)
 #endif
 
+/**
+ * @brief      Prints a matrix in info level
+ *
+ * @param      A   Matrix variable
+ */
+#if LOG_LEVEL_INFO <= LOG_CONFIG
+#define LOG_INFO_MATRIX(A) \
+    log_matrix(LOG_LEVEL_INFO, __FILE__, __LINE__, #A, A)
+#else
+#define LOG_INFO_MATRIX(A)
+#endif
+
 /******************************************************************************/
 /*    PRIVATE DATA                                                            */
 /******************************************************************************/
 
+/* Colors for matrix*/
+#define BOLD_GRAY(fmt) "\x1b[1;90m"fmt"\x1b[0m"
+#define WHITE(fmt)     "\x1b[37m"fmt"\x1b[0m"
+
+/* Colors for log messages */
+#define RED(fmt)       "\x1b[31m"fmt"\x1b[0m"
+#define YELLOW(fmt)    "\x1b[33m"fmt"\x1b[0m"
+#define GREEN(fmt)     "\x1b[32m"fmt"\x1b[0m"
+#define CYAN(fmt)      "\x1b[36m"fmt"\x1b[0m"
+#define PURPLE(fmt)    "\x1b[94m"fmt"\x1b[0m"
+
 static const char *levelFormat[] =
 {
-    "\x1b[31m[ ERROR ]\x1b[0m %s:%d", /* red */
-    "\x1b[33m[WARNING]\x1b[0m %s:%d", /* yellow */
-    "\x1b[32m[ INFO  ]\x1b[0m %s:%d", /* green */
-    "\x1b[36m[ DEBUG ]\x1b[0m %s:%d", /* cyan */
-    "\x1b[94m[ TRACE ]\x1b[0m %s:%d"  /* purple */
+    RED("[ ERROR ] %s:%d"),
+    YELLOW("[WARNING] %s:%d"),
+    GREEN("[ INFO  ] %s:%d"),
+    CYAN("[ DEBUG ] %s:%d"),
+    PURPLE("[ TRACE ] %s:%d")
 };
 
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
 /******************************************************************************/
 
-char* _get_src(const int32_t level, const char *src, const uint32_t line)
+char* _get_src(const uint32_t level, const char *src, const uint32_t line)
 {
     /* "65535" and "\0" are const strings of longest string for the cases */
     size_t size = strlen(src) + strlen("65535") + strlen("\0");
@@ -142,7 +177,7 @@ char* _get_src(const int32_t level, const char *src, const uint32_t line)
     return str;
 }
 
-char* _get_msg(const char *format, va_list args)
+char* _get_msg(const char *format, const va_list args)
 {
     /* refactor to compute actual length of ellipsis ... */
     char *str = malloc(sizeof(char) * 256U);
@@ -155,7 +190,7 @@ char* _get_msg(const char *format, va_list args)
 /* log_print has not been unit-tested becasue it print to stderr and does not
  * return anything. Maybe when adding logging-into-file feature, this would
  * be tested. */
-void log_print(unsigned int level, const char *src, const int line,
+void log_print(const uint32_t level, const char *src, const uint32_t line,
                const char *format, ...)
 {
     char *srcStr = _get_src(level, src, line);
@@ -166,10 +201,40 @@ void log_print(unsigned int level, const char *src, const int line,
     msgStr = _get_msg(format, args);
     va_end(args);
 
-    fprintf(stderr, "%s %s\n", srcStr, msgStr);
+    fprintf(stderr, "%s "BOLD_GRAY("%s\n"), srcStr, msgStr);
 
     free(srcStr);
     free(msgStr);
+}
+
+void log_matrix(const uint32_t level, const char *src, const uint32_t line,
+                const char *name, const MATRIX *A)
+{
+    char margin[25];
+    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s"), name);
+
+    /* a margin can be either "A = " or " " spanned over 8 spaces */
+    sprintf(margin, "%5s = ", name);
+
+    for (uint32_t i = 0U; i < A->rows; i++)
+    {
+        char valAsStr[10];
+        /* margin is print in dim and gray font */
+        fprintf(stderr, BOLD_GRAY("%8s["), margin);
+
+        for (uint32_t j = 0U; j < (A->cols - 1U); j++)
+        {
+            sprintf(valAsStr, "%.3f", A->val[j]);
+            /* the value is formatted to fit a 7-char margin */
+            fprintf(stderr, WHITE("%*s, "), 7, valAsStr);
+        }
+
+        /* Last entry in A has a trailing "]" */
+        sprintf(valAsStr, "%.3f", A->val[A->cols - 1U]);
+        fprintf(stderr, WHITE("%*s")BOLD_GRAY("]\n"), 7, valAsStr);
+        /* clearing " A = " to ""  */
+        sprintf(margin, "%8s", "");
+    }
 }
 
 #ifdef __cplusplus
