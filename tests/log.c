@@ -58,6 +58,7 @@ void test_get_src(void)
     free(buffer);
 }
 
+/* helper function to simulate variadic function */
 char* create_variadic_args(const char *format, ...)
 {
     char * actual = NULL;
