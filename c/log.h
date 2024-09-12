@@ -10,6 +10,7 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -158,7 +159,7 @@ static const char *levelFormat[] =
 /*    IMPLEMENTATION                                                          */
 /******************************************************************************/
 
-char* _get_src(const int32_t level, const char *src, const uint32_t line)
+char* _get_src(const uint32_t level, const char *src, const uint32_t line)
 {
     /* "65535" and "\0" are const strings of longest string for the cases */
     size_t size = strlen(src) + strlen("65535") + strlen("\0");
@@ -176,7 +177,7 @@ char* _get_src(const int32_t level, const char *src, const uint32_t line)
     return str;
 }
 
-char* _get_msg(const char *format, va_list args)
+char* _get_msg(const char *format, const va_list args)
 {
     /* refactor to compute actual length of ellipsis ... */
     char *str = malloc(sizeof(char) * 256U);
@@ -189,7 +190,7 @@ char* _get_msg(const char *format, va_list args)
 /* log_print has not been unit-tested becasue it print to stderr and does not
  * return anything. Maybe when adding logging-into-file feature, this would
  * be tested. */
-void log_print(unsigned int level, const char *src, const int line,
+void log_print(const uint32_t level, const char *src, const uint32_t line,
                const char *format, ...)
 {
     char *srcStr = _get_src(level, src, line);
@@ -206,8 +207,8 @@ void log_print(unsigned int level, const char *src, const int line,
     free(msgStr);
 }
 
-void log_matrix(uint32_t level, const char *src, const uint32_t line,
-                char *name, MATRIX *A)
+void log_matrix(const uint32_t level, const char *src, const uint32_t line,
+                const char *name, const MATRIX *A)
 {
     char margin[25];
     log_print(level, src, line, BOLD_GRAY("(MATRIX)%s"), name);
