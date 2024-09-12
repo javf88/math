@@ -201,7 +201,7 @@ void log_print(const uint32_t level, const char *src, const uint32_t line,
     msgStr = _get_msg(format, args);
     va_end(args);
 
-    fprintf(stderr, "%s "BOLD_GRAY("%s\n"), srcStr, msgStr);
+    fprintf(stderr, "%s "BOLD_GRAY("%s")"\n", srcStr, msgStr);
 
     free(srcStr);
     free(msgStr);
@@ -231,7 +231,7 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
 
         /* Last entry in A has a trailing "]" */
         sprintf(valAsStr, "%.3f", A->val[A->cols - 1U]);
-        fprintf(stderr, WHITE("%*s")BOLD_GRAY("]\n"), 7, valAsStr);
+        fprintf(stderr, WHITE("%*s")BOLD_GRAY("]")"\n", 7, valAsStr);
         /* clearing " A = " to ""  */
         sprintf(margin, "%8s", "");
     }
