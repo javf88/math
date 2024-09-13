@@ -217,13 +217,15 @@ void log_print(const uint32_t level, const char *src, const uint32_t line,
 void log_matrix(const uint32_t level, const char *src, const uint32_t line,
                 const char *name, const MATRIX *A)
 {
+    /* Building " A = " */
+    char buffer[25];
+
     log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in [%ux%u]"), name, A->rows, A->cols);
+    sprintf(buffer, "%5s = ", name);
 
     for (uint32_t i = 0U; i < A->rows; i++)
     {
-        /* Building " A = " or "    " */
-        char buffer[25];
-        sprintf(buffer, "%5s = ", name);
+        /* Building "    " */
         fprintf(stderr, BOLD_GRAY("%8s["), buffer);
 
         for (uint32_t j = 0U; j < (A->cols - 1U); j++)
