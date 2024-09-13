@@ -1,3 +1,17 @@
+/*******************************************************************************
+*
+* Matrix Algebra
+*
+*   SUMMARY
+*       This single-header module implements some very well-known routines
+*       some of them are the follwing:
+*
+*       - matrix transpose, A^T
+*       - matrix additions and substraction, A +/- B
+*       - matrix multiplication, A x B
+*
+*******************************************************************************/
+
 #ifndef ALGEBRA_H_
 #define ALGEBRA_H_
 
