@@ -207,34 +207,39 @@ void log_print(const uint32_t level, const char *src, const uint32_t line,
     free(msgStr);
 }
 
+/* The function prints a matrix in a tabular-fashion and align to eaze
+ * the debugging of matrices
+ *
+ * Ex.  A = [ 1.000, 1.000, 1.000, 1.000, 1.000]
+ *          [ 1.000, 1.000, 1.000, 1.000, 1.000]
+ *          [ 1.000, 1.000, 1.000, 1.000, 1.000]
+ * */
 void log_matrix(const uint32_t level, const char *src, const uint32_t line,
                 const char *name, const MATRIX *A)
 {
-    char margin[25];
-    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in %ux%u"), name, A->rows, A->cols);
-
-    /* a margin can be either "A = " or " " spanned over 8 spaces */
-    sprintf(margin, "%5s = ", name);
+    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in [%ux%u]"), name, A->rows, A->cols);
 
     for (uint32_t i = 0U; i < A->rows; i++)
     {
-        char valAsStr[10];
-        /* margin is print in dim and gray font */
-        fprintf(stderr, BOLD_GRAY("%8s["), margin);
+        /* Building " A = " or "    " */
+        char buffer[25];
+        sprintf(buffer, "%5s = ", name);
+        fprintf(stderr, BOLD_GRAY("%8s["), buffer);
 
         for (uint32_t j = 0U; j < (A->cols - 1U); j++)
         {
+            /* Building " d.ddd, " in a 7-char column */
             uint32_t pos = A->cols * i + j;
-            sprintf(valAsStr, "%.3f", A->val[pos]);
-            /* the value is formatted to fit a 7-char margin */
-            fprintf(stderr, WHITE("%*s, "), 7, valAsStr);
+            sprintf(buffer, "%.3f", A->val[pos]);
+            fprintf(stderr, WHITE("%7s, "), buffer);
         }
 
-        /* Last entry in A has a trailing "]" */
-        sprintf(valAsStr, "%.3f", A->val[A->cols * i + A->cols - 1U]);
-        fprintf(stderr, WHITE("%*s")BOLD_GRAY("]")"\n", 7, valAsStr);
-        /* clearing " A = " to ""  */
-        sprintf(margin, "%8s", "");
+        /* Building last column " d.ddd]" */
+        sprintf(buffer, "%.3f", A->val[A->cols * i + A->cols - 1U]);
+        fprintf(stderr, WHITE("%7s")BOLD_GRAY("]")"\n", buffer);
+
+        /* Clearing buffer with "    "  */
+        sprintf(buffer, "%8s", "");
     }
 }
 

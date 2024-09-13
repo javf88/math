@@ -57,6 +57,10 @@ void test_transpose(void)
         TEST_ASSERT_NOT_NULL(stack);
         stack = pop_matrix(stack);
     } while(stack != NULL);
+
+    MATRIX *C = NULL;
+    C = transpose(C);
+    TEST_ASSERT_NULL(C);
 }
 
 void test_add(void)
@@ -87,12 +91,17 @@ void test_add(void)
         }
     }
 
+    MATRIX *D = push_matrix(2U, 2U);
+    MATRIX *E = add(C, D);
+    TEST_ASSERT_NULL(E);
+
     do {
         /* The stack starts with a non-NULL value */
         TEST_ASSERT_NOT_NULL(stack);
         stack = pop_matrix(stack);
     } while(stack != NULL);
 }
+
 void test_subs(void)
 {
     MATRIX *A = push_matrix(5U, 3U);
@@ -120,6 +129,10 @@ void test_subs(void)
             TEST_ASSERT_EQUAL_FLOAT(C->val[3U * i + j], 0U);
         }
     }
+
+    MATRIX *D = push_matrix(2U, 2U);
+    MATRIX *E = subs(B, D);
+    TEST_ASSERT_NULL(E);
 
     do {
         /* The stack starts with a non-NULL value */
@@ -164,18 +177,18 @@ void test_mult(void)
     TEST_ASSERT_EQUAL_UINT32(3U, C->rows);
     TEST_ASSERT_EQUAL_UINT32(4U, C->cols);
 
-    /* Wrong matrix multiplication, wait for log system to debug better */
-    _print(A);
-    _print(B);
-    _print(C);
-
     for (uint32_t i = 0U; i < 3U; i++)
     {
         for (uint32_t j = 0U; j < 4U; j++)
         {
+            LOG_INFO("%f", C->val[4U * i + j]);
             TEST_ASSERT_EQUAL_FLOAT(14.0F, C->val[4U * i + j]);
         }
     }
+
+    MATRIX *D = push_matrix(2U, 2U);
+    MATRIX *E = mult(D, E);
+    TEST_ASSERT_NULL(E);
 
     do {
         /* The stack starts with a non-NULL value */
@@ -190,6 +203,7 @@ int main(void)
 
     RUN_TEST(test_transpose);
     RUN_TEST(test_add);
+    RUN_TEST(test_subs);
     RUN_TEST(test_mult);
 
     return UNITY_END();
