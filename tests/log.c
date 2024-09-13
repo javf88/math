@@ -30,27 +30,27 @@ void test_get_src(void)
     char *buffer = malloc(sizeof(char) * 256U);
     char *actual = NULL;
 
-    sprintf(buffer, "\x1b[31m[ ERROR ]\x1b[0m %s:%d", __FILE__, 44);
+    sprintf(buffer, RED("[ ERROR ] %s:%d"), __FILE__, 44);
     actual = _get_src(0, __FILE__, 44);
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
     free(actual);
 
-    sprintf(buffer, "\x1b[33m[WARNING]\x1b[0m %s:%d", __FILE__, 48);
+    sprintf(buffer, YELLOW("[WARNING] %s:%d"), __FILE__, 48);
     actual = _get_src(1, __FILE__, 48);
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
     free(actual);
 
-    sprintf(buffer, "\x1b[32m[ INFO  ]\x1b[0m %s:%d", __FILE__, 52);
+    sprintf(buffer, GREEN("[ INFO  ] %s:%d"), __FILE__, 52);
     actual = _get_src(2, __FILE__, 52);
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
     free(actual);
 
-    sprintf(buffer, "\x1b[36m[ DEBUG ]\x1b[0m %s:%d", __FILE__, 56);
+    sprintf(buffer, CYAN("[ DEBUG ] %s:%d"), __FILE__, 56);
     actual = _get_src(3, __FILE__, 56);
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
     free(actual);
 
-    sprintf(buffer, "\x1b[94m[ TRACE ]\x1b[0m %s:%d", __FILE__, 60);
+    sprintf(buffer, PURPLE("[ TRACE ] %s:%d"), __FILE__, 60);
     actual = _get_src(4, __FILE__, 60);
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
     free(actual);
@@ -58,6 +58,7 @@ void test_get_src(void)
     free(buffer);
 }
 
+/* helper function to simulate variadic function */
 char* create_variadic_args(const char *format, ...)
 {
     char * actual = NULL;
