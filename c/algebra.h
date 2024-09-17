@@ -138,19 +138,19 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
 
 MATRIX* id(uint32_t size)
 {
-    MATRIX *A = push_matrix(size, size);
-    if (A == NULL)
+    MATRIX *I = push_matrix(size, size);
+    if (I == NULL)
     {
         LOG_ERROR("Identity matrix was not created.");
         return NULL;
     }
 
-    for (uint32_t i = 0U; i < A->rows; i++)
+    for (uint32_t i = 0U; i < I->rows; i++)
     {
-        A->val[A->cols * i + i] = 1.0F;
+        I->val[I->cols * i + i] = 1.0F;
     }
 
-    return A;
+    return I;
 }
 
 uint32_t get_row(MATRIX *U, uint32_t j)
@@ -168,25 +168,25 @@ uint32_t get_row(MATRIX *U, uint32_t j)
     return U->rows;
 }
 
-MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
+MATRIX* permute(MATRIX *P, uint32_t a, uint32_t b)
 {
-    if (I->rows <= a || I->rows <= b)
+    if (P->rows <= a || P->rows <= b)
     {
-        LOG_ERROR("Permutation indecis(%u,%u) are out of range(Id[%u])", a, b, I->rows);
-        return I;
+        LOG_ERROR("Permutation indecis(%u,%u) are out of range(Id[%u])", a, b, P->rows);
+        return P;
     }
 
     /* permuting(swapping) I[a,*] with I[b,*] rows */
-    float *posA = &I->val[I->cols * a + a];
-    float *posB = &I->val[I->cols * b + b];
+    float *posA = &P->val[P->cols * a + a];
+    float *posB = &P->val[P->cols * b + b];
 
-    float *newA = &I->val[I->cols * a + b];
-    float *newB = &I->val[I->cols * b + a];
+    float *newA = &P->val[P->cols * a + b];
+    float *newB = &P->val[P->cols * b + a];
 
     posA[0] = posB[0] = 0.0F;
     newA[0] = newB[0] = 1.0F;
 
-    return I;
+    return P;
 }
 
 MATRIX* update(MATRIX *U, uint32_t j)
