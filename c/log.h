@@ -230,15 +230,15 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
 
         for (uint32_t j = 0U; j < (A->cols - 1U); j++)
         {
-            /* Building " d.ddd, " in a 7-char column */
+            /* Building " d.ddddddd, " in a 11-char column */
             uint32_t pos = A->cols * i + j;
-            sprintf(buffer, "%.3f", A->val[pos]);
-            fprintf(stderr, WHITE("%7s, "), buffer);
+            sprintf(buffer, "%.7f", A->val[pos]);
+            fprintf(stderr, WHITE("%11s, "), buffer);
         }
 
-        /* Building last column " d.ddd]" */
-        sprintf(buffer, "%.3f", A->val[A->cols * i + A->cols - 1U]);
-        fprintf(stderr, WHITE("%7s")BOLD_GRAY("]")"\n", buffer);
+        /* Building last column " d.ddddddd]" */
+        sprintf(buffer, "%.7f", A->val[A->cols * i + A->cols - 1U]);
+        fprintf(stderr, WHITE("%11s")BOLD_GRAY("]")"\n", buffer);
 
         /* Clearing buffer with "    "  */
         sprintf(buffer, "%8s", "");
