@@ -153,11 +153,11 @@ MATRIX* id(uint32_t size)
     return A;
 }
 
-uint32_t get_row(MATRIX *A, uint32_t j)
+uint32_t get_row(MATRIX *U, uint32_t j)
 {
-    for (uint32_t pos = j + 1U; pos < A->rows; pos++)
+    for (uint32_t pos = j + 1U; pos < U->rows; pos++)
     {
-        if (FLT_EPSILON < fabs(A->val[A->cols * pos + j]))
+        if (FLT_EPSILON < fabs(U->val[U->cols * pos + j]))
         {
             /* let us return the next row with the pivot*/
             return pos;
@@ -165,7 +165,7 @@ uint32_t get_row(MATRIX *A, uint32_t j)
     }
 
     /* returning first index that is out of range (+1) */
-    return A->rows;
+    return U->rows;
 }
 
 MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
@@ -189,55 +189,55 @@ MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
     return I;
 }
 
-MATRIX* update(MATRIX *A, uint32_t j)
+MATRIX* update(MATRIX *U, uint32_t j)
 {
-    float *pivot = &A->val[A->cols * j + j];
+    float *pivot = &U->val[U->cols * j + j];
     uint32_t newJ = 0U;
     MATRIX *P = NULL;
 
-    /* no-need to update A, pivot is non-zero */
+    /* no-need to update U, pivot is non-zero */
     if (fabs(pivot[0]) > FLT_EPSILON)
     {
-        return A;
+        return U;
     }
 
     /* get row of next non-zero value */
-    newJ = get_row(A, j);
+    newJ = get_row(U, j);
     LOG_INFO("newJ = %u", newJ);
-    if (newJ < A->rows)
+    if (newJ < U->rows)
     {
         /* Build Identity and swap rows */
-        P = id(A->rows);
+        P = id(U->rows);
         P = permute(P, j, newJ);
         LOG_INFO_MATRIX(P);
 
-        /* Row-permutation, left-multiplication, on A */
-        A = mult(P, A);
-        LOG_INFO_MATRIX(A);
+        /* Row-permutation, left-multiplication, on U */
+        U = mult(P, U);
+        LOG_INFO_MATRIX(U);
     }
 
-    return A;
+    return U;
 }
 
-MATRIX* echelon(MATRIX *A)
+MATRIX* echelon(MATRIX *U)
 {
-    if (A->cols != A->rows)
+    if (U->cols != U->rows)
     {
         LOG_ERROR("Matrix is not a square matrix.");
 
         return NULL;
     }
 
-    for (uint32_t j = 0U; j < (A->cols - 1U); j++)
+    for (uint32_t j = 0U; j < (U->cols - 1U); j++)
     {
         /* Let us create an Identity matrix */
-        MATRIX *L = id(A->cols);
+        MATRIX *L = id(U->cols);
         float *pivot = NULL;
 
         /* Let us update A by finding and permuting the next non-zero val 
          * in j-th col */
-        A = update(A, j);
-        pivot = &A->val[A->cols * j + j];
+        U = update(U, j);
+        pivot = &U->val[U->cols * j + j];
         LOG_INFO("pivot: %f", *pivot);
 
         /* If pivot is zero, then it is a singular matrix */
@@ -245,32 +245,33 @@ MATRIX* echelon(MATRIX *A)
         {
             /* Removing unused matrix L_(j) */
             stack = pop_matrix(stack);
-            return A;
+            return U;
         }
 
-        for (uint32_t i = j + 1U; i < A->rows; i++)
+        for (uint32_t i = j + 1U; i < U->rows; i++)
         {
             /* Let us place the right coef under the pivot (a[i,i]) */
-            float a = A->val[A->cols * i + j];
+            float a = U->val[U->cols * i + j];
 
             /* If pivot is numerically zero, the rest of the column should
              * tested for zeros. If they are all zero, then the matrix is singular. */
             LOG_INFO("a: %.7f", a);
-            L->val[A->cols * i + j] = -1.0F * a / pivot[0];
+            L->val[U->cols * i + j] = -1.0F * a / pivot[0];
         }
 
         /* let us remove the current column under the pivot */
-        MATRIX *B = mult(L, A);
+        MATRIX *B = mult(L, U);
 
         LOG_INFO_MATRIX(L);
-        LOG_INFO_MATRIX(A);
+        LOG_INFO_MATRIX(U);
         LOG_INFO_MATRIX(B);
 
         /* Update the matrix for the next iteration */
-        A = B;
+        U = B;
     }
 
-    return A;
+    /* returning upper-triangular matrix from PA = LU */
+    return U;
 }
 
 #ifdef __cplusplus
