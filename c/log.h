@@ -10,7 +10,6 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,12 +18,13 @@ extern "C" {
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <sys/stat.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-#include "memory.h"
+#include <errno.h>
+#include <time.h>
 
 /******************************************************************************/
 /*    DEFINITIONS                                                             */
@@ -126,7 +126,7 @@ extern "C" {
  */
 #if LOG_LEVEL_INFO <= LOG_CONFIG
 #define LOG_INFO_MATRIX(A) \
-    log_matrix(LOG_LEVEL_INFO, __FILE__, __LINE__, #A, A)
+    log_matrix(LOG_LEVEL_INFO, __FILE__, __LINE__, #A, A->val, A->rows, A->cols)
 #else
 #define LOG_INFO_MATRIX(A)
 #endif
@@ -155,6 +155,27 @@ static const char *levelFormat[] =
     PURPLE("[ TRACE ] %s:%d")
 };
 
+/* Buffers' magic numbers */
+#define MAX_STR_LEN   (256U)
+#define MAX_WORD_LEN  (25U)
+#define MAX_NAME_LEN  (50U)
+
+#define LOG_TEE  (1U)
+
+/* Default stream */
+#ifndef LOG_FILE
+#define LOG_FILE (stderr)
+#endif
+
+/* file handler */
+typedef struct Log
+{
+    FILE *descriptor;
+    char *name;
+} LOG;
+
+static LOG *file = NULL;
+
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
 /******************************************************************************/
@@ -180,28 +201,39 @@ char* _get_src(const uint32_t level, const char *src, const uint32_t line)
 char* _get_msg(const char *format, const va_list args)
 {
     /* refactor to compute actual length of ellipsis ... */
-    char *str = malloc(sizeof(char) * 256U);
+    char *str = malloc(sizeof(char) * MAX_STR_LEN);
 
     vsprintf(str, format, args);
 
     return str;
 }
 
-/* log_print has not been unit-tested becasue it print to stderr and does not
- * return anything. Maybe when adding logging-into-file feature, this would
- * be tested. */
+/* buffer needs to be reafctored such that we can print to file and stderr */
+void tee_printf(const char *str)
+{
+    char buffer[MAX_STR_LEN];
+
+    fprintf(LOG_FILE, "%s", str);
+    if (LOG_TEE == 1U)
+    {
+        sprintf(buffer, "%s", str);
+    }
+}
+
 void log_print(const uint32_t level, const char *src, const uint32_t line,
                const char *format, ...)
 {
     char *srcStr = _get_src(level, src, line);
     char *msgStr = NULL;
+    char buffer[MAX_STR_LEN];
 
     va_list args;
     va_start(args, format);
     msgStr = _get_msg(format, args);
     va_end(args);
 
-    fprintf(stderr, "%s "BOLD_GRAY("%s")"\n", srcStr, msgStr);
+    sprintf(buffer, "%s "BOLD_GRAY("%s")"\n", srcStr, msgStr);
+    tee_printf(buffer);
 
     free(srcStr);
     free(msgStr);
@@ -215,34 +247,107 @@ void log_print(const uint32_t level, const char *src, const uint32_t line,
  *          [ 1.000, 1.000, 1.000, 1.000, 1.000]
  * */
 void log_matrix(const uint32_t level, const char *src, const uint32_t line,
-                const char *name, const MATRIX *A)
+                const char *name, const float *val, const uint32_t rows, const uint32_t cols)
 {
     /* Building " A = " */
-    char buffer[25];
+    char word[MAX_STR_LEN / 10U];
+    char buffer[MAX_STR_LEN];
 
-    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in [%ux%u]"), name, A->rows, A->cols);
-    sprintf(buffer, "%5s = ", name);
+    log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in [%ux%u]"), name, rows, cols);
+    sprintf(word, "%5s = ", name);
 
-    for (uint32_t i = 0U; i < A->rows; i++)
+    for (uint32_t i = 0U, k = 0U; i < rows; i++, k = 0U)
     {
         /* Building "    " */
-        fprintf(stderr, BOLD_GRAY("%8s["), buffer);
+        k += sprintf(&buffer[k], BOLD_GRAY("%8s["), word);
 
-        for (uint32_t j = 0U; j < (A->cols - 1U); j++)
+        for (uint32_t j = 0U; j < (cols - 1U); j++)
         {
             /* Building " d.ddddddd, " in a 11-char column */
-            uint32_t pos = A->cols * i + j;
-            sprintf(buffer, "%.7f", A->val[pos]);
-            fprintf(stderr, WHITE("%11s, "), buffer);
+            uint32_t pos = cols * i + j;
+            sprintf(word, "%.7f", val[pos]);
+            k += sprintf(&buffer[k], WHITE("%11s, "), word);
         }
 
         /* Building last column " d.ddddddd]" */
-        sprintf(buffer, "%.7f", A->val[A->cols * i + A->cols - 1U]);
-        fprintf(stderr, WHITE("%11s")BOLD_GRAY("]")"\n", buffer);
+        sprintf(word, "%.7f", val[cols * i + cols - 1U]);
+        k += sprintf(&buffer[k], WHITE("%11s")BOLD_GRAY("]")"\n", word);
 
-        /* Clearing buffer with "    "  */
-        sprintf(buffer, "%8s", "");
+        tee_printf(buffer);
+        /* Clearing word with "    "  */
+        sprintf(word, "%8s", "");
     }
+}
+
+LOG*  _file_init(LOG *file)
+{
+    time_t secs;
+
+    file = malloc(sizeof(LOG));
+    if (file == NULL)
+    {
+        LOG_WARNING("Logging file was not created.");
+        return NULL;
+    }
+
+    file->name = malloc(sizeof(char) * MAX_NAME_LEN);
+    if (file->name == NULL)
+    {
+        LOG_WARNING("Logging file was not created.");
+        return NULL;
+    }
+    memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
+
+    /* Creating tmp name */
+    time(&secs);
+    sprintf(file->name, "tmp/%ld.log", secs);
+
+    /* Creating rel dir */
+    mkdir("tmp", 0777);
+    switch (errno)
+    {
+        case 0:
+            LOG_INFO("Directory tmp was created. [CODE %d]", errno);
+            break;
+        case EEXIST:
+            LOG_INFO("Directory tmp exists already. [CODE %d]", errno);
+            break;
+        default:
+            /* If dir is not created, opening file routine cleans up */
+            LOG_WARNING("Directory tmp was not created! [CODE %d]", errno);
+            break;
+    }
+
+    /* Opening file */
+    file->descriptor = fopen(file->name, "w");
+    if (file->descriptor == NULL)
+    {
+        LOG_WARNING("File was not created! [CODE %d]", errno);
+        free(file->name);
+        free(file);
+
+        return NULL;
+    }
+    else
+    {
+        LOG_INFO("File %s was opened.", file->name);
+        return file;
+    }
+}
+
+LOG* _file_close(LOG *file)
+{
+    if (file != NULL)
+    {
+        LOG_INFO("Closing file %s", file->name);
+        fflush(file->descriptor);
+        fclose(file->descriptor);
+
+        free(file->name);
+        free(file);
+    }
+
+    return NULL;
 }
 
 #ifdef __cplusplus
