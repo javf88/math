@@ -1,10 +1,12 @@
 /*******************************************************************************
 *
-* LOGGING SYSTEM
+* LOGGING SYSTEM - levels submodule
 *
 *   SUMMARY
-*       This is a single-header submodule that implements the basic logging
-*       functions on top of the posix *printf().
+*       This is a single-header submodule that implements the five logging
+*       levels, namely ERROR, WARNING, INFO, DEBUG, and TRACE.
+*       Each level is implemented as a macro, LOG_<LEVEL>(""), that is
+*       extending the function log_print().
 *
 *******************************************************************************/
 
