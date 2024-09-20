@@ -15,16 +15,7 @@ add_test(NAME memory.UnitTest
     COMMAND memory)
 
 # Logging system
-add_executable(log
-    log.c)
-
-target_link_libraries(log
-    PRIVATE unity::framework
-    PRIVATE apple_log)
-
-
-add_test(NAME log.UnitTest
-    COMMAND log)
+add_subdirectory(log)
 
 # Matrix algebra
 add_executable(algebra
