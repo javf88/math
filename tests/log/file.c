@@ -2,11 +2,11 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <unistd.h>
+
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "file.h"
-#include <stdint.h>
-#include <unity_internals.h>
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
@@ -63,11 +63,22 @@ void test_init(void)
     TEST_ASSERT_EQUAL_UINT32(1U, count);
 }
 
+void test_make(void)
+{
+    TEST_ASSERT_EQUAL_INT32(0, make("dummy"));
+    TEST_ASSERT_EQUAL_INT32(17, make("dummy"));
+    TEST_ASSERT_EQUAL_INT32(2, make("test/dummy"));
+
+    /* maybe at tearDown */
+    remove("dummy");
+}
+
 int main(void)
 {
     UNITY_BEGIN();
 
     RUN_TEST(test_init);
+    RUN_TEST(test_make);
 
     return UNITY_END();
 }
