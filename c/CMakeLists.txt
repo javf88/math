@@ -18,4 +18,4 @@ target_include_directories(apple_algebra
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_definitions(apple_algebra
-    INTERFACE $<TARGET_PROPERTY:apple_log,INTERFACE_COMPILE_DEFINITIONS>)
+    INTERFACE $<TARGET_PROPERTY:log,INTERFACE_COMPILE_DEFINITIONS>)

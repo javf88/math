@@ -8,7 +8,7 @@ add_executable(levels
 
 target_link_libraries(levels
     PRIVATE unity::framework
-    PRIVATE apple_log)
+    PRIVATE log)
 
 add_test(NAME levels.UnitTest
     COMMAND levels)
@@ -19,7 +19,7 @@ add_executable(file
 
 target_link_libraries(file
     PRIVATE unity::framework
-    PRIVATE apple_log)
+    PRIVATE log)
 
 add_test(NAME file.UnitTest
     COMMAND file)
