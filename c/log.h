@@ -10,6 +10,7 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -160,21 +161,20 @@ static const char *levelFormat[] =
 #define MAX_WORD_LEN  (25U)
 #define MAX_NAME_LEN  (50U)
 
-#define LOG_TEE  (1U)
-
-/* Default stream */
-#ifndef LOG_FILE
-#define LOG_FILE (stderr)
-#endif
-
-/* file handler */
+/* It seems that the LOG_TO_FILE-code should of in it own c-file.
+ * Code management would be easier. */
+#ifdef LOG_TO_FILE
 typedef struct Log
 {
     FILE *descriptor;
     char *name;
 } LOG;
 
+/* file handler */
 static LOG *file = NULL;
+
+#endif
+
 
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
@@ -213,17 +213,24 @@ void tee_printf(const char *str)
 {
     char buffer[MAX_STR_LEN];
 
-    fprintf(LOG_FILE, "%s", str);
-    if (LOG_TEE == 1U)
+    fprintf(stderr, "%s", str);
+#ifdef LOG_TO_FILE
+    if (file != NULL)
     {
-        sprintf(buffer, "%s", str);
-    }
+        /*
+        if (file->descriptor != NULL)
+        {
+            fprintf(file->descriptor, "%s", str);
+        }
+        */
+    } 
+#endif
 }
 
 void log_print(const uint32_t level, const char *src, const uint32_t line,
                const char *format, ...)
 {
-    char *srcStr = _get_src(level, src, line);
+    char  *srcStr = _get_src(level, src, line);
     char *msgStr = NULL;
     char buffer[MAX_STR_LEN];
 
@@ -279,46 +286,10 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
     }
 }
 
-LOG*  _file_init(LOG *file)
+#ifdef LOG_TO_FILE
+LOG* open(LOG *file)
 {
-    time_t secs;
-
-    file = malloc(sizeof(LOG));
-    if (file == NULL)
-    {
-        LOG_WARNING("Logging file was not created.");
-        return NULL;
-    }
-
-    file->name = malloc(sizeof(char) * MAX_NAME_LEN);
-    if (file->name == NULL)
-    {
-        LOG_WARNING("Logging file was not created.");
-        return NULL;
-    }
-    memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
-
-    /* Creating tmp name */
-    time(&secs);
-    sprintf(file->name, "tmp/%ld.log", secs);
-
-    /* Creating rel dir */
-    mkdir("tmp", 0777);
-    switch (errno)
-    {
-        case 0:
-            LOG_INFO("Directory tmp was created. [CODE %d]", errno);
-            break;
-        case EEXIST:
-            LOG_INFO("Directory tmp exists already. [CODE %d]", errno);
-            break;
-        default:
-            /* If dir is not created, opening file routine cleans up */
-            LOG_WARNING("Directory tmp was not created! [CODE %d]", errno);
-            break;
-    }
-
-    /* Opening file */
+    LOG *ret = NULL;
     file->descriptor = fopen(file->name, "w");
     if (file->descriptor == NULL)
     {
@@ -326,29 +297,119 @@ LOG*  _file_init(LOG *file)
         free(file->name);
         free(file);
 
-        return NULL;
+        ret = NULL;
     }
     else
     {
-        LOG_INFO("File %s was opened.", file->name);
-        return file;
+        LOG_INFO("File %s was created.", file->name);
+        ret = file;
+    }
+
+    return ret;
+}
+
+int32_t make(const char *dir)
+{
+    /* Creating rel dir */
+    mkdir(dir, 0777);
+    switch (errno)
+    {
+        case 0:
+            LOG_INFO("Directory %s was created. [CODE %d]", dir, errno);
+            break;
+        case EEXIST:
+            LOG_INFO("Directory %s exists already. [CODE %d]", dir, errno);
+            break;
+        default:
+            /* If dir is not created, opening file routine cleans up */
+            LOG_WARNING("Directory %s was not created! [CODE %d]", dir, errno);
+            break;
+    }
+
+    return errno;
+}
+
+int32_t name(LOG *file)
+{
+    int32_t ret ;
+
+    if (LOG_TO_FILE == 1U)
+    {
+        file->name = malloc(sizeof(char) * MAX_STR_LEN);
+        if (file->name == NULL)
+        {
+            LOG_WARNING("Logging file was not created.");
+            ret = -1;
+        }
+        else
+        {
+            /* Creating dir */
+            ret = make("tmp");
+            if (ret > -1)
+            {
+                time_t secs;
+                /* Creating tmp name */
+                time(&secs);
+                memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
+                sprintf(file->name, "tmp/%ld.log", secs);
+            }
+        }
+    }
+
+    return ret;
+}
+
+LOG* init(LOG *files)
+{
+    const LOG vec[2U] = {{stderr, "stderr"}, {NULL, NULL}};
+
+    if (files != NULL)
+    {
+        fprintf(stderr, "Logging module was not initialized.\n");
+        return files;
+    }
+
+    /* LOG_TO_FILE is either 0U or 1U */
+    files = (LOG*)malloc(sizeof(LOG) * 2U + LOG_TO_FILE);
+    memcpy(&files[LOG_TO_FILE], vec, sizeof(LOG) * 2U);
+
+    return files;
+}
+
+void constructor(LOG *file)
+{
+    int32_t exists;
+    file = init(file);
+    exists = name(file);
+    if (exists > -1)
+    {
+        open(file);
     }
 }
 
+#endif
+
+#ifdef LOG_TO_FILE
 LOG* _file_close(LOG *file)
 {
+    LOG_TRACE("%s is run.", __func__);
     if (file != NULL)
     {
         LOG_INFO("Closing file %s", file->name);
         fflush(file->descriptor);
         fclose(file->descriptor);
-
         free(file->name);
         free(file);
+
+        file->descriptor = NULL;
+        file->name = NULL;
+        file = NULL;
+        LOG_INFO("file->descriptor = NULL");
     }
 
     return NULL;
 }
+#endif
 
 #ifdef __cplusplus
 }

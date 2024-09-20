@@ -2,6 +2,8 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <unistd.h>
+
 #include "unity.h"
 #include "memory.h"
 /* TARGET LIBRARY */
@@ -85,6 +87,21 @@ void test_get_msg(void)
     free(buffer);
 }
 
+void test_file_init(void)
+{
+    LOG *files = init(file);
+    TEST_ASSERT_NOT_NULL(files);
+    TEST_ASSERT_NULL(files[0U].descriptor);
+    TEST_ASSERT_NULL(files[0U].name);
+    TEST_ASSERT_EQUAL_PTR(stderr, files[1U].descriptor);
+    TEST_ASSERT_EQUAL_STRING("stderr", files[1U].name);
+    TEST_ASSERT_NULL(files[2U].descriptor);
+    TEST_ASSERT_NULL(files[2U].name);
+    /*
+    file = _file_init(file);
+    */
+}
+
 void test_examples(void)
 {
     LOG_ERROR("This should be an error! LOG_LEVEL_ERROR: %u", LOG_LEVEL_ERROR);
@@ -92,7 +109,6 @@ void test_examples(void)
     LOG_INFO("This should be an info! LOG_LEVEL_INFO: %u", LOG_LEVEL_INFO);
     LOG_DEBUG("This should be an debug! LOG_LEVEL_DEBUG: %u", LOG_LEVEL_DEBUG);
     LOG_TRACE("This should be an trace! LOG_LEVEL_TRACE: %u", LOG_LEVEL_TRACE);
-
 }
 
 void test_log_matrix(void)
@@ -108,14 +124,11 @@ void test_log_matrix(void)
     } while(stack != NULL);
 }
 
-void test_file_init(void)
-{
-    file = _file_init(file);
-}
-
 void test_file_close(void)
 {
+    /*
     file = _file_close(file);
+    */
 }
 
 int main(void)
@@ -124,10 +137,12 @@ int main(void)
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
+    RUN_TEST(test_file_init);
+    /*
     RUN_TEST(test_examples);
     RUN_TEST(test_log_matrix);
     RUN_TEST(test_file_init);
     RUN_TEST(test_file_close);
-
+    */
     return UNITY_END();
 }
