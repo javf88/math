@@ -2,10 +2,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <unistd.h>
-
 #include "unity.h"
-#include "memory.h"
 /* TARGET LIBRARY */
 #include "levels.h"
 
