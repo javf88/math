@@ -76,8 +76,6 @@ void test_name(void)
     name(&newFile);
     sprintf(filename, "tmp/%ld.log", secs);
     TEST_ASSERT_EQUAL_STRING(filename, newFile.name);
-
-    remove("tmp");
 }
 
 void test_open(void)
@@ -85,6 +83,11 @@ void test_open(void)
     char filename[] = "test.log";
     LOG newFile = {NULL, filename};
     TEST_ASSERT_EQUAL_PTR(&newFile, open(&newFile));
+
+    fflush(newFile.descriptor);
+    fclose(newFile.descriptor);
+
+    remove(filename);
 }
 
 void test_constructor(void)
@@ -106,6 +109,8 @@ void test_constructor(void)
     free(file[0U].name);
     free(file);
     file = NULL;
+
+    remove(filename);
 }
 
 void test_destructor(void)
