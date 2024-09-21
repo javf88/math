@@ -2,10 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
-
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "file.h"
