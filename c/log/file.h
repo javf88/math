@@ -2,7 +2,11 @@
 *
 * LOGGING SYSTEM
 *
-*   SUMMARY
+*   SUMMARY - file submodule
+*       This single-header submodule implements the logging to file feature
+*       of the logging module.
+*       It boils down to two APIs that are automatically call before and 
+*       after the main() function.
 *
 *******************************************************************************/
 
@@ -138,7 +142,6 @@ void destructor(void)
 
     return;
 }
-
 
 static LOG* init(LOG *files, uint32_t toFileFlag)
 {
