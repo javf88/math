@@ -21,5 +21,8 @@ target_link_libraries(file
     PRIVATE unity::framework
     PRIVATE log)
 
+target_compile_definitions(file
+    PRIVATE LOG_UNIT_TEST)
+
 add_test(NAME file.UnitTest
     COMMAND file)

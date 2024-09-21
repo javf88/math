@@ -27,11 +27,34 @@ extern "C" {
 /*    DEFINITIONS                                                             */
 /******************************************************************************/
 
+/* Using C-attribute to force init(c'tor) and shutdown(d'tor) of a file. */
+#ifdef LOG_TO_FILE
+    #define LOG_CONSTRUCTOR __attribute__((constructor))
+#else
+    #define LOG_CONSTRUCTOR
+#endif
+
+#ifdef LOG_TO_FILE
+    #define LOG_DESTRUCTOR __attribute__((destructor))
+#else
+    #define LOG_DESTRUCTOR
+#endif
 
 /******************************************************************************/
-/*    PUBLIC FUNCTION-LIKE MACRO                                             */
+/*    API                                                                     */
 /******************************************************************************/
 
+#ifdef LOG_UNIT_TEST
+    #define CONSTRUCTOR
+    #define DESTRUCTOR
+#else
+    #define CONSTRUCTOR    LOG_CONSTRUCTOR
+    #define DESTRUCTOR     LOG_DESTRUCTOR
+#endif
+
+CONSTRUCTOR void constructor(void);
+
+DESTRUCTOR void destructor(void);
 
 /******************************************************************************/
 /*    PRIVATE DATA                                                            */
@@ -49,94 +72,20 @@ static LOG *file = NULL;
 #define MAX_NAME_LEN  (50U)
 
 /******************************************************************************/
-/*    IMPLEMENTATION                                                          */
+/*    STATIC FUNCTION PROTOTYPES                                              */
 /******************************************************************************/
 
-LOG* init(LOG *files, uint32_t toFileFlag)
-{
-    const LOG vec[2U] = {{stderr, "stderr"}, {NULL, NULL}};
+static LOG* init(LOG *files, uint32_t toFileFlag);
 
-    if (files != NULL)
-    {
-        fprintf(stderr, "Logging module was not initialized.\n");
-        return files;
-    }
+static int32_t make(const char *dir);
 
-    files = (LOG*)malloc(sizeof(LOG) * 2U + toFileFlag);
-    memcpy(&files[toFileFlag], vec, sizeof(LOG) * 2U);
+static int32_t name(LOG *file);
 
-    return files;
-}
+static LOG* open(LOG *file);
 
-int32_t make(const char *dir)
-{
-    /* Creating rel dir */
-    mkdir(dir, 0777);
-    switch (errno)
-    {
-        case 0:
-            fprintf(stderr,"Directory %s was created. [CODE %d]", dir, errno);
-            break;
-        case EEXIST:
-            fprintf(stderr,"Directory %s exists already. [CODE %d]", dir, errno);
-            break;
-        case ENOENT:
-        default:
-            /* If dir is not created, opening file routine cleans up */
-            fprintf(stderr,"Directory %s was not created! [CODE %d]", dir, errno);
-            break;
-    }
-
-    return errno;
-}
-
-int32_t name(LOG *file)
-{
-    int32_t ret;
-
-    file->name = malloc(sizeof(char) * MAX_STR_LEN);
-    if (file->name == NULL)
-    {
-        LOG_WARNING("Logging file was not created.");
-        ret = -1;
-    }
-    else
-    {
-        /* Creating dir */
-        ret = make("tmp");
-        if (ret > -1)
-        {
-            time_t secs;
-            /* Creating tmp name */
-            time(&secs);
-            memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
-            sprintf(file->name, "tmp/%ld.log", secs);
-        }
-    }
-
-    return ret;
-}
-
-LOG* open(LOG *file)
-{
-    LOG *ret = NULL;
-    file->descriptor = fopen(file->name, "w");
-    if (file->descriptor == NULL)
-    {
-        LOG_WARNING("File was not created! [CODE %d]", errno);
-        free(file->name);
-        free(file);
-
-        ret = NULL;
-    }
-    else
-    {
-        LOG_INFO("File %s was created.", file->name);
-        ret = file;
-    }
-
-    return ret;
-}
+/******************************************************************************/
+/*    IMPLEMENTATION                                                          */
+/******************************************************************************/
 
 void constructor(void)
 {
@@ -173,6 +122,94 @@ void destructor(void)
     file = NULL;
 
     return;
+}
+
+
+static LOG* init(LOG *files, uint32_t toFileFlag)
+{
+    const LOG vec[2U] = {{stderr, "stderr"}, {NULL, NULL}};
+
+    if (files != NULL)
+    {
+        fprintf(stderr, "Logging module was not initialized.\n");
+        return files;
+    }
+
+    /* Creatign a vector of size 2 or 3  */
+    files = (LOG*)malloc(sizeof(LOG) * 2U + toFileFlag);
+    memcpy(&files[toFileFlag], vec, sizeof(LOG) * 2U);
+
+    return files;
+}
+
+static int32_t make(const char *dir)
+{
+    /* Creating rel dir */
+    mkdir(dir, 0777);
+    switch (errno)
+    {
+        case 0:
+            fprintf(stderr,"Directory %s was created. [CODE %d]", dir, errno);
+            break;
+        case EEXIST:
+            fprintf(stderr,"Directory %s exists already. [CODE %d]", dir, errno);
+            break;
+        case ENOENT:
+        default:
+            /* If dir is not created, opening file routine cleans up */
+            fprintf(stderr,"Directory %s was not created! [CODE %d]", dir, errno);
+            break;
+    }
+
+    return errno;
+}
+
+static int32_t name(LOG *file)
+{
+    int32_t ret;
+
+    file->name = malloc(sizeof(char) * MAX_STR_LEN);
+    if (file->name == NULL)
+    {
+        LOG_WARNING("Logging file was not created.");
+        ret = -1;
+    }
+    else
+    {
+        /* Creating dir */
+        ret = make("tmp");
+        if (ret > -1)
+        {
+            time_t secs;
+            /* Creating tmp name */
+            time(&secs);
+            memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
+            sprintf(file->name, "tmp/%ld.log", secs);
+        }
+    }
+
+    return ret;
+}
+
+static LOG* open(LOG *file)
+{
+    LOG *ret = NULL;
+    file->descriptor = fopen(file->name, "w");
+    if (file->descriptor == NULL)
+    {
+        LOG_WARNING("File was not created! [CODE %d]", errno);
+        free(file->name);
+        free(file);
+
+        ret = NULL;
+    }
+    else
+    {
+        LOG_INFO("File %s was created.", file->name);
+        ret = file;
+    }
+
+    return ret;
 }
 
 #ifdef __cplusplus
