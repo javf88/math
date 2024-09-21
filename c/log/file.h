@@ -114,6 +114,9 @@ void constructor(void)
 
 void destructor(void)
 {
+    /* from levels.h */
+    toFile = NULL;
+
     log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Calling destructor().");
     if (file != NULL)
     {
@@ -132,8 +135,6 @@ void destructor(void)
     }
 
     file = NULL;
-    /* from levels.h */
-    toFile = NULL;
 
     return;
 }

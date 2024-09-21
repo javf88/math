@@ -26,3 +26,14 @@ target_compile_definitions(file
 
 add_test(NAME file.UnitTest
     COMMAND file)
+
+# log module
+add_executable(logModule
+    log.c)
+
+target_link_libraries(logModule
+    PRIVATE unity::framework
+    PRIVATE log)
+
+add_test(NAME log.ModuleTest
+    COMMAND logModule)
