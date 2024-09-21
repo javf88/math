@@ -105,6 +105,8 @@ void constructor(void)
     if (exists > -1)
     {
         open(file);
+        /* from levels.h */
+        toFile = file->descriptor;
     }
 
     return;
@@ -130,6 +132,8 @@ void destructor(void)
     }
 
     file = NULL;
+    /* from levels.h */
+    toFile = NULL;
 
     return;
 }
