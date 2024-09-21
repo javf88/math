@@ -52,8 +52,16 @@ extern "C" {
     #define DESTRUCTOR     LOG_DESTRUCTOR
 #endif
 
+/**
+ * @brief   Function that is called before main(), and it should NOT be
+ *          called explicitly
+ */
 CONSTRUCTOR void constructor(void);
 
+/**
+ * @brief   Function that is called after main(), and it should NOY be
+ *          called explicitly
+ */
 DESTRUCTOR void destructor(void);
 
 /******************************************************************************/
@@ -90,6 +98,7 @@ static LOG* open(LOG *file);
 void constructor(void)
 {
     int32_t exists;
+    log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Calling constructor().");
 
     file = init(file, LOG_TO_FILE);
     exists = name(file);
@@ -103,11 +112,12 @@ void constructor(void)
 
 void destructor(void)
 {
+    log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Calling destructor().");
     if (file != NULL)
     {
         for (LOG *itr = file; itr->name != NULL; itr++)
         {
-            printf("Closing file %s, %p\n", itr->name, itr->name);
+            log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "Closing file %s", itr->name);
             fflush(itr->descriptor);
             fclose(itr->descriptor);
             if (strcmp(itr->name, "stderr") != 0)
@@ -131,7 +141,7 @@ static LOG* init(LOG *files, uint32_t toFileFlag)
 
     if (files != NULL)
     {
-        fprintf(stderr, "Logging module was not initialized.\n");
+        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Logging module was not initialized.");
         return files;
     }
 
@@ -149,15 +159,15 @@ static int32_t make(const char *dir)
     switch (errno)
     {
         case 0:
-            fprintf(stderr,"Directory %s was created. [CODE %d]", dir, errno);
+            log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "Directory %s was created. [CODE %d]", dir, errno);
             break;
         case EEXIST:
-            fprintf(stderr,"Directory %s exists already. [CODE %d]", dir, errno);
+            log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Directory %s exists already. [CODE %d]", dir, errno);
             break;
         case ENOENT:
         default:
             /* If dir is not created, opening file routine cleans up */
-            fprintf(stderr,"Directory %s was not created! [CODE %d]", dir, errno);
+            log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Directory %s was not created! [CODE %d]", dir, errno);
             break;
     }
 
@@ -171,7 +181,7 @@ static int32_t name(LOG *file)
     file->name = malloc(sizeof(char) * MAX_STR_LEN);
     if (file->name == NULL)
     {
-        LOG_WARNING("Logging file was not created.");
+        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Logging file was not created.");
         ret = -1;
     }
     else
@@ -197,7 +207,7 @@ static LOG* open(LOG *file)
     file->descriptor = fopen(file->name, "w");
     if (file->descriptor == NULL)
     {
-        LOG_WARNING("File was not created! [CODE %d]", errno);
+        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "File was not created! [CODE %d]", errno);
         free(file->name);
         free(file);
 
@@ -205,7 +215,7 @@ static LOG* open(LOG *file)
     }
     else
     {
-        LOG_INFO("File %s was created.", file->name);
+        log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "File %s was created.", file->name);
         ret = file;
     }
 
