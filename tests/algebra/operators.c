@@ -27,30 +27,32 @@ void tearDown(void)
 
 void test_transpose(void)
 {
-    MATRIX *A = push_matrix(2U, 4U);
+    MATRIX *A = NULL;
+    /* Wrong input */
+    A = transpose(A);
+    TEST_ASSERT_NULL(A);
+
+    A = push_matrix(2U, 4U);
     TEST_ASSERT_NOT_NULL(A);
 
     for (uint32_t i = 0; i < A->rows; i++)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            A->val[4U * i + j] = A->cols * i + j;
+            uint32_t pos = A(i, j);
+            A->val[pos] = pos;
         }
     }
 
-    /* Wrong input */
-    MATRIX *B = transpose(NULL);
-    TEST_ASSERT_NULL(B);
-
-    B = transpose(A);
+    MATRIX *B = transpose(A);
     TEST_ASSERT_NOT_NULL(B);
 
     for (uint32_t i = 0; i < A->rows; i++)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            uint32_t pos = A->cols * i + j;
-            uint32_t posT = A->rows * j + i;
+            uint32_t pos = A(i, j);
+            uint32_t posT = AT(i, j);
 
             TEST_ASSERT_EQUAL_FLOAT(A->val[pos], B->val[posT]);
         }
@@ -71,17 +73,19 @@ void test_add(void)
     MATRIX *B = push_matrix(3U, 5U);
     TEST_ASSERT_NOT_NULL(B);
 
-    for (uint32_t i = 0; i < 3U; i++)
+    for (uint32_t i = 0; i < A->rows; i++)
     {
-        for (uint32_t j = 0; j < 5U; j++)
+        for (uint32_t j = 0; j < A->cols; j++)
         {
-            A->val[5U * i + j] = 5U * i + j;
-            B->val[5U * i + j] = 5U * i + j;
+            A->val[A->cols * i + j] = A->cols * i + j;
+            B->val[A->cols * i + j] = A->cols * i + j;
         }
     }
 
     MATRIX *C = add(A, B);
     TEST_ASSERT_NOT_NULL(C);
+    C = add(A, NULL);
+    TEST_ASSERT_NULL(C);
 
     for (uint32_t i = 0; i < 3U; i++)
     {
