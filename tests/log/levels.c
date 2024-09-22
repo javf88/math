@@ -3,7 +3,8 @@
 /******************************************************************************/
 
 #include "unity.h"
-/* TARGET LIBRARY */
+/* TARGET LIBRARIES */
+#include "memory.h"
 #include "levels.h"
 
 /******************************************************************************/
@@ -84,12 +85,26 @@ void test_get_msg(void)
     free(buffer);
 }
 
+void test_log_matrix(void)
+{
+    MATRIX *A = push_matrix(5U, 5U);
+    /* TODO: need to add write to file, and compare against */
+    LOG_INFO_MATRIX(A);
+
+    do {
+        /* The stack starts with a non-NULL value */
+        TEST_ASSERT_NOT_NULL(stack);
+        stack = pop_matrix(stack);
+    } while(stack != NULL);
+}
+
 int main(void)
 {
     UNITY_BEGIN();
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
+    RUN_TEST(test_log_matrix);
 
     return UNITY_END();
 }
