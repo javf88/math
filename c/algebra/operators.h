@@ -26,10 +26,6 @@ extern "C" {
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <stdio.h>
-#include <float.h>
-#include <math.h>
-
 #include "memory.h"
 #include "levels.h"
 
