@@ -77,24 +77,32 @@ void test_add(void)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            A->val[A->cols * i + j] = A->cols * i + j;
-            B->val[A->cols * i + j] = A->cols * i + j;
+            uint32_t pos = A(i, j);
+            A->val[pos] = B->val[pos] = pos;
         }
     }
 
-    MATRIX *C = add(A, B);
-    TEST_ASSERT_NOT_NULL(C);
-    C = add(A, NULL);
+    /* Wrong input */
+    MATRIX *C = add(A, NULL);
     TEST_ASSERT_NULL(C);
 
-    for (uint32_t i = 0; i < 3U; i++)
+    C = add(NULL, B);
+    TEST_ASSERT_NULL(C);
+
+    C = add(NULL, NULL);
+    TEST_ASSERT_NULL(C);
+
+    C = add(A, B);
+    for (uint32_t i = 0; i < A->rows; i++)
     {
-        for (uint32_t j = 0; j < 5U; j++)
+        for (uint32_t j = 0; j < A->cols; j++)
         {
-            TEST_ASSERT_EQUAL_FLOAT(C->val[5U * i + j], 2U * (5U * i + j));
+            uint32_t pos = A(i, j);
+            TEST_ASSERT_EQUAL_FLOAT(C->val[pos], 2U * pos);
         }
     }
 
+    /* Wrong sizes */
     MATRIX *D = push_matrix(2U, 2U);
     MATRIX *E = add(C, D);
     TEST_ASSERT_NULL(E);
@@ -258,7 +266,7 @@ int main(void)
     UNITY_BEGIN();
 
     RUN_TEST(test_transpose);
-//    RUN_TEST(test_add);
+    RUN_TEST(test_add);
 //    RUN_TEST(test_subs);
 //    RUN_TEST(test_mult);
 //    RUN_TEST(test_id);
