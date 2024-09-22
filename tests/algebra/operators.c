@@ -18,6 +18,12 @@ void setUp(void)
 
 void tearDown(void)
 {
+    do {
+        /* The stack starts with a non-NULL value */
+        TEST_ASSERT_NOT_NULL(stack);
+        stack = pop_matrix(stack);
+    } while(stack != NULL);
+
     return;
 }
 
@@ -57,12 +63,6 @@ void test_transpose(void)
             TEST_ASSERT_EQUAL_FLOAT(A->val[pos], B->val[posT]);
         }
     }
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 void test_add(void)
@@ -106,12 +106,6 @@ void test_add(void)
     MATRIX *D = push_matrix(2U, 2U);
     MATRIX *E = add(C, D);
     TEST_ASSERT_NULL(E);
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 void test_sub(void)
@@ -157,12 +151,6 @@ void test_sub(void)
     MATRIX *D = push_matrix(2U, 2U);
     MATRIX *E = sub(B, D);
     TEST_ASSERT_NULL(E);
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 void test_mult(void)
@@ -223,12 +211,6 @@ void test_mult(void)
     MATRIX *D = push_matrix(2U, 2U);
     MATRIX *E = mult(D, E);
     TEST_ASSERT_NULL(E);
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 void test_id(void)
@@ -255,12 +237,6 @@ void test_id(void)
             }
         }
     }
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 void test_permute(void)
@@ -279,12 +255,6 @@ void test_permute(void)
     {
         TEST_ASSERT_EQUAL_FLOAT(expI[i], I->val[i]);
     }
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
 }
 
 int main(void)

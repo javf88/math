@@ -1,16 +1,23 @@
 /*******************************************************************************
 *
-* Matrix Algebra
+* Matrix Algebra - matrix operators
 *
 *   SUMMARY
+*       This is a single-header submodule that implements some basic 
+*       algebraic operators for matrices:
+*
+*       - transpose
+*       - addition
+*       - subtraction
+*       - multiplication
+*       - Identity matrix
+*       - Row-permutation matrix
 *
 *******************************************************************************/
 
 #ifndef OPERATORS_H_
 #define OPERATORS_H_
 
-#include <stdint.h>
-#include <string.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,15 +37,53 @@ extern "C" {
 /*    DEFINITIONS                                                             */
 /******************************************************************************/
 
-/* Some function-like operators */
-/* Mappings from a matrix, A[i, j], to C-contiguous */
+/* Mapping from a matrix, A[i, j], to C-contiguous layout */
 #define TO_C_CONT(A, row, col) A->cols * row + col
 
-/* Mappings from a matrix, AT[i, j], to Fortran-contiguous */
+/* Mapping from a matrix, AT[i, j], to Fortran-contiguous layout */
 #define TO_F_CONT(A, row, col) A->rows * col + row
 
 /******************************************************************************/
-/*    PRIVATE DATA AND IMPLEMENTATION                                         */
+/*    API                                                                     */
+/******************************************************************************/
+
+/**
+ * @brief   Function that transpose a matrix
+ *
+ * @summary MATRIX's memory layout is c-contiguous. When it is transposed
+ *          it yields a MATRIX with the Fortran-contiguous layout.
+ */
+MATRIX* transpose(MATRIX *A);
+
+/**
+ * @brief   Function that adds to matrices of the same size/dimension.
+ */
+MATRIX* add(MATRIX *A, MATRIX *B);
+
+/**
+ * @brief   Function that subtracts to matrices of the same size/dimension.
+ */
+MATRIX* sub(MATRIX *A, MATRIX *B);
+
+/**
+ * @brief   Function that multiplies to matrices if their dimensions
+ *          are appropiate.
+ */
+MATRIX* mult(MATRIX *A, MATRIX *B);
+
+/**
+ * @brief   Function that generated an identity matrix of dimension size.
+ */
+MATRIX* id(uint32_t size);
+
+/**
+ * @brief   Function that swap two rows of an identity matrix, to generate
+ *          a row-permutation matrix.
+ */
+MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b);
+
+/******************************************************************************/
+/*    IMPLEMENTATION                                                          */
 /******************************************************************************/
 
 MATRIX* transpose(MATRIX *A)
