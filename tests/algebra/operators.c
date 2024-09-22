@@ -233,23 +233,25 @@ void test_mult(void)
 
 void test_id(void)
 {
+    /* TODO: to improve push when size is 0U */
     MATRIX *A = id(0U);
     TEST_ASSERT_NOT_NULL(A);
 
-    MATRIX *B = id(4U);
-    TEST_ASSERT_NOT_NULL(B);
+    A = id(4U);
+    TEST_ASSERT_NOT_NULL(A);
 
-    for (uint32_t i = 0U; i < B->rows; i++)
+    for (uint32_t i = 0U; i < A->rows; i++)
     {
-        for (uint32_t j = 0U; j < B->cols; j++)
+        for (uint32_t j = 0U; j < A->cols; j++)
         {
+            uint32_t pos = TO_C_CONT(A, i, j);
             if (i == j)
             {
-                TEST_ASSERT_EQUAL_FLOAT(1.0F, B->val[B->cols * i + j]);
+                TEST_ASSERT_EQUAL_FLOAT(1.0F, A->val[pos]);
             }
             else
             {
-                TEST_ASSERT_EQUAL_FLOAT(0.0F, B->val[B->cols * i + j]);
+                TEST_ASSERT_EQUAL_FLOAT(0.0F, A->val[pos]);
             }
         }
     }
@@ -292,7 +294,7 @@ int main(void)
     RUN_TEST(test_add);
     RUN_TEST(test_sub);
     RUN_TEST(test_mult);
-//    RUN_TEST(test_id);
+    RUN_TEST(test_id);
 //    RUN_TEST(test_permute);
 
     return UNITY_END();
