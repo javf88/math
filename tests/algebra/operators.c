@@ -265,19 +265,20 @@ void test_id(void)
 
 void test_permute(void)
 {
-    MATRIX *I = id(5U);
+    MATRIX *I = NULL;
     float expI[25U] = {0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F};
 
-    permute(I, 2U, 5U);
+    /* wrong arguments */
+    I = permute(I, 2U, 5U);
+    TEST_ASSERT_NULL(I);
+    I = permute(id(5U), 2U, 5U);
     TEST_ASSERT_NOT_NULL(I);
-    LOG_INFO_MATRIX(I);
 
     permute(I, 4U, 0U);
-    for (uint32_t i = 0U; i < 5U * 5U; i++)
+    for (uint32_t i = 0U; i < I->rows * I->cols; i++)
     {
         TEST_ASSERT_EQUAL_FLOAT(expI[i], I->val[i]);
     }
-    LOG_INFO_MATRIX(I);
 
     do {
         /* The stack starts with a non-NULL value */
@@ -295,7 +296,7 @@ int main(void)
     RUN_TEST(test_sub);
     RUN_TEST(test_mult);
     RUN_TEST(test_id);
-//    RUN_TEST(test_permute);
+    RUN_TEST(test_permute);
 
     return UNITY_END();
 }

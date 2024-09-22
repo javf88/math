@@ -185,7 +185,7 @@ MATRIX* id(uint32_t size)
         return NULL;
     }
 
-    memset(I, 0U, I->rows * I->cols);
+    memset(I->val, 0U, I->rows * I->cols);
     for (uint32_t i = 0U; i < I->rows; i++)
     {
         uint32_t pos = TO_C_CONT(I, i, i);
@@ -195,25 +195,33 @@ MATRIX* id(uint32_t size)
     return I;
 }
 
-MATRIX* permute(MATRIX *P, uint32_t a, uint32_t b)
+MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
 {
-    if (P->rows <= a || P->rows <= b)
+    if (I == NULL)
     {
-        LOG_ERROR("Permutation indecis(%u,%u) are out of range(Id[%u])", a, b, P->rows);
-        return P;
+        LOG_WARNING("Nothing to swap: Empty matrix!");
+        return (MATRIX*) NULL;
+    }
+    else
+    {
+        if (I->rows <= a || I->rows <= b)
+        {
+            LOG_ERROR("Permutation indecis(%u,%u) are out of range 0...%d (Id[%u])", a, b, I->rows - 1U, I->rows);
+            return I;
+        }
     }
 
     /* permuting(swapping) I[a,*] with I[b,*] rows */
-    float *posA = &P->val[P->cols * a + a];
-    float *posB = &P->val[P->cols * b + b];
+    float *posA = &I->val[I->cols * a + a];
+    float *posB = &I->val[I->cols * b + b];
 
-    float *newA = &P->val[P->cols * a + b];
-    float *newB = &P->val[P->cols * b + a];
+    float *newA = &I->val[I->cols * a + b];
+    float *newB = &I->val[I->cols * b + a];
 
-    posA[0] = posB[0] = 0.0F;
-    newA[0] = newB[0] = 1.0F;
+    posA[0U] = posB[0U] = 0.0F;
+    newA[0U] = newB[0U] = 1.0F;
 
-    return P;
+    return I;
 }
 
 #ifdef __cplusplus
