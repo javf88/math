@@ -15,7 +15,6 @@
 #ifndef ALGEBRA_H_
 #define ALGEBRA_H_
 
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,7 +28,7 @@ extern "C" {
 #include <math.h>
 
 #include "memory.h"
-#include "log.h"
+#include "levels.h"
 
 /******************************************************************************/
 /*    PRIVATE DATA AND IMPLEMENTATION                                         */

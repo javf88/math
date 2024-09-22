@@ -23,6 +23,8 @@ add_executable(algebra
 
 target_link_libraries(algebra
     PRIVATE unity::framework
+    PRIVATE apple_memory
+    PRIVATE log
     PRIVATE apple_algebra)
 
 add_test(NAME algebra.UnitTest
