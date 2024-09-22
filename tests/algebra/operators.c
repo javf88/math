@@ -39,7 +39,7 @@ void test_transpose(void)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            uint32_t pos = A(i, j);
+            uint32_t pos = TO_C_CONT(A, i, j);
             A->val[pos] = pos;
         }
     }
@@ -51,8 +51,8 @@ void test_transpose(void)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            uint32_t pos = A(i, j);
-            uint32_t posT = AT(i, j);
+            uint32_t pos = TO_C_CONT(A, i, j);
+            uint32_t posT = TO_F_CONT(A, i, j);
 
             TEST_ASSERT_EQUAL_FLOAT(A->val[pos], B->val[posT]);
         }
@@ -77,7 +77,7 @@ void test_add(void)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            uint32_t pos = A(i, j);
+            uint32_t pos = TO_C_CONT(A, i, j);
             A->val[pos] = B->val[pos] = pos;
         }
     }
@@ -97,7 +97,7 @@ void test_add(void)
     {
         for (uint32_t j = 0; j < A->cols; j++)
         {
-            uint32_t pos = A(i, j);
+            uint32_t pos = TO_C_CONT(A, i, j);
             TEST_ASSERT_EQUAL_FLOAT(C->val[pos], 2U * pos);
         }
     }
@@ -114,7 +114,7 @@ void test_add(void)
     } while(stack != NULL);
 }
 
-void test_subs(void)
+void test_sub(void)
 {
     MATRIX *A = push_matrix(5U, 3U);
     TEST_ASSERT_NOT_NULL(A);
@@ -122,28 +122,40 @@ void test_subs(void)
     MATRIX *B = push_matrix(5U, 3U);
     TEST_ASSERT_NOT_NULL(B);
 
-    for (uint32_t i = 0; i < 5U; i++)
+    for (uint32_t i = 0; i < A->rows; i++)
     {
-        for (uint32_t j = 0; j < 3U; j++)
+        for (uint32_t j = 0; j < A->cols; j++)
         {
-            A->val[3U * i + j] = 3U * i + j;
-            B->val[3U * i + j] = 3U * i + j;
+            uint32_t pos = TO_C_CONT(A, i, j);
+            A->val[pos] = B->val[pos] = pos;
         }
     }
 
-    MATRIX *C = subs(A, B);
+    /* Wrong input */
+    MATRIX *C = sub(A, NULL);
+    TEST_ASSERT_NULL(C);
+
+    C = sub(NULL, B);
+    TEST_ASSERT_NULL(C);
+
+    C = sub(NULL, NULL);
+    TEST_ASSERT_NULL(C);
+
+    C = sub(A, B);
     TEST_ASSERT_NOT_NULL(C);
 
-    for (uint32_t i = 0; i < 5U; i++)
+    for (uint32_t i = 0; i < A->rows; i++)
     {
-        for (uint32_t j = 0; j < 3U; j++)
+        for (uint32_t j = 0; j < A->cols; j++)
         {
-            TEST_ASSERT_EQUAL_FLOAT(C->val[3U * i + j], 0U);
+            uint32_t pos = TO_C_CONT(A, i, j);
+            TEST_ASSERT_EQUAL_FLOAT(C->val[pos], 0.0F);
         }
     }
 
+    /* Wrong sizes */
     MATRIX *D = push_matrix(2U, 2U);
-    MATRIX *E = subs(B, D);
+    MATRIX *E = sub(B, D);
     TEST_ASSERT_NULL(E);
 
     do {
@@ -158,15 +170,26 @@ void test_mult(void)
     MATRIX *A = push_matrix(4U, 1U);
     TEST_ASSERT_NOT_NULL(A);
 
-    for (uint32_t i = 0; i < 4U; i++)
+    for (uint32_t i = 0; i < A->rows; i++)
     {
-        A->val[i] = 1;
+        A->val[i] = 1.0F;
     }
 
     MATRIX *AT = transpose(A);
     TEST_ASSERT_NOT_NULL(AT);
 
-    MATRIX *ATA = mult(AT,A);
+    /* Wrong input */
+    MATRIX *ATA = mult(AT, NULL);
+    TEST_ASSERT_NULL(ATA);
+
+    ATA = mult(NULL, A);
+    TEST_ASSERT_NULL(ATA);
+
+    ATA = sub(NULL, NULL);
+    TEST_ASSERT_NULL(ATA);
+
+    /* dot product */
+    ATA = mult(AT,A);
     TEST_ASSERT_NOT_NULL(ATA);
     TEST_ASSERT_EQUAL_UINT32(1U, ATA->rows);
     TEST_ASSERT_EQUAL_UINT32(1U, ATA->cols);
@@ -175,12 +198,12 @@ void test_mult(void)
     A = push_matrix(3U, 7U);
     MATRIX *B = push_matrix(7U, 4U);
 
-    for (uint32_t i = 0U; i < 3U * 7U; i++)
+    for (uint32_t i = 0U; i < A->rows * A->cols; i++)
     {
         A->val[i] = 1.0F;
     }
 
-    for (uint32_t i = 0U; i < 7U * 4U; i++)
+    for (uint32_t i = 0U; i < B->rows * B->cols; i++)
     {
         B->val[i] = 2.0F;
     }
@@ -189,11 +212,11 @@ void test_mult(void)
     TEST_ASSERT_EQUAL_UINT32(3U, C->rows);
     TEST_ASSERT_EQUAL_UINT32(4U, C->cols);
 
-    for (uint32_t i = 0U; i < 3U; i++)
+    for (uint32_t i = 0U; i < A->rows; i++)
     {
-        for (uint32_t j = 0U; j < 4U; j++)
+        for (uint32_t j = 0U; j < B->cols; j++)
         {
-            TEST_ASSERT_EQUAL_FLOAT(14.0F, C->val[4U * i + j]);
+            TEST_ASSERT_EQUAL_FLOAT(14.0F, C->val[TO_C_CONT(C, i, j)]);
         }
     }
 
@@ -267,8 +290,8 @@ int main(void)
 
     RUN_TEST(test_transpose);
     RUN_TEST(test_add);
-//    RUN_TEST(test_subs);
-//    RUN_TEST(test_mult);
+    RUN_TEST(test_sub);
+    RUN_TEST(test_mult);
 //    RUN_TEST(test_id);
 //    RUN_TEST(test_permute);
 
