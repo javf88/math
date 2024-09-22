@@ -9,6 +9,8 @@
 #ifndef OPERATORS_H_
 #define OPERATORS_H_
 
+#include <stdint.h>
+#include <string.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -183,9 +185,11 @@ MATRIX* id(uint32_t size)
         return NULL;
     }
 
+    memset(I, 0U, I->rows * I->cols);
     for (uint32_t i = 0U; i < I->rows; i++)
     {
-        I->val[I->cols * i + i] = 1.0F;
+        uint32_t pos = TO_C_CONT(I, i, i);
+        I->val[pos] = 1.0F;
     }
 
     return I;
