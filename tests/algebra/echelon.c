@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include "levels.h"
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "echelon.h"
@@ -39,7 +38,7 @@ void test_get_row(void)
     newRow = get_row(A, 1U);
     TEST_ASSERT_EQUAL_UINT32(3U, newRow);
 
-    /* not pivot in 2nd row*/
+    /* no pivot in 2nd row*/
     newRow = get_row(A, 2U);
     TEST_ASSERT_EQUAL_UINT32(A->rows, newRow);
 
