@@ -71,6 +71,7 @@ MATRIX* echelon(MATRIX *A)
         {
             /* Removing unused matrix L_(j) */
             stack = pop_matrix(stack);
+            LOG_WARNING("The matrix A is singular.");
             return A;
         }
 
@@ -79,8 +80,6 @@ MATRIX* echelon(MATRIX *A)
             /* Let us place the right coef under the pivot (a[i,i]) */
             float a = A->val[A->cols * i + j];
 
-            /* If pivot is numerically zero, the rest of the column should
-             * tested for zeros. If they are all zero, then the matrix is singular. */
             LOG_INFO("a: %.7f", a);
             L->val[A->cols * i + j] = -1.0F * a / pivot[0];
         }
