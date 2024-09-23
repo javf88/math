@@ -30,16 +30,6 @@ extern "C" {
 #include "levels.h"
 
 /******************************************************************************/
-/*    DEFINITIONS                                                             */
-/******************************************************************************/
-
-/* Mapping from a matrix, A[i, j], to C-contiguous layout */
-#define TO_C_CONT(A, row, col) A->cols * row + col
-
-/* Mapping from a matrix, AT[i, j], to Fortran-contiguous layout */
-#define TO_F_CONT(A, row, col) A->rows * col + row
-
-/******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
 
