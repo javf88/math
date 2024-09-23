@@ -238,6 +238,12 @@ MATRIX* id(uint32_t size)
 
 MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
 {
+    float *posA = NULL;
+    float *posB = NULL;
+
+    float *newA = NULL;
+    float *newB = NULL;
+
     if (I == NULL)
     {
         LOG_WARNING("Nothing to swap: Empty matrix!");
@@ -253,11 +259,12 @@ MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
     }
 
     /* permuting(swapping) I[a,*] with I[b,*] rows */
-    float *posA = &I->val[I->cols * a + a];
-    float *posB = &I->val[I->cols * b + b];
+    LOG_INFO("Swapping row %u and %u", a, b);
+    posA = &I->val[I->cols * a + a];
+    posB = &I->val[I->cols * b + b];
 
-    float *newA = &I->val[I->cols * a + b];
-    float *newB = &I->val[I->cols * b + a];
+    newA = &I->val[I->cols * a + b];
+    newB = &I->val[I->cols * b + a];
 
     posA[0U] = posB[0U] = 0.0F;
     newA[0U] = newB[0U] = 1.0F;

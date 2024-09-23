@@ -2,6 +2,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include "levels.h"
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "echelon.h"
@@ -38,6 +39,7 @@ void test_get_row(void)
     newRow = get_row(A, 1U);
     TEST_ASSERT_EQUAL_UINT32(3U, newRow);
 
+    /* not pivot in 2nd row*/
     newRow = get_row(A, 2U);
     TEST_ASSERT_EQUAL_UINT32(A->rows, newRow);
 
@@ -53,14 +55,15 @@ void test_update(void)
     float expVal2[25U] = {1.0000000F, 1.0000000F, 1.0000000F, 1.0000000F, 1.0000000F, 0.0000000F, 2.0000000F, 2.0000000F, 2.0000000F, 2.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 4.0000000F, 4.0000000F, 0.0000000F, 0.0000000F, 3.0000000F, 3.0000000F, 3.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 5.0000000F};
     memcpy(A->val, val, sizeof(float) * 5U * 5U);
 
+    LOG_INFO_MATRIX(A);
     A = update(A, 1U);
-    for (uint32_t i = 0U; i < 5U * 5U; i++)
+    for (uint32_t i = 0U; i < A->rows * A->cols; i++)
     {
         TEST_ASSERT_EQUAL_FLOAT(expVal[i], A->val[i]);
     }
 
     A = update(A, 3U);
-    for (uint32_t i = 0U; i < 5U * 5U; i++)
+    for (uint32_t i = 0U; i < A->rows * A->cols; i++)
     {
         TEST_ASSERT_EQUAL_FLOAT(expVal2[i], A->val[i]);
     }
@@ -77,6 +80,7 @@ void test_echelon(void)
     MATRIX *A = push_matrix(2U, 3U);
     TEST_ASSERT_NOT_NULL(A);
 
+    /* Wrong input */
     MATRIX *B = echelon(A);
     TEST_ASSERT_NULL(B);
 
