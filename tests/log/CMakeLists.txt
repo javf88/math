@@ -8,7 +8,7 @@ add_executable(levels
 
 target_link_libraries(levels
     PRIVATE unity::framework
-    PRIVATE apple_memory
+    PRIVATE algebra
     PRIVATE log)
 
 add_test(NAME levels.UnitTest
@@ -34,7 +34,7 @@ add_executable(logModule
 
 target_link_libraries(logModule
     PRIVATE unity::framework
-    PRIVATE apple_memory
+    PRIVATE algebra
     PRIVATE log)
 
 add_test(NAME log.ModuleTest
