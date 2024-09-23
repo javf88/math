@@ -2,14 +2,11 @@
 # Define libraries
 #*******************************************************************************
 
-# Memory management system
-add_library(apple_memory INTERFACE)
+# Matrix algebra
+add_library(algebra INTERFACE)
 
-target_include_directories(apple_memory
+target_include_directories(algebra
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Logging system
-add_subdirectory(log)
-
-# Matrix algebra
-add_subdirectory(algebra)
+target_compile_definitions(algebra
+    INTERFACE $<TARGET_PROPERTY:log,INTERFACE_COMPILE_DEFINITIONS>)
