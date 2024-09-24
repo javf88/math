@@ -79,6 +79,19 @@ MATRIX* push_matrix(uint32_t rows, uint32_t cols);
  */
 void* pop_matrix(void *top);
 
+/**
+ * @brief   Function that get a block-matrix from a matrix, it takes two
+ *          points (row, col) and (rowEnd, colEnd).
+ */
+MATRIX* get_block_matrix(MATRIX *S, uint32_t row, uint32_t rowEnd,
+                                  uint32_t col, uint32_t colEnd);
+
+/**
+ * @brief   Function that set a block-matrix in a matrix D, it takes one
+ *          point (row, col), and it sets matrix S if it fits.
+ */
+MATRIX* set_block_matrix(MATRIX *D, uint32_t row, uint32_t col, MATRIX *S);
+
 /******************************************************************************/
 /*    PRIVATE DATA                                                            */
 /******************************************************************************/
@@ -136,7 +149,7 @@ void* pop_matrix(void *top)
     return top;
 }
 
-void* get_block_matrix(MATRIX *S, uint32_t row, uint32_t rowEnd,
+MATRIX* get_block_matrix(MATRIX *S, uint32_t row, uint32_t rowEnd,
                                   uint32_t col, uint32_t colEnd)
 {
     MATRIX *block = NULL;
@@ -162,6 +175,34 @@ void* get_block_matrix(MATRIX *S, uint32_t row, uint32_t rowEnd,
     }
 
     return block;
+}
+
+MATRIX* set_block_matrix(MATRIX *D, uint32_t row, uint32_t col, MATRIX *S)
+{
+    if ((D == NULL) || (S == NULL))
+    {
+        return NULL;
+    }
+
+    if ((D->rows < row) || (D->cols < col))
+    {
+        return D;
+    }
+
+    if ((D->rows - row) < (S->rows) ||
+        (D->cols - col) < (S->cols))
+    {
+        return S;
+    }
+
+    for (uint32_t i = 0U; i < S->rows; i++)
+    {
+        uint32_t dstIdx = TO_C_CONT(D, (i + row), col);
+        uint32_t srcIdx = TO_C_CONT(S, i, 0U);
+        memcpy(&D->val[dstIdx], &S->val[srcIdx], sizeof(float) * S->cols);
+    }
+
+    return D;
 }
 
 /* Memory allocation-like functions */

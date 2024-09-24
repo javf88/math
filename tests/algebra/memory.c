@@ -104,7 +104,9 @@ void test_get_block_matrix(void)
 
     /* Getting block matrix */
     subA = get_block_matrix(A, 1U, 4U, 3U, A->cols);
-    float expVal[9U] = {4.0F, 5.0F, 6.0F, 4.0F, 5.0F, 6.0F, 4.0F, 5.0F, 6.0F};
+    float expVal[9U] = {4.0F, 5.0F, 6.0F,
+                        4.0F, 5.0F, 6.0F,
+                        4.0F, 5.0F, 6.0F};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(subA->val, expVal, subA->cols * subA->rows);
     LOG_INFO_MATRIX(subA);
 
@@ -121,6 +123,72 @@ void test_get_block_matrix(void)
     LOG_INFO_MATRIX(subA);
 }
 
+void test_set_block_matrix(void)
+{
+    MATRIX *A = push_matrix(6U, 6U);
+    TEST_ASSERT_NOT_NULL(A);
+    memset(A->val, 0, sizeof(float) * A->rows * A->cols);
+
+    /* Setting a block-matrix */
+    MATRIX *B = push_matrix(3U, 3U);
+    TEST_ASSERT_NOT_NULL(B);
+    float val[9U] = {4.0F, 5.0F, 6.0F,
+                     4.0F, 5.0F, 6.0F,
+                     4.0F, 5.0F, 6.0F};
+    memcpy(B->val, val, sizeof(float) * B->rows * B->cols);
+
+    float expBlock[36U] = {4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                           4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                           4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                           0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+                           0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+                           0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
+    A = set_block_matrix(A, 0U, 0U, B);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expBlock, A->val, A->rows * A->cols);
+    LOG_INFO_MATRIX(A);
+
+    /* Setting a row-vector */
+    MATRIX *C = push_matrix(1U, 4U);
+    float row[4U] = {2.0F, 2.0F, 2.0F, 2.0F};
+    memcpy(C->val, row, sizeof(float) * C->rows * C->cols);
+    float expRow[36U] = {4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                         4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                         4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                         0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+                         2.0F, 2.0F, 2.0F, 2.0F, 0.0F, 0.0F,
+                         0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
+    A = set_block_matrix(A, 4U, 0U, C);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expRow, A->val, A->rows * A->cols);
+    LOG_INFO_MATRIX(A);
+
+    /* Setting a column-vector */
+    MATRIX *D = push_matrix(5U, 1U);
+    float col[5U] = {3.0F, 3.0F, 3.0F, 3.0F, 3.0F};
+    memcpy(D->val, col, sizeof(float) * D->rows * D->cols);
+    float expCol[36U] = {4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 0.0F,
+                         4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 3.0F,
+                         4.0F, 5.0F, 6.0F, 0.0F, 0.0F, 3.0F,
+                         0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3.0F,
+                         2.0F, 2.0F, 2.0F, 2.0F, 0.0F, 3.0F,
+                         0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3.0F};
+    A = set_block_matrix(A, 1U, 5U, D);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expCol, A->val, A->rows * A->cols);
+    LOG_INFO_MATRIX(A);
+
+    /* NULL matrix */
+    TEST_ASSERT_NULL(set_block_matrix(NULL, 2U, 2U, B));
+    /* NULL the other matrixmatrix */
+    TEST_ASSERT_NULL(set_block_matrix(A, 2U, 2U, NULL));
+    /* wrong row size */
+    TEST_ASSERT_EQUAL_PTR(B, set_block_matrix(B, 5U, 0U, A));
+    /* wrong colmun size */
+    TEST_ASSERT_EQUAL_PTR(B, set_block_matrix(B, 0U, 5U, A));
+    /* row does not fit */
+    TEST_ASSERT_EQUAL_PTR(C,  set_block_matrix(A, 4U, 4U, C));
+    /* col does not fit */
+    TEST_ASSERT_EQUAL_PTR(D,  set_block_matrix(A, 4U, 4U, D));
+}
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -129,6 +197,7 @@ int main(void)
     RUN_TEST(test_matrix_push_and_pop);
     RUN_TEST(test_push_and_pop);
     RUN_TEST(test_get_block_matrix);
+    RUN_TEST(test_set_block_matrix);
 
     return UNITY_END();
 }
