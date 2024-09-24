@@ -14,7 +14,6 @@
 #ifndef MEMORY_H_
 #define MEMORY_H_
 
-#include "levels.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,7 +25,6 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 
 /******************************************************************************/
 /*    PUBLIC TYPES                                                            */
@@ -41,15 +39,30 @@ typedef struct Matrix
 } MATRIX;
 
 /******************************************************************************/
-/*    DEFINITIONS                                                             */
+/*    PUBLIC MACROS                                                           */
 /******************************************************************************/
 
-/* Mapping from a matrix, A[i, j], to C-contiguous layout */
+/**
+ * @brief   Macro to get a row-vector from a matrix.
+ */
+#define GET_ROW_VECTOR(matrix, row) \
+    get_block_matrix(matrix, row, row + 1U, 0U, matrix->cols)
+
+/**
+ * @brief   Macro to get a column-vector from a matrix.
+ */
+#define GET_COLUMN_VECTOR(matrix, col) \
+    get_block_matrix(matrix, 0U, matrix->rows, col, col + 1U)
+
+/**
+ * @brief   Macro to map an entry A(i,j) to its c-contiguous.
+ */
 #define TO_C_CONT(A, row, col) A->cols * row + col
 
-/* Mapping from a matrix, AT[i, j], to Fortran-contiguous layout */
+/**
+ * @brief   Macro to map an entry A(i,j) to its fortran-contiguous.
+ */
 #define TO_F_CONT(A, row, col) A->rows * col + row
-
 
 /******************************************************************************/
 /*    API                                                                     */
@@ -172,6 +185,8 @@ static ITEM* matrix_push(ITEM *stack, MATRIX *A)
 
     /* stack is NULL at the very first itr */
     top->next = stack;
+//    LOG_DEBUG("top->matrix = A;");
+//    LOG_INFO_MATRIX(A);
     top->matrix = A;
 
     return top;

@@ -2,11 +2,10 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include "levels.h"
 #include "unity.h"
+#include "levels.h"
 /* TARGET LIBRARY */
 #include "memory.h"
-#include <string.h>
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
@@ -96,23 +95,27 @@ void test_get_block_matrix(void)
     /* col > colEnd */
     TEST_ASSERT_EQUAL_PTR(A, get_block_matrix(A, 1U, 2U, 5U, 4U));
 
+    /* Getting a scalar  */
     MATRIX *subA = get_block_matrix(A, 1U, 2U, 3U, 4U);
     TEST_ASSERT_EQUAL_UINT32(subA->rows, 1U);
     TEST_ASSERT_EQUAL_UINT32(subA->cols, 1U);
     TEST_ASSERT_EQUAL_FLOAT(4.0F, subA->val[0U]);
     LOG_INFO_MATRIX(subA);
 
+    /* Getting block matrix */
     subA = get_block_matrix(A, 1U, 4U, 3U, A->cols);
     float expVal[9U] = {4.0F, 5.0F, 6.0F, 4.0F, 5.0F, 6.0F, 4.0F, 5.0F, 6.0F};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(subA->val, expVal, subA->cols * subA->rows);
     LOG_INFO_MATRIX(subA);
 
-    subA = get_block_matrix(A, 3U, 4U, 0U, A->cols);
+    /* Getting row vector */
+    subA = GET_ROW_VECTOR(A, 3U);
     float expVec[6U] = {1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 6.0F};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(subA->val, expVec, subA->cols * subA->rows);
     LOG_INFO_MATRIX(subA);
 
-    subA = get_block_matrix(A, 0U, A->rows, 4U, 5U);
+    /* Getting column vector */
+    subA = GET_COLUMN_VECTOR(A, 4U);
     float expCol[6U] = {5.0F, 5.0F, 5.0F, 5.0F, 5.0F, 5.0F};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(subA->val, expCol, subA->cols * subA->rows);
     LOG_INFO_MATRIX(subA);
