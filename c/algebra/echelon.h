@@ -106,6 +106,7 @@ uint32_t get_new_pivot(MATRIX *A)
         if (fabs(A->val[pos]) > FLT_EPSILON)
         {
             row = i;
+            break;
         }
     }
 

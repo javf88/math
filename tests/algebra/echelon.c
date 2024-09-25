@@ -33,7 +33,7 @@ void test_get_new_pivot(void)
                         0.0000000F,  0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
                         0.0000000F,  1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
                  2.0F * FLT_EPSILON, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F};
-    uint32_t expRow[5U] = {4U, 2U, 3U, 1U, 1U};
+    uint32_t expRow[5U] = {0U, 2U, 3U, 1U, 1U};
     memcpy(B->val, vals, sizeof(float) * B->rows * B->cols);
 
     LOG_INFO("%s", __func__);
@@ -125,6 +125,38 @@ void test_echelon_rect_matrix(void)
     } while(stack != NULL);
 }
 
+void test_echelon_only_permutations(void)
+{
+    MATRIX *A = push_matrix(5U, 5U);
+    float val[25u] = {0.0000000f, 0.0000000f, 0.0000000f, 0.0000000f, 1.0000000f,
+                      0.0000000f, 0.0000000f, 0.0000000f, 2.0000000f, 2.0000000f,
+                      0.0000000f, 0.0000000f, 3.0000000f, 3.0000000f, 3.0000000f,
+                      0.0000000f, 4.0000000f, 4.0000000f, 4.0000000f, 4.0000000f,
+                      5.0000000f, 5.0000000f, 5.0000000f, 5.0000000f, 5.0000000f};
+    float expVal[25u] = {5.0000000f, 5.0000000f, 5.0000000f, 5.0000000f, 5.0000000f,
+                         0.0000000f, 4.0000000f, 4.0000000f, 4.0000000f, 4.0000000f,
+                         0.0000000f, 0.0000000f, 3.0000000f, 3.0000000f, 3.0000000f,
+                         0.0000000f, 0.0000000f, 0.0000000f, 2.0000000f, 2.0000000f,
+                         0.0000000f, 0.0000000f, 0.0000000f, 0.0000000f, 1.0000000f};
+    memcpy(A->val, val, sizeof(float) * A->rows * A->cols);
+
+    LOG_INFO("%s", __func__);
+    LOG_INFO_MATRIX(A);
+    A = echelon(A);
+    LOG_INFO_MATRIX(A);
+
+    for (uint32_t i = 0; i < A->rows * A->cols; i++)
+    {
+        TEST_ASSERT_EQUAL_FLOAT(expVal[i], A->val[i]);
+    }
+
+    do {
+        /* The stack starts with a non-NULL value */
+        TEST_ASSERT_NOT_NULL(stack);
+        stack = pop_matrix(stack);
+    } while(stack != NULL);
+}
+
 void test_echelon_perfect_matrix(void)
 {
     MATRIX *A = push_matrix(4U, 4U);
@@ -135,17 +167,25 @@ void test_echelon_perfect_matrix(void)
     float expected[16U] = {-50.0000000F, 0.0000000F, 16.6666679F, 25.0000000F,
                             0.0000000F, 33.3333359F, 45.7142868F, 52.5000000F,
                              0.0000000F, 0.0000000F, -0.9850845F, -1.8888893F,
-                             0.0000000F, 0.0000000F, 0.0000000F, -0.0274627F};
+                             0.0000000F, 0.0000000F, 0.0000000F, -0.02746296F};
     memcpy(A->val, vals, sizeof(float) * A->rows * A->cols);
 
+    LOG_INFO("%s", __func__);
     LOG_INFO_MATRIX(A);
     A = echelon(A);
     LOG_INFO_MATRIX(A);
 
     for (uint32_t i = 0U; i < 4U * 4U; i++)
     {
-        TEST_ASSERT_EQUAL_FLOAT(expected[i], A->val[i]);
+        TEST_ASSERT_FLOAT_WITHIN(FLT_EPSILON, expected[i], A->val[i]);
+//        TEST_ASSERT_EQUAL_FLOAT(expected[i], A->val[i]);
     }
+
+    do {
+        /* The stack starts with a non-NULL value */
+        TEST_ASSERT_NOT_NULL(stack);
+        stack = pop_matrix(stack);
+    } while(stack != NULL);
 }
 
 void test_echelon_singular_matrix(void)
@@ -179,38 +219,6 @@ void test_echelon_singular_matrix(void)
     } while(stack != NULL);
 }
 
-void test_echelon_only_permutations(void)
-{
-    MATRIX *A = push_matrix(5U, 5U);
-    float val[25U] = {0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F,
-                      0.0000000F, 0.0000000F, 0.0000000F, 2.0000000F, 2.0000000F,
-                      0.0000000F, 0.0000000F, 3.0000000F, 3.0000000F, 3.0000000F,
-                      0.0000000F, 4.0000000F, 4.0000000F, 4.0000000F, 4.0000000F,
-                      5.0000000F, 5.0000000F, 5.0000000F, 5.0000000F, 5.0000000F};
-    float expVal[25U] = {5.0000000F, 5.0000000F, 5.0000000F, 5.0000000F, 5.0000000F,
-                         0.0000000F, 4.0000000F, 4.0000000F, 4.0000000F, 4.0000000F,
-                         0.0000000F, 0.0000000F, 3.0000000F, 3.0000000F, 3.0000000F,
-                         0.0000000F, 0.0000000F, 0.0000000F, 2.0000000F, 2.0000000F,
-                         0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F};
-    memcpy(A->val, val, sizeof(float) * A->rows * A->cols);
-
-    LOG_INFO("%s", __func__);
-    LOG_INFO_MATRIX(A);
-    A = echelon(A);
-    LOG_INFO_MATRIX(A);
-
-    for (uint32_t i = 0; i < A->rows * A->cols; i++)
-    {
-        TEST_ASSERT_EQUAL_FLOAT(expVal[i], A->val[i]);
-    }
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
-}
-
 int main(void)
 {
     UNITY_BEGIN();
@@ -220,7 +228,7 @@ int main(void)
     RUN_TEST(test_get_lower_triangular);
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_only_permutations);
-//    RUN_TEST(test_echelon_perfect_matrix);
+    RUN_TEST(test_echelon_perfect_matrix);
 //    RUN_TEST(test_echelon_singular_matrix);
 
     return UNITY_END();
