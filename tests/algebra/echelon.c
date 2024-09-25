@@ -5,6 +5,7 @@
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "echelon.h"
+#include <float.h>
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
@@ -178,7 +179,6 @@ void test_echelon_perfect_matrix(void)
     for (uint32_t i = 0U; i < 4U * 4U; i++)
     {
         TEST_ASSERT_FLOAT_WITHIN(FLT_EPSILON, expected[i], A->val[i]);
-//        TEST_ASSERT_EQUAL_FLOAT(expected[i], A->val[i]);
     }
 
     do {
@@ -194,22 +194,23 @@ void test_echelon_singular_matrix(void)
     float singular[25U]  = {-12.0000000F, -9.5000000F, -7.0000000F, -4.5000000F, -2.0000000F,
                                0.5000000F, 3.0000000F, 5.5000000F, 8.0000000F, 10.5000000F,
                              13.0000000F, 15.5000000F, 18.0000000F, 20.5000000F, 23.0000000F,
-                             25.5000000F, 28.0000000F, 30.5000000F, 33.0000000F, 35.5000000F,
+                             25.5000000F, 28.7000000F, 30.5000000F, 33.0000000F, 35.5000000F,
                              38.0000000F, 40.5000000F, 43.0000000F, 45.5000000F, 48.0000000F};
     memcpy(A->val, singular, sizeof(float) * 5U * 5U);
 
+    LOG_INFO("%s", __func__);
     LOG_INFO_MATRIX(A);
     A = echelon(A);
     LOG_INFO_MATRIX(A);
     float expA[25U] = {-12.0000000F, -9.5000000F, -7.0000000F, -4.5000000F, -2.0000000F,
                           0.0000000F, 2.6041667F, 5.2083335F, 7.8125000F, 10.4166670F,
-                          0.0000000F, 0.0000000F, 0.0000000F, 0.000001907349F, 0.000001907349F,
-                          0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
-                          0.0000000F, 0.0000000F, 0.0000000F, 0.00000381469F, 0.00000381469F};
+                          0.0000000F, 0.0000000F, -1.4000015F, -2.1000004F, -2.8000031F,
+                          0.0000000F, 0.0000000F, 0.0000000F, 0.0000019F, 0.0000019F,
+                          0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F};
 
     for (uint32_t i = 0; i < 5U * 5U; i++)
     {
-        TEST_ASSERT_EQUAL_FLOAT(expA[i], A->val[i]);
+        TEST_ASSERT_FLOAT_WITHIN(FLT_EPSILON, expA[i], A->val[i]);
     }
 
     do {
@@ -229,7 +230,7 @@ int main(void)
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_only_permutations);
     RUN_TEST(test_echelon_perfect_matrix);
-//    RUN_TEST(test_echelon_singular_matrix);
+    RUN_TEST(test_echelon_singular_matrix);
 
     return UNITY_END();
 }

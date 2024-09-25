@@ -9,6 +9,7 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
+#include "levels.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,6 +84,13 @@ MATRIX* echelon(MATRIX *A)
         U = echelon(subA);
         LOG_INFO("return U");
         LOG_DEBUG_MATRIX(U);
+        if (U->rows == 1U)
+        {
+            if (fabs(U->val[0U]) < FLT_EPSILON)
+            {
+                LOG_WARNING("Matrix is singular.");
+            }
+        }
 
         /* 5) set U as LPS(2,2) in LPA */
         U = set_block_matrix(LPA, j + 1U, j + 1U, U);
