@@ -55,6 +55,12 @@ typedef struct Matrix
     get_block_matrix(matrix, 0U, matrix->rows, col, col + 1U)
 
 /**
+ * @brief   Macro to get a lower-right block from a matrix.
+ */
+#define GET_BLOCK_MATRIX(matrix, i) \
+    get_block_matrix(matrix, i, matrix->rows, i, matrix->cols)
+
+/**
  * @brief   Macro to map an entry A(i,j) to its c-contiguous.
  */
 #define TO_C_CONT(A, row, col) A->cols * row + col
