@@ -9,6 +9,9 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
+#include "levels.h"
+#include "memory.h"
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,9 +38,9 @@ MATRIX* echelon(MATRIX *A);
 /*    STATIC FUNCTION PROTOTYPES                                              */
 /******************************************************************************/
 
-static uint32_t get_row(MATRIX *A, uint32_t j);
+static MATRIX* get_lower_triangular(MATRIX *PA);
 
-static MATRIX* update(MATRIX *A, uint32_t j);
+static MATRIX* get_permutation(MATRIX *A);
 
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
@@ -51,103 +54,105 @@ MATRIX* echelon(MATRIX *A)
         return NULL;
     }
 
+    MATRIX *U = A;
     for (uint32_t j = 0U; j < (A->cols - 1U); j++)
     {
-        /* Let us create an Identity matrix */
-        MATRIX *L = id(A->cols);
-        float *pivot = NULL;
+        MATRIX *PA, *L, *LPA, *P;
+        MATRIX *subA;
 
-        /* Let us update A by finding and permuting the next non-zero val
-         * in j-th col */
-        A = update(A, j);
-        pivot = &A->val[A->cols * j + j];
-        LOG_INFO("pivot: %f", *pivot);
-
-        /* If pivot is zero, then it is a singular matrix */
-        if (fabs(pivot[0]) <= FLT_EPSILON)
+        /* 1) get P for P x A product, if a(0,0) is zero */
+        P = get_permutation(A);
+        if (P != NULL)
         {
-            /* Removing unused matrix L_(j) */
-            stack = pop_matrix(stack);
-            LOG_WARNING("The matrix A is singular.");
-            return A;
+            PA = mult(P, A);
         }
-
-        for (uint32_t i = j + 1U; i < A->rows; i++)
+        else
         {
-            /* Let us place the right coef under the pivot (a[i,i]) */
-            float a = A->val[A->cols * i + j];
-
-            LOG_INFO("a: %.7f", a);
-            L->val[A->cols * i + j] = -1.0F * a / pivot[0];
+            PA = A;
         }
+        LOG_DEBUG_MATRIX(PA);
 
-        /* let us remove the current column under the pivot */
-        MATRIX *B = mult(L, A);
+        /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
+        L = get_lower_triangular(PA);
+        LOG_DEBUG_MATRIX(L);
+        LPA = mult(L, PA);
+        LOG_DEBUG_MATRIX(LPA);
 
-        LOG_INFO_MATRIX(L);
-        LOG_INFO_MATRIX(A);
-        LOG_INFO_MATRIX(B);
+        /* 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
+         *                                  [LPA(2,1) | LPA(2,2)]*/
+        subA = GET_BLOCK_MATRIX(LPA, j + 1U);
+        LOG_DEBUG_MATRIX(subA);
+        /* 4) call recursively */
+        U = echelon(subA);
+        LOG_INFO("return U");
+        LOG_DEBUG_MATRIX(U);
 
-        /* Update the matrix for the next iteration */
-        A = B;
+        /* 5) set U as LPS(2,2) in LPA */
+        U = set_block_matrix(LPA, j + 1U, j + 1U, U);
+        LOG_DEBUG_MATRIX(U);
+
+        /* 6) break iteration to return back */
+        break;
     }
 
     /* returning upper-triangular matrix from PA = LU */
-    return A;
+    return U;
 }
 
-static uint32_t get_row(MATRIX *A, uint32_t col)
+uint32_t get_new_pivot(MATRIX *A)
 {
-    for (uint32_t row = col + 1U; row < A->rows; row++)
+    uint32_t row = A->rows;
+
+    for (uint32_t i = 0U; i < A->rows; i++)
     {
-        uint32_t idx = TO_C_CONT(A, row, col);
-        if (FLT_EPSILON < fabs(A->val[idx]))
+        uint32_t pos = TO_C_CONT(A, i, 0U);
+        if (fabs(A->val[pos]) > FLT_EPSILON)
         {
-            LOG_DEBUG("The pivot is A[%u, %u] = %.8f, row %u.", col, row, A->val[idx], row);
-            return row;
+            row = i;
         }
     }
 
-    /* returning first index that is out of range (+1) */
-    LOG_DEBUG("The column %u has no pivot.", col);
-    return A->rows;
+    return row;
 }
 
-static MATRIX* update(MATRIX *A, uint32_t col)
+static MATRIX* get_permutation(MATRIX *A)
 {
-    uint32_t idx = TO_C_CONT(A, col, col);
-    float *pivot = &A->val[idx];
-    uint32_t newRow = 0U;
     MATRIX *P = NULL;
 
-    /* no-need to update A, pivot is non-zero */
-    if (fabs(pivot[0]) > FLT_EPSILON)
+    uint32_t row = get_new_pivot(A);
+    if (row == A->rows)
     {
-        LOG_DEBUG("The pivot is A[%u, %u] = %.8f, row %u.", col, col, A->val[idx], col);
-        return A;
+        LOG_WARNING("Matrix is singular.");
     }
-
-    /* get row of next non-zero value */
-    newRow = get_row(A, col);
-    if (newRow < A->rows)
+    else
     {
-        MATRIX vec = {1U, A->cols, NULL};
-        MATRIX *row = &vec;
-        /* Build Identity and swap rows */
         P = id(A->rows);
-        P = permute(P, col, newRow);
-
-        row->val = &A->val[TO_C_CONT(A, col, 0U)];
-        LOG_INFO_MATRIX(row);
-        row->val = &A->val[TO_C_CONT(A, newRow, 0U)];
-        LOG_INFO_MATRIX(row);
-
-        /* Row-permutation, left-multiplication, on A */
-        A = mult(P, A);
-        LOG_INFO_MATRIX(A);
+        /* this if might be removed due to outter for loop */
+        if (A->rows > 1U)
+        {
+            P = PERMUTE_ROWS(P, row);
+        }
     }
 
-    return A;
+     return P;
+}
+
+static MATRIX* get_lower_triangular(MATRIX *PA)
+{
+    MATRIX *L = id(PA->rows);
+    MATRIX *a = get_block_matrix(PA, 0U, 1U, 0U, 1U);
+    /* when being a scalar it migh be removed by outter for */
+    MATRIX *b = get_block_matrix(PA, 1U, PA->rows, 0U, 1U);
+
+    LOG_DEBUG_MATRIX(a);
+    a->val[0U] = -1.0F / a->val[0U];
+    LOG_DEBUG_MATRIX(b);
+
+    /* building column-vector as B * A^(-1) */
+    b = mult(b, a);
+    L = set_block_matrix(L, 1U, 0U, b);
+
+    return L;
 }
 
 #ifdef __cplusplus
