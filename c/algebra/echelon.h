@@ -9,9 +9,6 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
-#include "levels.h"
-#include "memory.h"
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
