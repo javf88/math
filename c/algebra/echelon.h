@@ -12,7 +12,6 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
-#include "levels.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
