@@ -3,8 +3,9 @@
 /******************************************************************************/
 
 #include "unity.h"
-/* TARGET LIBRARY */
+/* TARGET LIBRARIES */
 #include "memory.h"
+#include "file.h"
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
@@ -25,43 +26,21 @@ void tearDown(void)
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
 
-void test_valid_malloc_and_free(void)
+void test_examples(void)
 {
-    MATRIX *A = _M2S_malloc(4U, 7U);
-    TEST_ASSERT_NOT_NULL(A);
-    TEST_ASSERT_EQUAL_UINT32(4U, A->rows);
-    TEST_ASSERT_EQUAL_UINT32(7U, A->cols);
-    TEST_ASSERT_NOT_NULL(A->val);
-
-    A = _M2S_free(A);
-    TEST_ASSERT_NULL(A);
+    LOG_TRACE("A file with several lines is generated!");
+    LOG_ERROR("This should be an error! LOG_LEVEL_ERROR: %u", LOG_LEVEL_ERROR);
+    LOG_WARNING("This should be an warning! LOG_LEVEL_WARNING: %u", LOG_LEVEL_WARNING);
+    LOG_INFO("This should be an info! LOG_LEVEL_INFO: %u", LOG_LEVEL_INFO);
+    LOG_DEBUG("This should be an debug! LOG_LEVEL_DEBUG: %u", LOG_LEVEL_DEBUG);
+    LOG_TRACE("This should be an trace! LOG_LEVEL_TRACE: %u", LOG_LEVEL_TRACE);
 }
 
-void test_matrix_push_and_pop(void)
+void test_log_matrix(void)
 {
-    TEST_ASSERT_NULL(stack);
-
-    MATRIX *A = push_matrix(3U, 4U);
-    TEST_ASSERT_NOT_NULL(A);
-    TEST_ASSERT_NOT_NULL(stack);
-
-    stack = pop_matrix(stack);
-    TEST_ASSERT_NULL(stack);
-}
-
-void test_push_and_pop(void)
-{
-    for (uint32_t i = 0; i < 5U; i++)
-    {
-        for (uint32_t j = 0; j < 5U; j++)
-        {
-            MATRIX *A = push_matrix(i, j);
-            TEST_ASSERT_NOT_NULL(A);
-            TEST_ASSERT_EQUAL_UINT32(i, A->rows);
-            TEST_ASSERT_EQUAL_UINT32(j, A->cols);
-            TEST_ASSERT_NOT_NULL(A->val);
-        }
-    }
+    MATRIX *A = push_matrix(5U, 5U);
+    /* TODO: need to add write to file, and compare against */
+    LOG_INFO_MATRIX(A);
 
     do {
         /* The stack starts with a non-NULL value */
@@ -74,9 +53,8 @@ int main(void)
 {
     UNITY_BEGIN();
 
-    RUN_TEST(test_valid_malloc_and_free);
-    RUN_TEST(test_matrix_push_and_pop);
-    RUN_TEST(test_push_and_pop);
+    RUN_TEST(test_examples);
+    RUN_TEST(test_log_matrix);
 
     return UNITY_END();
 }
