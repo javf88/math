@@ -38,6 +38,13 @@ typedef struct Matrix
     float   *val;
 } MATRIX;
 
+/* An Identity matrix, Id, can be rewritten in A^-1 x A , or as A x A^-1 */
+typedef struct Id
+{
+    MATRIX *AI;
+    MATRIX *A;
+} Id;
+
 /******************************************************************************/
 /*    PUBLIC MACROS                                                           */
 /******************************************************************************/
@@ -59,6 +66,12 @@ typedef struct Matrix
  */
 #define GET_BLOCK_MATRIX(matrix, i) \
     get_block_matrix(matrix, i, matrix->rows, i, matrix->cols)
+
+/**
+ * @brief   Macro to copy a matrix.
+ */
+#define COPY_MATRIX(matrix) \
+    get_block_matrix(matrix, 0U, matrix->rows, 0U, matrix->cols)
 
 /**
  * @brief   Macro to map an entry A(i,j) to its c-contiguous.

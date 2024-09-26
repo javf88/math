@@ -12,6 +12,8 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
+#include "memory.h"
+#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -57,14 +59,18 @@ MATRIX* echelon(MATRIX *A)
     MATRIX *U = A;
     for (uint32_t j = 0U; j < (A->cols - 1U); j++)
     {
+        Id PIxP, LIxL;
         MATRIX *PA, *L, *LPA, *P;
         MATRIX *subA;
 
         /* 1) get P for P x A product, if a(0,0) is zero */
-        P = get_permutation(A);
+        PIxP.A = P = get_permutation(A);
         if (P != NULL)
         {
             PA = mult(P, A);
+            /* The inverse of a Permutation is the transpose that at the same
+             * time is P */
+            PIxP.AI = COPY_MATRIX(P);
         }
         else
         {
@@ -73,7 +79,7 @@ MATRIX* echelon(MATRIX *A)
         LOG_DEBUG_MATRIX(PA);
 
         /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
-        L = get_lower_triangular(PA);
+        LIxL.A = L = get_lower_triangular(PA);
         LOG_DEBUG_MATRIX(L);
         LPA = mult(L, PA);
         LOG_DEBUG_MATRIX(LPA);
@@ -161,6 +167,19 @@ static MATRIX* get_lower_triangular(MATRIX *PA)
     L = set_block_matrix(L, 1U, 0U, b);
 
     return L;
+}
+
+static MATRIX* inverse(MATRIX *L)
+{
+    MATRIX *LI = COPY_MATRIX(L);
+
+    for (uint32_t i = 1U; i < L->rows; i++)
+    {
+        uint32_t idx = TO_C_CONT(L, i, 0U);
+        L->val[idx] = -L->val[idx];
+    }
+
+    return LI;
 }
 
 #ifdef __cplusplus
