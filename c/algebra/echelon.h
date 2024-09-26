@@ -3,6 +3,9 @@
 * Matrix Algebra
 *
 *   SUMMARY
+*       This single-header module implements a recursive version of
+*       the echelon form of a aquare matrix,A in PA = LU, and it returns
+*       U after completion.
 *
 *******************************************************************************/
 

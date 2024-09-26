@@ -5,7 +5,6 @@
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "echelon.h"
-#include <float.h>
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
