@@ -119,6 +119,16 @@ extern "C" {
     #define LOG_DEBUG_MATRIX(A)
 #endif
 
+/**
+ * @example    LOG_TRACE_MATRIX(A);
+ */
+#if LOG_LEVEL_TRACE <= LOG_CONFIG
+    #define LOG_TRACE_MATRIX(A) \
+    log_matrix(LOG_LEVEL_TRACE, __FILE__, __LINE__, #A, A->val, A->rows, A->cols)
+#else
+    #define LOG_TRACE_MATRIX(A)
+#endif
+
 /******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
