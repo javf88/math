@@ -26,18 +26,7 @@ extern "C" {
 #include "operators.h"
 
 /******************************************************************************/
-/*    API                                                                     */
-/******************************************************************************/
-
-/**
- * @brief   Function that computes the echelon form of a square matrix.
- */
-MATRIX* echelon(MATRIX *A);
-
-void* decomposition(MATRIX *A);
-
-/******************************************************************************/
-/*    PRIVATE DATA                                                            */
+/*    PUBLIC TYPES                                                            */
 /******************************************************************************/
 
 typedef struct PA_LU
@@ -49,6 +38,17 @@ typedef struct PA_LU
     MATRIX *L;
     MATRIX *U;
 } PA_LU;
+
+/******************************************************************************/
+/*    API                                                                     */
+/******************************************************************************/
+
+/**
+ * @brief   Function that computes the echelon form of a square matrix.
+ */
+MATRIX* echelon(MATRIX *A);
+
+PA_LU* decomposition(MATRIX *A);
 
 /******************************************************************************/
 /*    STATIC FUNCTION PROTOTYPES                                              */
@@ -75,7 +75,7 @@ MATRIX* echelon(MATRIX *A)
     return NULL;;
 }
 
-void* decomposition(MATRIX *A)
+PA_LU* decomposition(MATRIX *A)
 {
     PA_LU *PA_LU = NULL;
     /* Matrices of interes of (PA,LU) pencil  */

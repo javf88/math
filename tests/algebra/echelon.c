@@ -110,6 +110,42 @@ void test_get_lower_triangular(void)
     }
 }
 
+void test_inverse(void)
+{
+    MATRIX *I;
+    MATRIX *L = push_matrix(4U, 4U);
+    float val[16U] = {1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
+                      0.6000000F, 1.0000000F, 0.0000000F, 0.0000000F,
+                      0.7777778F, 0.0000000F, 1.0000000F, 0.0000000F,
+                      0.8461539F, 0.0000000F, 0.0000000F, 1.0000000F};
+    memcpy(L->val, val, sizeof(float) * L->rows * L->cols);
+
+    LOG_INFO("%s", __func__);
+    LOG_INFO_MATRIX(L);
+    I = inverse(L);
+    I = mult(I, L);
+    LOG_INFO_MATRIX(I);
+
+    for (uint32_t i = 0; i < I->rows * I->cols; i++)
+    {
+        switch (i)
+        {
+            case 0U: case 5U: case 10U: case 15U:
+                TEST_ASSERT_EQUAL_FLOAT(1.0F, I->val[i]);
+                break;
+            default:
+                TEST_ASSERT_EQUAL_FLOAT(0.0F, I->val[i]);
+                break;
+        }
+    }
+
+    do {
+        /* The stack starts with a non-NULL value */
+        TEST_ASSERT_NOT_NULL(stack);
+        stack = pop_matrix(stack);
+    } while(stack != NULL);
+}
+
 void test_echelon_rect_matrix(void)
 {
     MATRIX *A = push_matrix(2U, 3U);
@@ -219,42 +255,6 @@ void test_echelon_singular_matrix(void)
     } while(stack != NULL);
 }
 
-void test_inverse(void)
-{
-    MATRIX *I;
-    MATRIX *L = push_matrix(4U, 4U);
-    float val[16U] = {1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
-                      0.6000000F, 1.0000000F, 0.0000000F, 0.0000000F,
-                      0.7777778F, 0.0000000F, 1.0000000F, 0.0000000F,
-                      0.8461539F, 0.0000000F, 0.0000000F, 1.0000000F};
-    memcpy(L->val, val, sizeof(float) * L->rows * L->cols);
-
-    LOG_INFO("%s", __func__);
-    LOG_INFO_MATRIX(L);
-    I = inverse(L);
-    I = mult(I, L);
-    LOG_INFO_MATRIX(I);
-
-    for (uint32_t i = 0; i < I->rows * I->cols; i++)
-    {
-        switch (i)
-        {
-            case 0U: case 5U: case 10U: case 15U:
-                TEST_ASSERT_EQUAL_FLOAT(1.0F, I->val[i]);
-                break;
-            default:
-                TEST_ASSERT_EQUAL_FLOAT(0.0F, I->val[i]);
-                break;
-        }
-    }
-
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
-}
-
 int main(void)
 {
     UNITY_BEGIN();
@@ -265,8 +265,8 @@ int main(void)
     RUN_TEST(test_inverse);
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_only_permutations);
-//    RUN_TEST(test_echelon_perfect_matrix);
-//    RUN_TEST(test_echelon_singular_matrix);
+    RUN_TEST(test_echelon_perfect_matrix);
+    RUN_TEST(test_echelon_singular_matrix);
 
     return UNITY_END();
 }

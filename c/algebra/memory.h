@@ -38,13 +38,6 @@ typedef struct Matrix
     float   *val;
 } MATRIX;
 
-/* An Identity matrix, Id, can be rewritten in A^-1 x A , or as A x A^-1 */
-typedef struct Id
-{
-    MATRIX *AI;
-    MATRIX *A;
-} Id;
-
 /******************************************************************************/
 /*    PUBLIC MACROS                                                           */
 /******************************************************************************/
@@ -245,8 +238,6 @@ static ITEM* matrix_push(ITEM *stack, MATRIX *A)
 
     /* stack is NULL at the very first itr */
     top->next = stack;
-//    LOG_DEBUG("top->matrix = A;");
-//    LOG_INFO_MATRIX(A);
     top->matrix = A;
 
     return top;
