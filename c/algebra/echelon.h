@@ -12,8 +12,6 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
-#include "memory.h"
-#include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,6 +34,22 @@ extern "C" {
  */
 MATRIX* echelon(MATRIX *A);
 
+void* decomposition(MATRIX *A);
+
+/******************************************************************************/
+/*    PRIVATE DATA                                                            */
+/******************************************************************************/
+
+typedef struct PA_LU
+{
+    MATRIX *P;
+    MATRIX *PT;
+    MATRIX *A;
+    MATRIX *LI;
+    MATRIX *L;
+    MATRIX *U;
+} PA_LU;
+
 /******************************************************************************/
 /*    STATIC FUNCTION PROTOTYPES                                              */
 /******************************************************************************/
@@ -44,72 +58,92 @@ static MATRIX* get_lower_triangular(MATRIX *PA);
 
 static MATRIX* get_permutation(MATRIX *A);
 
+static MATRIX* inverse(MATRIX *L);
+
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
 /******************************************************************************/
 
 MATRIX* echelon(MATRIX *A)
 {
+    PA_LU *PA_LU = decomposition(A);
+    if (PA_LU != NULL)
+    {
+        return PA_LU->U;
+    }
+
+    return NULL;;
+}
+
+void* decomposition(MATRIX *A)
+{
+    PA_LU *PA_LU = NULL;
+    /* Matrices of interes of (PA,LU) pencil  */
+    MATRIX *L, *P, *U;
+    /* Partial results */
+    MATRIX *PA, *LPA, *LI;
+    /* subproblem for next iteration */
+    MATRIX *A22;
+
     if (A->cols != A->rows)
     {
         LOG_WARNING("Matrix is not a square matrix.");
         return NULL;
     }
 
-    MATRIX *U = A;
-    for (uint32_t j = 0U; j < (A->cols - 1U); j++)
+    if (A->rows == 1U)
     {
-        Id PIxP, LIxL;
-        MATRIX *PA, *L, *LPA, *P;
-        MATRIX *subA;
-
-        /* 1) get P for P x A product, if a(0,0) is zero */
-        PIxP.A = P = get_permutation(A);
-        if (P != NULL)
+        if (fabs(A->val[0U]) < FLT_EPSILON)
         {
-            PA = mult(P, A);
-            /* The inverse of a Permutation is the transpose that at the same
-             * time is P */
-            PIxP.AI = COPY_MATRIX(P);
+            LOG_WARNING("Matrix is singular.");
         }
-        else
-        {
-            PA = A;
-        }
-        LOG_DEBUG_MATRIX(PA);
-
-        /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
-        LIxL.A = L = get_lower_triangular(PA);
-        LOG_DEBUG_MATRIX(L);
-        LPA = mult(L, PA);
-        LOG_DEBUG_MATRIX(LPA);
-
-        /* 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
-         *                                  [LPA(2,1) | LPA(2,2)]*/
-        subA = GET_BLOCK_MATRIX(LPA, j + 1U);
-        LOG_DEBUG_MATRIX(subA);
-        /* 4) call recursively */
-        U = echelon(subA);
-        LOG_INFO("return U");
-        LOG_DEBUG_MATRIX(U);
-        if (U->rows == 1U)
-        {
-            if (fabs(U->val[0U]) < FLT_EPSILON)
-            {
-                LOG_WARNING("Matrix is singular.");
-            }
-        }
-
-        /* 5) set U as LPS(2,2) in LPA */
-        U = set_block_matrix(LPA, j + 1U, j + 1U, U);
-        LOG_DEBUG_MATRIX(U);
-
-        /* 6) break iteration to return back */
-        break;
+        PA_LU = malloc(sizeof(MATRIX*) * 6U);
+        PA_LU->PT = PA_LU->P = PA_LU->LI = PA_LU->L = id(1U);
+        PA_LU->A = PA_LU->U = A;
+        LOG_DEBUG_MATRIX(A);
+        return PA_LU;
     }
 
+    /* 1) get P for P x A product, if a(0,0) is zero */
+    P = get_permutation(A);
+    if (P != NULL)
+    {
+        PA = mult(P, A);
+    }
+    else
+    {
+        PA = A;
+    }
+    LOG_DEBUG_MATRIX(PA);
+
+    /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
+    L = get_lower_triangular(PA);
+    /* get the inverse of L */
+    LI = inverse(L);
+    LOG_DEBUG_MATRIX(L);
+    LPA = mult(L, PA);
+    LOG_DEBUG_MATRIX(LPA);
+
+    /* 3) get LPA(2,2) as A22 in LPA = [LPA(1,1) | LPA(1,2)]
+     *                                  [LPA(2,1) | LPA(2,2)]*/
+    A22 = GET_BLOCK_MATRIX(LPA, 1U);
+    LOG_DEBUG_MATRIX(A22);
+    /* 4) call recursively */
+    PA_LU = decomposition(A22);
+    LOG_INFO("return U");
+
+    /* 5) set U as LPA(2,2) in LPA */
+    U = set_block_matrix(LPA, 1U, 1U, PA_LU->U);
+    LOG_DEBUG_MATRIX(U);
+
     /* returning upper-triangular matrix from PA = LU */
-    return U;
+    PA_LU->PT = PA_LU->P = P;
+    PA_LU->LI = LI;
+    PA_LU->L = L;
+    PA_LU->A = A;
+    PA_LU->U = U;
+
+    return PA_LU;
 }
 
 uint32_t get_new_pivot(MATRIX *A)
@@ -173,10 +207,10 @@ static MATRIX* inverse(MATRIX *L)
 {
     MATRIX *LI = COPY_MATRIX(L);
 
-    for (uint32_t i = 1U; i < L->rows; i++)
+    for (uint32_t i = 1U; i < LI->rows; i++)
     {
-        uint32_t idx = TO_C_CONT(L, i, 0U);
-        L->val[idx] = -L->val[idx];
+        uint32_t idx = TO_C_CONT(LI, i, 0U);
+        LI->val[idx] = -L->val[idx];
     }
 
     return LI;
