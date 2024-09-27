@@ -192,28 +192,38 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
             return (MATRIX*)NULL;
         }
     }
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(B);
 
     C = push_matrix(A->rows, B->cols);
     if (C != NULL)
     {
         for (uint32_t row = 0U; row < A->rows; row++)
         {
-            uint32_t vecA = A->cols * row;
+            MATRIX *vecA = GET_ROW_VECTOR(A, row);
 
             for (uint32_t col = 0U; col < B->cols; col++)
             {
+                MATRIX *vecB = GET_COLUMN_VECTOR(B, col);
                 uint32_t pos = TO_C_CONT(C, row, col);
+
                 LOG_TRACE("C[%u,%u] ~ C[%u]", row, col, pos);
+                LOG_TRACE("a(%u,*):= row vector of A", row);
+                LOG_TRACE("b(*,%u):= column vector of B", col);
+
+                LOG_DEBUG_MATRIX(vecA);
+                LOG_DEBUG_MATRIX(vecB);
 
                 for (uint32_t i = 0; i < A->cols; i++)
                 {
-                    uint32_t vecB = B->cols * i;
-                    LOG_TRACE("A[%u,%u] * B[%u,%u] := A[%u] x B[%u]", row, i, col, vecB + col, vecA + i, vecB + col);
-                    C->val[pos] += A->val[vecA + i] * B->val[vecB + col];
+                    C->val[pos] += vecA->val[i] * vecB->val[i];
                 }
+                LOG_TRACE("C[%u,%u] := %f", row, col, C->val[pos]);
             }
         }
     }
+
+    LOG_DEBUG_MATRIX(C);
 
     return C;
 }
