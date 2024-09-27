@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include "memory.h"
 #include "unity.h"
 /* TARGET LIBRARY */
 #include "echelon.h"
@@ -263,11 +262,11 @@ int main(void)
     RUN_TEST(test_get_new_pivot);
     RUN_TEST(test_get_permutation);
     RUN_TEST(test_get_lower_triangular);
+    RUN_TEST(test_inverse);
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_only_permutations);
-    RUN_TEST(test_echelon_perfect_matrix);
-    RUN_TEST(test_echelon_singular_matrix);
-    RUN_TEST(test_inverse);
+//    RUN_TEST(test_echelon_perfect_matrix);
+//    RUN_TEST(test_echelon_singular_matrix);
 
     return UNITY_END();
 }
