@@ -100,6 +100,16 @@ extern "C" {
 #endif
 
 /**
+ * @example    LOG_WARNING_MATRIX(A);
+ */
+#if LOG_LEVEL_WARNING <= LOG_CONFIG
+    #define LOG_WARNING_MATRIX(A) \
+    log_matrix(LOG_LEVEL_WARNING, __FILE__, __LINE__, #A, A->val, A->rows, A->cols)
+#else
+    #define LOG_WARNING_MATRIX(A)
+#endif
+
+/**
  * @example    LOG_INFO_MATRIX(A);
  */
 #if LOG_LEVEL_INFO <= LOG_CONFIG
@@ -228,12 +238,12 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
     char buffer[MAX_STR_LEN];
 
     log_print(level, src, line, BOLD_GRAY("(MATRIX)%s in [%ux%u]"), name, rows, cols);
-    sprintf(word, "%5s = ", name);
+    sprintf(word, "%9s = ", name);
 
     for (uint32_t i = 0U, k = 0U; i < rows; i++, k = 0U)
     {
         /* Building "    " */
-        k += sprintf(&buffer[k], BOLD_GRAY("%8s["), word);
+        k += sprintf(&buffer[k], BOLD_GRAY("%12s["), word);
 
         for (uint32_t j = 0U; j < (cols - 1U); j++)
         {
