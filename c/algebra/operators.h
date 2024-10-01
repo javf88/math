@@ -207,12 +207,12 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
                 MATRIX *vecB = GET_COLUMN_VECTOR(B, col);
                 uint32_t pos = TO_C_CONT(C, row, col);
 
+                LOG_DEBUG_MATRIX(vecA);
+                LOG_DEBUG_MATRIX(vecB);
+
                 LOG_TRACE("C[%u,%u] ~ C[%u]", row, col, pos);
                 LOG_TRACE("a(%u,*):= row vector of A", row);
                 LOG_TRACE("b(*,%u):= column vector of B", col);
-
-                LOG_DEBUG_MATRIX(vecA);
-                LOG_DEBUG_MATRIX(vecB);
 
                 for (uint32_t i = 0; i < A->cols; i++)
                 {
