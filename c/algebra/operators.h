@@ -192,8 +192,8 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
             return (MATRIX*)NULL;
         }
     }
-    LOG_DEBUG_MATRIX(A);
-    LOG_DEBUG_MATRIX(B);
+    LOG_INFO_MATRIX(A);
+    LOG_INFO_MATRIX(B);
 
     C = push_matrix(A->rows, B->cols);
     if (C != NULL)
@@ -223,7 +223,7 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
         }
     }
 
-    LOG_DEBUG_MATRIX(C);
+    LOG_INFO_MATRIX(C);
 
     return C;
 }
@@ -264,7 +264,7 @@ MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
     }
 
     /* permuting(swapping) I[a,*] with I[b,*] rows */
-    LOG_INFO("Swapping row %u and %u", a, b);
+    LOG_TRACE("Swapping row %u and %u", a, b);
     I->val[TO_C_CONT(I, a, a)] = I->val[TO_C_CONT(I, b, b)] = 0.0F;
     I->val[TO_C_CONT(I, a, b)] = I->val[TO_C_CONT(I, b, a)] = 1.0F;
 

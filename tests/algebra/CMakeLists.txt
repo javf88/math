@@ -37,3 +37,15 @@ target_link_libraries(echelon
 
 add_test(NAME echelon.UnitTest
     COMMAND echelon)
+
+# echelon submodule
+add_executable(decomposition
+    decomposition.c)
+
+target_link_libraries(decomposition
+    PRIVATE unity::framework
+    PRIVATE log
+    PRIVATE algebra)
+
+add_test(NAME decomposition.UnitTest
+    COMMAND decomposition)

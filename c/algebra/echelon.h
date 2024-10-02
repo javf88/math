@@ -69,10 +69,11 @@ MATRIX* echelon(MATRIX *A)
     PA_LU *PA_LU = decomposition(A);
     if (PA_LU != NULL)
     {
+        LOG_DEBUG_MATRIX(PA_LU->PT);
         return PA_LU->U;
     }
 
-    return NULL;;
+    return NULL;
 }
 
 PA_LU* decomposition(MATRIX *A)
@@ -88,6 +89,8 @@ PA_LU* decomposition(MATRIX *A)
     if (A->cols != A->rows)
     {
         LOG_WARNING("Matrix is not a square matrix.");
+        LOG_WARNING_MATRIX(A);
+
         return NULL;
     }
 
@@ -100,10 +103,12 @@ PA_LU* decomposition(MATRIX *A)
         PA_LU = malloc(sizeof(MATRIX*) * 6U);
         PA_LU->PT = PA_LU->P = PA_LU->LI = PA_LU->L = id(1U);
         PA_LU->A = PA_LU->U = A;
-        LOG_DEBUG_MATRIX(A);
+        LOG_WARNING_MATRIX(A);
+
         return PA_LU;
     }
 
+    LOG_INFO_MATRIX(A);
     /* 1) get P for P x A product, if a(0,0) is zero */
     P = get_permutation(A);
     if (P != NULL)
@@ -112,32 +117,39 @@ PA_LU* decomposition(MATRIX *A)
     }
     else
     {
+        LOG_INFO("P is identity");
         PA = A;
     }
-    LOG_DEBUG_MATRIX(PA);
 
     /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
     L = get_lower_triangular(PA);
     /* get the inverse of L */
     LI = inverse(L);
-    LOG_DEBUG_MATRIX(L);
+    LOG_INFO_MATRIX(L);
     LPA = mult(L, PA);
-    LOG_DEBUG_MATRIX(LPA);
+    LOG_INFO_MATRIX(LPA);
 
     /* 3) get LPA(2,2) as A22 in LPA = [LPA(1,1) | LPA(1,2)]
      *                                  [LPA(2,1) | LPA(2,2)]*/
     A22 = GET_BLOCK_MATRIX(LPA, 1U);
-    LOG_DEBUG_MATRIX(A22);
+    LOG_WARNING_MATRIX(A22);
+    LOG_WARNING_MATRIX(P);
     /* 4) call recursively */
     PA_LU = decomposition(A22);
-    LOG_INFO("return U");
-
+    LOG_WARNING("return U");
+    LOG_WARNING_MATRIX(PA_LU->P);
     /* 5) set U as LPA(2,2) in LPA */
     U = set_block_matrix(LPA, 1U, 1U, PA_LU->U);
-    LOG_DEBUG_MATRIX(U);
+    LOG_WARNING_MATRIX(U);
 
-    /* returning upper-triangular matrix from PA = LU */
-    PA_LU->PT = PA_LU->P = P;
+    if (P == NULL)
+    {
+        PA_LU->PT = PA_LU->P = id(A22->rows);
+    }
+    else
+    {
+        PA_LU->PT = PA_LU->P = P;
+    }
     PA_LU->LI = LI;
     PA_LU->L = L;
     PA_LU->A = A;
