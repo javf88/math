@@ -5,7 +5,9 @@
 #include "unity.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
-#include "levels.h"
+/* A very bad practice, but this is for testing the static functions, rather
+ * than doubling declarations and prototypes */
+#include "levels.c"
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */

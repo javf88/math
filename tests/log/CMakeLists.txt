@@ -4,12 +4,18 @@
 
 # levels submodule
 add_executable(levels
-    levels.c)
+    static.c)
 
 target_link_libraries(levels
     PRIVATE unity::framework
-    PRIVATE algebra
-    PRIVATE log)
+    PRIVATE algebra)
+
+# the next two target_* are consequence of #include "levels.c"
+target_include_directories(levels
+    PRIVATE $<TARGET_PROPERTY:log,INTERFACE_INCLUDE_DIRECTORIES>)
+
+target_compile_definitions(levels
+    PRIVATE $<TARGET_PROPERTY:log,COMPILE_DEFINITIONS>)
 
 add_test(NAME levels.UnitTest
     COMMAND levels)
