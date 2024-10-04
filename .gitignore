@@ -1,0 +1,10 @@
+# system dirs
+.cache
+build
+
+# C dev
+# Vim
+*.swp
+
+# Executables
+*.out
