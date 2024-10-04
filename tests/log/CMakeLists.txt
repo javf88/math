@@ -16,7 +16,8 @@ target_link_libraries(levels
 
 target_compile_definitions(levels
     PRIVATE LOG_TO_FILE=1U
-    PRIVATE LOG_CONFIG=LOG_LEVEL_TRACE)
+    PRIVATE LOG_CONFIG=LOG_LEVEL_TRACE
+    PRIVATE LOG_UNIT_TEST)
 
 add_test(NAME levels.UnitTest
     COMMAND levels)
