@@ -3,15 +3,15 @@
 /******************************************************************************/
 
 #include "file.h"
+#include "levels.h"
 
 /******************************************************************************/
 /*    PRIVATE DATA                                                            */
 /******************************************************************************/
 
-/* file handler */
-static FILE *toFile = NULL;
-
 #define MAX_NAME_LEN  (50U)
+
+#define FORCED_INIT_VAL     NULL
 
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
@@ -19,131 +19,169 @@ static FILE *toFile = NULL;
 
 void constructor(void)
 {
-    int32_t exists;
-    log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Calling constructor().");
-
-    file = init(file, LOG_TO_FILE);
-    exists = name(file);
-    if (exists > -1)
-    {
-        open(file);
-        /* from levels.h */
-        toFile = file->descriptor;
-    }
+    init(LOG_TO_FILE);
+    LOG_DEBUG("Calling constructor().");
 
     return;
 }
 
 void destructor(void)
 {
-    /* from levels.h */
-    toFile = NULL;
+    LOG *file = get();
+    LOG_DEBUG("Calling destructor().");
 
-    log_print(LOG_LEVEL_DEBUG, __FILE__, __LINE__, "Calling destructor().");
-    if (file != NULL)
+    file++;
+    if (file->name != NULL)
     {
-        for (LOG *itr = file; itr->name != NULL; itr++)
-        {
-            log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "Closing file %s", itr->name);
-            fflush(itr->descriptor);
-            fclose(itr->descriptor);
-            if (strcmp(itr->name, "stderr") != 0)
-            {
-                free(itr->name);
-                itr->descriptor = NULL;
-                itr->name = NULL;
-            }
-        }
+        LOG_INFO("Closing file %s", file->name);
+        free(file->name);
+        file->name = NULL;
     }
 
-    file = NULL;
+    if (file->descriptor != NULL)
+    {
+        LOG_INFO("Flushing file %p", file->descriptor);
+        fflush(file->descriptor);
+        fclose(file->descriptor);
+        file->descriptor = NULL;
+    }
 
+    LOG_DEBUG("Freeing \"static LOG *files\".");
     return;
 }
 
-STATIC LOG* init(LOG *files, uint32_t toFileFlag)
+STATIC LOG* get()
 {
-    const LOG vec[2U] = {{stderr, "stderr"}, {NULL, NULL}};
+    /* Only the last {NULL, NULL} is a sentinel,
+     * the second for the actual LOG* file */
+    const LOG initial[3U] = {{stderr, "stderr"}, {NULL, NULL}, {NULL, NULL}};
 
-    if (files != NULL)
+    static LOG *files = NULL;
+    if (files == NULL)
     {
-        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Logging module was not initialized.");
-        return files;
+        files = malloc(sizeof(LOG) * 3U);
+        memcpy(files, initial, sizeof(LOG) * 3U);
     }
 
-    /* Creatign a vector of size 2 or 3  */
-    files = (LOG*)malloc(sizeof(LOG) * 2U + toFileFlag);
-    memcpy(&files[toFileFlag], vec, sizeof(LOG) * 2U);
+    return files;
+}
+
+LOG* set(LOG *newFile)
+{
+    /* file is "static LOG *files" */
+    LOG *files, *tmp;
+    tmp = files = get();
+    tmp++;
+
+    if (newFile == FORCED_INIT_VAL)
+    {
+        tmp->descriptor = FORCED_INIT_VAL;
+        tmp->name = FORCED_INIT_VAL;
+    }
+    else
+    {
+        if (tmp->descriptor == FORCED_INIT_VAL)
+        {
+            memcpy(tmp, newFile, sizeof(LOG));
+        }
+        else
+        {
+            LOG_WARNING("File %s:%p was not set.", newFile->name, newFile->descriptor);
+        }
+    }
 
     return files;
 }
 
 STATIC int32_t make(const char *dir)
 {
+    /* Forcing initial state */
+    errno = 0;
     /* Creating rel dir */
     mkdir(dir, 0777);
     switch (errno)
     {
         case 0:
-            log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "Directory %s was created. [CODE %d]", dir, errno);
+            LOG_INFO("Directory %s was created. [CODE %d]", dir, errno);
             break;
         case EEXIST:
-            log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Directory %s exists already. [CODE %d]", dir, errno);
+            LOG_WARNING("Directory %s exists already. [CODE %d]", dir, errno);
             break;
         case ENOENT:
         default:
             /* If dir is not created, opening file routine cleans up */
-            log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Directory %s was not created! [CODE %d]", dir, errno);
+            LOG_WARNING("Directory %s was not created! [CODE %d]", dir, errno);
             break;
     }
 
     return errno;
 }
 
-STATIC int32_t name(LOG *file)
+STATIC char* make_name(const char *nameFormat)
 {
-    int32_t ret;
-
-    file->name = malloc(sizeof(char) * MAX_STR_LEN);
-    if (file->name == NULL)
+    char *name = malloc(sizeof(char) * MAX_STR_LEN);
+    if (name == NULL)
     {
-        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "Logging file was not created.");
-        ret = -1;
+        LOG_WARNING("Filename was not created.");
     }
     else
     {
-        /* Creating dir */
-        ret = make("tmp");
-        if (ret > -1)
+        time_t secs;
+        /* Creating tmp name */
+        time(&secs);
+        sprintf(name, nameFormat, secs);
+        LOG_INFO("Name %s was made.", name);
+    }
+
+    return name;
+}
+
+STATIC LOG* open(char *filename)
+{
+    LOG *file = malloc(sizeof(LOG));
+    file->descriptor = fopen(filename, "w");
+    if (file->descriptor == NULL)
+    {
+        LOG_WARNING("File %s was not created! [CODE %d]", file->name, errno);
+        free(file);
+        file = NULL;
+    }
+    else
+    {
+        file->name = filename;
+        LOG_INFO("File %s:%p was created.", file->name, file->descriptor);
+    }
+
+    return file;
+}
+
+STATIC LOG* init(uint32_t toFileFlag)
+{
+    LOG *files = get();
+    if (toFileFlag == 0U)
+    {
+        LOG_INFO("Logging only into stderr.");
+    }
+    else
+    {
+        if (make("tmp") == 0)
         {
-            time_t secs;
-            /* Creating tmp name */
-            time(&secs);
-            memset(file->name, 0, sizeof(char) * MAX_NAME_LEN);
-            sprintf(file->name, "tmp/%ld.log", secs);
+            char *name = make_name("tmp/%ld.log");
+            if (name != NULL)
+            {
+                LOG *newFile = open(name);
+                /* Copying newFile into files[1U] entry(initial variable) */
+                files = set(newFile);
+                LOG_INFO("Logging into stderr and %s file.", files[1U].name);
+
+                free(newFile);
+            }
+        }
+        else
+        {
+            /* Error is processed inside make() */
         }
     }
 
-    return ret;
-}
-
-STATIC LOG* open(LOG *file)
-{
-    LOG *ret = NULL;
-    file->descriptor = fopen(file->name, "w");
-    if (file->descriptor == NULL)
-    {
-        log_print(LOG_LEVEL_WARNING, __FILE__, __LINE__, "File was not created! [CODE %d]", errno);
-        free(file->name);
-        free(file);
-
-        ret = NULL;
-    }
-    else
-    {
-        log_print(LOG_LEVEL_INFO, __FILE__, __LINE__, "File %s was created.", file->name);
-        ret = file;
-    }
-
-    return ret;
+    return files;
 }

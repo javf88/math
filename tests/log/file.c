@@ -25,35 +25,43 @@ void tearDown(void)
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
 
-void test_init(void)
+void test_get(void)
 {
-    /* Wrong (LOG*)1U value */
-    LOG *nullPtr = init((LOG*)1U, 0U);
-    TEST_ASSERT_EQUAL_PTR ((LOG*)1U, nullPtr);
+    const LOG *files = get();;
+    TEST_ASSERT_NOT_NULL(files);
+    /* Default stream */
+    TEST_ASSERT_NOT_NULL(files[0U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[0U].name);
+    TEST_ASSERT_EQUAL_STRING("stderr", files[0U].name);
+    /* Log file placeholder with inital vals as NULL */
+    TEST_ASSERT_NULL(files[1U].descriptor);
+    TEST_ASSERT_NULL(files[1U].name);
+    /* Sentinel element */
+    TEST_ASSERT_NULL(files[2U].descriptor);
+    TEST_ASSERT_NULL(files[2U].name);
+}
 
-    /* LOG_TO_FILE is either 0U or 1U */
-    /* len(file) == 2U */
-    file = init(file, 0U);
-    TEST_ASSERT_NOT_NULL(file);
-    TEST_ASSERT_EQUAL_STRING("stderr", file[0U].name);
-    TEST_ASSERT_EQUAL_PTR(stderr, file[0U].descriptor);
-    TEST_ASSERT_NULL(file[1U].name);
-    TEST_ASSERT_NULL(file[1U].descriptor);
-    free(file);
-    file = NULL;
+void test_set(void)
+{
+    LOG newFile = {stdout, "stdout"};
+    LOG *files = set(&newFile);
+    TEST_ASSERT_NOT_NULL(files);
+    /* Default stream */
+    TEST_ASSERT_NOT_NULL(files[0U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[0U].name);
+    TEST_ASSERT_EQUAL_STRING("stderr", files[0U].name);
+    /* new stream */
+    TEST_ASSERT_NOT_NULL(files[1U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[1U].name);
+    TEST_ASSERT_EQUAL_STRING("stdout", files[1U].name);
+    /* Sentinel */
+    TEST_ASSERT_NULL(files[2U].descriptor);
+    TEST_ASSERT_NULL(files[2U].name);
 
-    /* len(file) == 3U */
-    file = init(file, 1U);
-    TEST_ASSERT_NOT_NULL(file);
-    TEST_ASSERT_NULL(file[0U].name);
-    TEST_ASSERT_NULL(file[0U].descriptor);
-    TEST_ASSERT_EQUAL_STRING("stderr", file[1U].name);
-    TEST_ASSERT_EQUAL_PTR(stderr, file[1U].descriptor);
-    TEST_ASSERT_NULL(file[2U].name);
-    TEST_ASSERT_NULL(file[2U].descriptor);
-    free(file);
-    file = NULL;
-
+    files = set((LOG*)NULL);
+    /* reset to inital vals (NULL) */
+    TEST_ASSERT_NULL(files[1U].descriptor);
+    TEST_ASSERT_NULL(files[1U].name);
 }
 
 void test_make(void)
@@ -66,33 +74,74 @@ void test_make(void)
     remove("dummy");
 }
 
-void test_name(void)
+void test_make_name(void)
 {
-    LOG newFile;
+    char buffer[256U];
     time_t secs;
-    char filename[50U];
-
     time(&secs);
-    name(&newFile);
-    sprintf(filename, "tmp/%ld.log", secs);
-    TEST_ASSERT_EQUAL_STRING(filename, newFile.name);
+    const char *format = "tmp/%ld.log";
+    char *name = make_name(format);
+
+    sprintf(buffer, format, secs);
+    TEST_ASSERT_EQUAL_STRING(buffer, name);
 }
 
 void test_open(void)
 {
-    char filename[] = "test.log";
-    LOG newFile = {NULL, filename};
-    TEST_ASSERT_EQUAL_PTR(&newFile, open(&newFile));
+    char *filename = make_name("test.log");
 
-    fflush(newFile.descriptor);
-    fclose(newFile.descriptor);
+    LOG *file = open(filename);
+    TEST_ASSERT_NOT_NULL(file);
+    TEST_ASSERT_NOT_NULL(file->descriptor);
+    TEST_ASSERT_EQUAL_STRING("test.log", file->name);
 
     remove(filename);
 }
 
+void test_init(void)
+{
+    /* LOG_TO_FILE OFF */
+    LOG *files = init(0U);
+    TEST_ASSERT_NOT_NULL(files);
+    /* Default stream */
+    TEST_ASSERT_NOT_NULL(files[0U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[0U].name);
+    TEST_ASSERT_EQUAL_STRING("stderr", files[0U].name);
+    /* Log file placeholder with inital vals as NULL */
+    TEST_ASSERT_NULL(files[1U].descriptor);
+    TEST_ASSERT_NULL(files[1U].name);
+    /* Sentinel element */
+    TEST_ASSERT_NULL(files[2U].descriptor);
+    TEST_ASSERT_NULL(files[2U].name);
+
+    char buffer[256U];
+    time_t secs;
+    time(&secs);
+    sprintf(buffer, "tmp/%ld.log", secs);
+    /* LOG_TO_FILE ON */
+    files = init(1U);
+    TEST_ASSERT_NOT_NULL(files);
+    /* Default stream */
+    TEST_ASSERT_NOT_NULL(files[0U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[0U].name);
+    TEST_ASSERT_EQUAL_STRING("stderr", files[0U].name);
+    /* new stream */
+    TEST_ASSERT_NOT_NULL(files[1U].descriptor);
+    TEST_ASSERT_NOT_NULL(files[1U].name);
+    TEST_ASSERT_EQUAL_STRING(buffer, files[1U].name);
+    /* Sentinel */
+    TEST_ASSERT_NULL(files[2U].descriptor);
+    TEST_ASSERT_NULL(files[2U].name);
+
+    /* Clean up */
+    remove(files[1U].name);
+    remove("tmp");
+}
+
 void test_constructor(void)
 {
-    /* LOG_TO_FILE is 1U due to the buildsystem */
+    LOG *files = get();
+
     time_t secs;
     char filename[50U];
 
@@ -101,34 +150,36 @@ void test_constructor(void)
     sprintf(filename, "tmp/%ld.log", secs);
 
     constructor();
-    TEST_ASSERT_EQUAL_STRING(filename, file[0U].name);
-    TEST_ASSERT_NOT_NULL(file[0U].descriptor);
-    TEST_ASSERT_EQUAL_STRING("stderr", file[1U].name);
-    TEST_ASSERT_EQUAL_PTR(stderr, file[1U].descriptor);
-
-    free(file[0U].name);
-    free(file);
-    file = NULL;
+    TEST_ASSERT_NOT_NULL(files[1U].descriptor);
+    TEST_ASSERT_EQUAL_STRING(filename, files[1U].name);
 
     remove(filename);
+    remove("tmp");
 }
 
 void test_destructor(void)
 {
+    char name[256U];
+    LOG *file = get();
     constructor();
 
+    sprintf(name, "%s", file[1U].name);
+
     destructor();
-    TEST_ASSERT_NULL(file);
+    remove(name);
+    remove("tmp");
 }
 
 int main(void)
 {
     UNITY_BEGIN();
 
-    RUN_TEST(test_init);
+    RUN_TEST(test_get);
+    RUN_TEST(test_set);
     RUN_TEST(test_make);
-    RUN_TEST(test_name);
+    RUN_TEST(test_make_name);
     RUN_TEST(test_open);
+    RUN_TEST(test_init);
     RUN_TEST(test_constructor);
     RUN_TEST(test_destructor);
 

@@ -28,6 +28,16 @@ extern "C" {
 #include "levels.h"
 
 /******************************************************************************/
+/*    PUBLIC TYPES                                                            */
+/******************************************************************************/
+
+typedef struct Log
+{
+    FILE *descriptor;
+    char *name;
+} LOG;
+
+/******************************************************************************/
 /*    DEFINITIONS                                                             */
 /******************************************************************************/
 
@@ -75,29 +85,24 @@ CONSTRUCTOR void constructor(void);
  */
 DESTRUCTOR void destructor(void);
 
-/******************************************************************************/
-/*    PUBLIC TYPES                                                            */
-/******************************************************************************/
-
-typedef struct Log
-{
-    FILE *descriptor;
-    char *name;
-} LOG;
-
-static LOG *file = NULL;
+/**
+ * @brief   A getter of the LOG initial[3U] = {{stderr, "stderr"},...}};
+ */
+LOG* get();
 
 /******************************************************************************/
 /*    STATIC FUNCTION PROTOTYPES                                              */
 /******************************************************************************/
 
-STATIC LOG* init(LOG *files, uint32_t toFileFlag);
+STATIC LOG* set(LOG *newFile);
 
 STATIC int32_t make(const char *dir);
 
-STATIC int32_t name(LOG *file);
+STATIC char* make_name(const char *nameFormat);
 
-STATIC LOG* open(LOG *file);
+STATIC LOG* open(char *filename);
+
+STATIC LOG* init(uint32_t toFileFlag);
 
 #ifdef __cplusplus
 }
