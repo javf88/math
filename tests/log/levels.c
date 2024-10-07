@@ -2,6 +2,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include "file.h"
 #include "unity.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
@@ -28,7 +29,7 @@ void tearDown(void)
 
 void test_get_src(void)
 {
-    char *buffer = malloc(sizeof(char) * 256U);
+    char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
     char *actual = NULL;
 
     sprintf(buffer, RED("[ ERROR ] %s:%d"), __FILE__, 44);
@@ -76,7 +77,7 @@ void test_get_msg(void)
 {
     char *actual = create_variadic_args("%s:%d %s", "test", 87, "END");
 
-    char *buffer = malloc(sizeof(char) * 256U);
+    char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
     sprintf(buffer, "%s:%d %s", "test", 87, "END");
 
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
@@ -85,17 +86,19 @@ void test_get_msg(void)
     free(buffer);
 }
 
-void test_log_matrix(void)
+void test_tee_printf(void)
 {
-    MATRIX *A = push_matrix(5U, 5U);
-    /* TODO: need to add write to file, and compare against */
-    LOG_INFO_MATRIX(A);
+    char filename[256U];
+    time_t secs;
 
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
+    time(&secs);
+    sprintf(filename, "tmp/%ld.log", secs);
+    printf("filename: %s\n", filename);
+    constructor();
+    destructor();
+
+    remove(filename);
+    remove("tmp");
 }
 
 int main(void)
@@ -104,7 +107,7 @@ int main(void)
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
-    RUN_TEST(test_log_matrix);
+    RUN_TEST(test_tee_printf);
 
     return UNITY_END();
 }

@@ -31,6 +31,8 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 
+#include "file.h"
+
 /******************************************************************************/
 /*    DEFINITIONS                                                             */
 /******************************************************************************/
@@ -174,7 +176,7 @@ STATIC char* get_src(const uint32_t level, const char *src, const uint32_t line)
 
 STATIC char* get_msg(const char *format, const va_list args);
 
-STATIC void tee_printf(const char *str, FILE *toFile);
+STATIC void tee_printf(const char *str);
 
 #ifdef __cplusplus
 }
