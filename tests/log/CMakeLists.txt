@@ -35,6 +35,9 @@ target_compile_definitions(file
     PRIVATE LOG_CONFIG=LOG_LEVEL_TRACE
     PRIVATE LOG_UNIT_TEST)
 
+target_compile_options(file
+    PRIVATE $<TARGET_PROPERTY:log,COMPILE_OPTIONS>)
+
 add_test(NAME file.UnitTest
     COMMAND file)
 

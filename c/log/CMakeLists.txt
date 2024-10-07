@@ -15,3 +15,6 @@ target_compile_definitions(log
     PRIVATE LOG_CONFIG=${LOG_CONFIG}
     # For now we keep this macro, I need to consolidate for advanced use
     PRIVATE LOG_UNIT_TEST)
+
+target_compile_options(log
+    PUBLIC -g)
