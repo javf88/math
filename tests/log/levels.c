@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include "file.h"
 #include "unity.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
