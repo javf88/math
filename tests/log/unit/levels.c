@@ -92,10 +92,10 @@ void test_tee_printf(void)
 
     time(&secs);
     sprintf(filename, "tmp/%ld.log", secs);
-    printf("filename: %s\n", filename);
     constructor();
     destructor();
 
+    /* Indirect test, by removing we make sure next test-run does not break */
     remove(filename);
     remove("tmp");
 }

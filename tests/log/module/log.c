@@ -2,6 +2,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include "levels.h"
 #include "unity.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
@@ -39,9 +40,13 @@ void test_examples(void)
 void test_log_matrix(void)
 {
     MATRIX *A = push_matrix(5U, 5U);
-    /* TODO: need to add write to file, and compare against */
+
+    LOG_INFO("A matrix is printed.");
     LOG_INFO_MATRIX(A);
 
+    LOG_DEBUG("This test is to test/validate the constructor and destructor");
+    LOG_DEBUG("of the file.h submodule. There should be a new folder/file");
+    LOG_DEBUG("like tmp/<SOME_NUMBER>.log");
     do {
         /* The stack starts with a non-NULL value */
         TEST_ASSERT_NOT_NULL(stack);

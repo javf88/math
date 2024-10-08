@@ -50,7 +50,7 @@ void destructor(void)
     return;
 }
 
-STATIC LOG* get()
+LOG* get()
 {
     /* Only the last {NULL, NULL} is a sentinel,
      * the second for the actual LOG* file */
@@ -66,7 +66,7 @@ STATIC LOG* get()
     return files;
 }
 
-LOG* set(LOG *newFile)
+STATIC LOG* set(LOG *newFile)
 {
     /* file is "static LOG *files" */
     LOG *files, *tmp;
@@ -164,22 +164,16 @@ STATIC LOG* init(uint32_t toFileFlag)
     }
     else
     {
-        if (make("tmp") == 0)
+        make("tmp");
+        char *name = make_name("tmp/%ld.log");
+        if (name != NULL)
         {
-            char *name = make_name("tmp/%ld.log");
-            if (name != NULL)
-            {
-                LOG *newFile = open(name);
-                /* Copying newFile into files[1U] entry(initial variable) */
-                files = set(newFile);
-                LOG_INFO("Logging into stderr and %s file.", files[1U].name);
+            LOG *newFile = open(name);
+            /* Copying newFile into files[1U] entry(initial variable) */
+            files = set(newFile);
+            LOG_INFO("Logging into stderr and %s file.", files[1U].name);
 
-                free(newFile);
-            }
-        }
-        else
-        {
-            /* Error is processed inside make() */
+            free(newFile);
         }
     }
 
