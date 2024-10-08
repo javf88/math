@@ -5,7 +5,7 @@
 #include "unity.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
-#include "file.h"
+#include "log.h"
 
 /******************************************************************************/
 /*    PRELUDE                                                                 */
@@ -28,7 +28,7 @@ void tearDown(void)
 
 void test_examples(void)
 {
-    LOG_TRACE("A file with several lines is generated!");
+    LOG_INFO("A file with several lines is generated!");
     LOG_ERROR("This should be an error! LOG_LEVEL_ERROR: %u", LOG_LEVEL_ERROR);
     LOG_WARNING("This should be an warning! LOG_LEVEL_WARNING: %u", LOG_LEVEL_WARNING);
     LOG_INFO("This should be an info! LOG_LEVEL_INFO: %u", LOG_LEVEL_INFO);

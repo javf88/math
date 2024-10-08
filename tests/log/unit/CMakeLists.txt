@@ -40,20 +40,3 @@ target_compile_options(file
 
 add_test(NAME file.UnitTest
     COMMAND file)
-
-# log module
-add_executable(logModule
-    log.c)
-
-target_link_libraries(logModule
-    PRIVATE unity::framework
-    PRIVATE algebra
-    PRIVATE log)
-
-target_compile_definitions(logModule
-    PRIVATE LOG_TO_FILE=1U
-    PRIVATE LOG_CONFIG=LOG_LEVEL_TRACE
-    PRIVATE LOG_UNIT_TEST)
-
-add_test(NAME log.ModuleTest
-    COMMAND logModule)
