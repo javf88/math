@@ -104,16 +104,19 @@ void log_info(const char *str)
     size_t pos = 0U;
     int32_t padding = info->maxLineLength;
 
+    printf("padding: %d\n", padding);
     padding -= info->marginLength + info->bracketLength + info->strLength;
+    printf("padding: %d\n", padding);
     padding = padding / 2U;
+    printf("padding: %d\n", padding);
 
     pos = sprintf(&buffer[pos], "%s", info->color);
     /* Printing "[ TEST ] /.**..." */
-    pos = sprintf(&buffer[pos], "%s%.*s  ", info->margin, padding, info->padding);
+    pos += sprintf(&buffer[pos], "%s%.*s  ", info->margin, padding, info->padding);
     pos += sprintf(&buffer[pos], "%s", info->str);
     /* Printing "..**./" */
     pos += sprintf(&buffer[pos], "  %.*s/", padding, info->padding);
-    pos = sprintf(&buffer[pos], "%s\n", COLOR_END);
+    pos += sprintf(&buffer[pos], "%s\n", COLOR_END);
 
     log_tee(buffer);
 }
