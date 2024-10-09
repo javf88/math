@@ -4,7 +4,7 @@
 *
 *   SUMMARY
 *       This submodule implements some unnecessary but yet useful information
-*       at test function level, namnely:
+*       at test function level, namely:
 *
 *       a) file info
 *          [ TEST ] ****  playground/math/tests/algebra/decomposition.c  ****

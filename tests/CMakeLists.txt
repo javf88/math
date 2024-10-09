@@ -4,7 +4,7 @@
 
 add_library(utilities INTERFACE)
 target_include_directories(utilities
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Logging system
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
