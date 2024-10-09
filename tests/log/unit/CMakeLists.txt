@@ -8,6 +8,7 @@ add_executable(levels
 
 target_link_libraries(levels
     PRIVATE unity::framework
+    PRIVATE utilities
     PRIVATE log)
 
 target_compile_definitions(levels

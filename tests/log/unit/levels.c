@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include "unity.h"
+#include "utilities.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
 #include "levels.h"
