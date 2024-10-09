@@ -113,7 +113,7 @@ void log_info(const char *str)
     pos += sprintf(&buffer[pos], "%s", info->str);
     /* Printing "..**./" */
     pos += sprintf(&buffer[pos], "  %.*s/", padding, info->padding);
-    pos = sprintf(&buffer[pos], "%s", COLOR_END);
+    pos = sprintf(&buffer[pos], "%s\n", COLOR_END);
 
     log_tee(buffer);
 }

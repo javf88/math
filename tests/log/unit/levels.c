@@ -23,6 +23,11 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
@@ -31,6 +36,7 @@ void test_get_src(void)
 {
     char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
     char *actual = NULL;
+    log_info(__FUNCTION__);
 
     sprintf(buffer, RED("[ ERROR ] %s:%d"), __FILE__, 44);
     actual = get_src(0, __FILE__, 44);
