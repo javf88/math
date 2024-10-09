@@ -8,8 +8,12 @@ add_executable(memory
 
 target_link_libraries(memory
     PRIVATE unity::framework
+    PRIVATE utilities
     PRIVATE log
     PRIVATE algebra)
+
+target_compile_definitions(memory
+    PRIVATE $<TARGET_PROPERTY:log,COMPILE_DEFINITIONS>)
 
 add_test(NAME memory.UnitTest
     COMMAND memory)
@@ -20,20 +24,12 @@ add_executable(operators
 
 target_link_libraries(operators
     PRIVATE unity::framework
+    PRIVATE utilities
     PRIVATE log
     PRIVATE algebra)
+
+target_compile_definitions(operators
+    PRIVATE $<TARGET_PROPERTY:log,COMPILE_DEFINITIONS>)
 
 add_test(NAME operators.UnitTest
     COMMAND operators)
-
-# echelon submodule
-add_executable(echelon
-    echelon.c)
-
-target_link_libraries(echelon
-    PRIVATE unity::framework
-    PRIVATE log
-    PRIVATE algebra)
-
-add_test(NAME echelon.UnitTest
-    COMMAND echelon)

@@ -3,7 +3,7 @@
 /******************************************************************************/
 
 #include "unity.h"
-#include "levels.h"
+#include "utilities.h"
 /* TARGET LIBRARY */
 #include "memory.h"
 
@@ -22,6 +22,11 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
@@ -29,6 +34,8 @@ void tearDown(void)
 void test_valid_malloc_and_free(void)
 {
     MATRIX *A = matrix_malloc(4U, 7U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
     TEST_ASSERT_EQUAL_UINT32(4U, A->rows);
     TEST_ASSERT_EQUAL_UINT32(7U, A->cols);
@@ -40,6 +47,7 @@ void test_valid_malloc_and_free(void)
 
 void test_matrix_push_and_pop(void)
 {
+    log_info(__FUNCTION__);
     TEST_ASSERT_NULL(stack);
 
     MATRIX *A = push_matrix(3U, 4U);
@@ -52,6 +60,8 @@ void test_matrix_push_and_pop(void)
 
 void test_push_and_pop(void)
 {
+    log_info(__FUNCTION__);
+
     for (uint32_t i = 0; i < 5U; i++)
     {
         for (uint32_t j = 0; j < 5U; j++)
@@ -74,6 +84,8 @@ void test_push_and_pop(void)
 void test_get_block_matrix(void)
 {
     MATRIX *A = push_matrix(6U, 6U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
     float val[36U] = { 1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 6.0F,
                        1.0F, 2.0F, 3.0F, 4.0F, 5.0F, 6.0F,
@@ -126,6 +138,8 @@ void test_get_block_matrix(void)
 void test_set_block_matrix(void)
 {
     MATRIX *A = push_matrix(6U, 6U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
     memset(A->val, 0, sizeof(float) * A->rows * A->cols);
 

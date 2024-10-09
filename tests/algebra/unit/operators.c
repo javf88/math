@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include "unity.h"
+#include "utilities.h"
 /* TARGET LIBRARY */
 #include "operators.h"
 
@@ -27,6 +28,11 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
@@ -34,6 +40,8 @@ void tearDown(void)
 void test_transpose(void)
 {
     MATRIX *A = NULL;
+    log_info(__FUNCTION__);
+
     /* Wrong input */
     A = transpose(A);
     TEST_ASSERT_NULL(A);
@@ -68,6 +76,8 @@ void test_transpose(void)
 void test_add(void)
 {
     MATRIX *A = push_matrix(3U, 5U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
 
     MATRIX *B = push_matrix(3U, 5U);
@@ -110,6 +120,8 @@ void test_add(void)
 
 void test_sub(void)
 {
+    log_info(__FUNCTION__);
+
     MATRIX *A = push_matrix(5U, 3U);
     TEST_ASSERT_NOT_NULL(A);
 
@@ -156,6 +168,8 @@ void test_sub(void)
 void test_mult(void)
 {
     MATRIX *A = push_matrix(4U, 1U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
 
     for (uint32_t i = 0; i < A->rows; i++)
@@ -209,7 +223,7 @@ void test_mult(void)
     }
 
     MATRIX *D = push_matrix(2U, 2U);
-    MATRIX *E = mult(D, E);
+    MATRIX *E = mult(D, C);
     TEST_ASSERT_NULL(E);
 }
 
@@ -217,6 +231,8 @@ void test_id(void)
 {
     /* TODO: to improve push when size is 0U */
     MATRIX *A = id(0U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(A);
 
     A = id(4U);
@@ -242,7 +258,13 @@ void test_id(void)
 void test_permute(void)
 {
     MATRIX *I = NULL;
-    float expI[25U] = {0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F};
+    log_info(__FUNCTION__);
+
+    float expI[25U] = {0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F,
+                       0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F,
+                       0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F, 0.0000000F,
+                       0.0000000F, 0.0000000F, 0.0000000F, 1.0000000F, 0.0000000F,
+                       1.0000000F, 0.0000000F, 0.0000000F, 0.0000000F, 0.0000000F};
 
     /* wrong arguments */
     I = permute(I, 2U, 5U);
