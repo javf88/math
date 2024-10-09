@@ -34,7 +34,7 @@ void log_print(const uint32_t level, const char *src, const uint32_t line,
     va_end(args);
 
     sprintf(buffer, "%s "BOLD_GRAY("%s")"\n", srcStr, msgStr);
-    tee_printf(buffer);
+    log_tee(buffer);
 
     free(srcStr);
     free(msgStr);
@@ -68,9 +68,20 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
         sprintf(word, "%.7f", val[cols * i + cols - 1U]);
         k += sprintf(&buffer[k], WHITE("%11s")BOLD_GRAY("]")"\n", word);
 
-        tee_printf(buffer);
+        log_tee(buffer);
         /* Clearing word with "    "  */
         sprintf(word, "%8s", "");
+    }
+}
+
+void log_tee(const char *str)
+{
+    LOG *file = get();
+    char buffer[MAX_STR_LEN];
+
+    for (LOG *itr = file; itr->name != NULL; itr++)
+    {
+        fprintf(itr->descriptor, "%s", str);
     }
 }
 
@@ -100,15 +111,4 @@ STATIC char* get_msg(const char *format, const va_list args)
     vsprintf(str, format, args);
 
     return str;
-}
-
-STATIC void tee_printf(const char *str)
-{
-    LOG *file = get();
-    char buffer[MAX_STR_LEN];
-
-    for (LOG *itr = file; itr->name != NULL; itr++)
-    {
-        fprintf(itr->descriptor, "%s", str);
-    }
 }

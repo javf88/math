@@ -168,6 +168,13 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
                 const char *name, const float *val, const uint32_t rows,
                 const uint32_t cols);
 
+/**
+ * @brief   Function that prints to stderr and FILE* streams
+ *
+ * @examples log_tee(__FILE__)
+ */
+void log_tee(const char *str);
+
 /******************************************************************************/
 /*    STATIC FUNCTION PROTOTYPES                                              */
 /******************************************************************************/
@@ -175,8 +182,6 @@ void log_matrix(const uint32_t level, const char *src, const uint32_t line,
 STATIC char* get_src(const uint32_t level, const char *src, const uint32_t line);
 
 STATIC char* get_msg(const char *format, const va_list args);
-
-STATIC void tee_printf(const char *str);
 
 #ifdef __cplusplus
 }

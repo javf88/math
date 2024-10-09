@@ -86,7 +86,7 @@ void test_get_msg(void)
     free(buffer);
 }
 
-void test_tee_printf(void)
+void test_log_tee(void)
 {
     char filename[256U];
     time_t secs;
@@ -107,7 +107,7 @@ int main(void)
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
-    RUN_TEST(test_tee_printf);
+    RUN_TEST(test_log_tee);
 
     return UNITY_END();
 }
