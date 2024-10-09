@@ -71,6 +71,7 @@ char* create_variadic_args(const char *format, ...)
 {
     char * actual = NULL;
     va_list args;
+    log_info(__FUNCTION__);
 
     va_start(args, format);
     actual = get_msg(format, args);
@@ -82,8 +83,9 @@ char* create_variadic_args(const char *format, ...)
 void test_get_msg(void)
 {
     char *actual = create_variadic_args("%s:%d %s", "test", 87, "END");
-
     char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
+    log_info(__FUNCTION__);
+
     sprintf(buffer, "%s:%d %s", "test", 87, "END");
 
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
@@ -96,6 +98,7 @@ void test_log_tee(void)
 {
     char filename[256U];
     time_t secs;
+    log_info(__FUNCTION__);
 
     time(&secs);
     sprintf(filename, "tmp/%ld.log", secs);

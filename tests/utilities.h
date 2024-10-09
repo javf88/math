@@ -104,11 +104,8 @@ void log_info(const char *str)
     size_t pos = 0U;
     int32_t padding = info->maxLineLength;
 
-    printf("padding: %d\n", padding);
     padding -= info->marginLength + info->bracketLength + info->strLength;
-    printf("padding: %d\n", padding);
     padding = padding / 2U;
-    printf("padding: %d\n", padding);
 
     pos = sprintf(&buffer[pos], "%s", info->color);
     /* Printing "[ TEST ] /.**..." */
