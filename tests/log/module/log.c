@@ -2,8 +2,8 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include "levels.h"
 #include "unity.h"
+#include "utilities.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
 #include "log.h"
@@ -23,12 +23,18 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
 
 void test_examples(void)
 {
+    log_info(__FUNCTION__);
     LOG_INFO("A file with several lines is generated!");
     LOG_ERROR("This should be an error! LOG_LEVEL_ERROR: %u", LOG_LEVEL_ERROR);
     LOG_WARNING("This should be an warning! LOG_LEVEL_WARNING: %u", LOG_LEVEL_WARNING);
@@ -40,6 +46,7 @@ void test_examples(void)
 void test_log_matrix(void)
 {
     MATRIX *A = push_matrix(5U, 5U);
+    log_info(__FUNCTION__);
 
     LOG_INFO("A matrix is printed.");
     LOG_INFO_MATRIX(A);

@@ -9,6 +9,7 @@ add_executable(logModule
 target_link_libraries(logModule
     PRIVATE unity::framework
     PRIVATE algebra
+    PRIVATE utilities
     PRIVATE log)
 
 target_compile_definitions(logModule
