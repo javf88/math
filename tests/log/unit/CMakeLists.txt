@@ -23,6 +23,7 @@ add_executable(file
 
 target_link_libraries(file
     PRIVATE unity::framework
+    PRIVATE utilities
     PRIVATE log)
 
 target_compile_definitions(file

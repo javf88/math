@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include "unity.h"
+#include "utilities.h"
 /* TARGET LIBRARY */
 #include "file.h"
 
@@ -21,6 +22,11 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
@@ -28,6 +34,8 @@ void tearDown(void)
 void test_get(void)
 {
     const LOG *files = get();;
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(files);
     /* Default stream */
     TEST_ASSERT_NOT_NULL(files[0U].descriptor);
@@ -44,7 +52,10 @@ void test_get(void)
 void test_set(void)
 {
     LOG newFile = {stdout, "stdout"};
-    LOG *files = set(&newFile);
+    LOG *files = NULL;
+    log_info(__FUNCTION__);
+
+    files = set(&newFile);
     TEST_ASSERT_NOT_NULL(files);
     /* Default stream */
     TEST_ASSERT_NOT_NULL(files[0U].descriptor);
@@ -66,6 +77,8 @@ void test_set(void)
 
 void test_make(void)
 {
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_EQUAL_INT32(0, make("dummy"));
     TEST_ASSERT_EQUAL_INT32(17, make("dummy"));
     TEST_ASSERT_EQUAL_INT32(2, make("test/dummy"));
@@ -77,10 +90,13 @@ void test_make(void)
 void test_make_name(void)
 {
     char buffer[256U];
+
     time_t secs;
     time(&secs);
+
     const char *format = "tmp/%ld.log";
     char *name = make_name(format);
+    log_info(__FUNCTION__);
 
     sprintf(buffer, format, secs);
     TEST_ASSERT_EQUAL_STRING(buffer, name);
@@ -89,8 +105,9 @@ void test_make_name(void)
 void test_open(void)
 {
     char *filename = make_name("test.log");
-
     LOG *file = open(filename);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(file);
     TEST_ASSERT_NOT_NULL(file->descriptor);
     TEST_ASSERT_EQUAL_STRING("test.log", file->name);
@@ -102,6 +119,8 @@ void test_init(void)
 {
     /* LOG_TO_FILE OFF */
     LOG *files = init(0U);
+    log_info(__FUNCTION__);
+
     TEST_ASSERT_NOT_NULL(files);
     /* Default stream */
     TEST_ASSERT_NOT_NULL(files[0U].descriptor);
@@ -141,6 +160,7 @@ void test_init(void)
 void test_constructor(void)
 {
     LOG *files = get();
+    log_info(__FUNCTION__);
 
     time_t secs;
     char filename[50U];
@@ -161,8 +181,9 @@ void test_destructor(void)
 {
     char name[256U];
     LOG *file = get();
-    constructor();
+    log_info(__FUNCTION__);
 
+    constructor();
     sprintf(name, "%s", file[1U].name);
 
     destructor();
