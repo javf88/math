@@ -2,9 +2,18 @@
 # Define tests
 #*******************************************************************************
 
-# Unit test
+add_library(utilities INTERFACE)
+target_include_directories(utilities
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # Logging system
-add_subdirectory(log)
+if(${CMAKE_BUILD_TYPE} MATCHES Debug)
+    # Unit test
+    add_subdirectory(log/unit)
+else() # MATCHES Release
+    # Module test
+    add_subdirectory(log/module)
+endif()
 
 # Matrix algebra
 add_subdirectory(algebra)

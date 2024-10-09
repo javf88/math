@@ -3,6 +3,9 @@
 #*******************************************************************************/
 
 cmake_minimum_required(VERSION 3.20)
+# Forcing CMAKE_BUILD_TYPE=Debug as initial value
+set(ENV{CMAKE_BUILD_TYPE} Debug)
+
 project(M1_math
     LANGUAGES C
     DESCRIPTION "Some math operators on apple M1")
@@ -11,6 +14,7 @@ project(M1_math
 include(CTest)
 
 # Build options
+message(STATUS "Forcing CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON" CACHE BOOL "Export commands for lsp" FORCE)
 
 set(LOG_TO_FILE "ON" CACHE BOOL "Logging to file is active by defult")

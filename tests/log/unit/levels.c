@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include "unity.h"
+#include "utilities.h"
 /* TARGET LIBRARIES */
 #include "memory.h"
 #include "levels.h"
@@ -22,14 +23,20 @@ void tearDown(void)
     return;
 }
 
+__attribute__((constructor)) void init_submodule(void)
+{
+    log_init(__FILE__);
+}
+
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
 /******************************************************************************/
 
 void test_get_src(void)
 {
-    char *buffer = malloc(sizeof(char) * 256U);
+    char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
     char *actual = NULL;
+    log_info(__FUNCTION__);
 
     sprintf(buffer, RED("[ ERROR ] %s:%d"), __FILE__, 44);
     actual = get_src(0, __FILE__, 44);
@@ -64,6 +71,7 @@ char* create_variadic_args(const char *format, ...)
 {
     char * actual = NULL;
     va_list args;
+    log_info(__FUNCTION__);
 
     va_start(args, format);
     actual = get_msg(format, args);
@@ -75,8 +83,9 @@ char* create_variadic_args(const char *format, ...)
 void test_get_msg(void)
 {
     char *actual = create_variadic_args("%s:%d %s", "test", 87, "END");
+    char *buffer = malloc(sizeof(char) * MAX_STR_LEN);
+    log_info(__FUNCTION__);
 
-    char *buffer = malloc(sizeof(char) * 256U);
     sprintf(buffer, "%s:%d %s", "test", 87, "END");
 
     TEST_ASSERT_EQUAL_STRING(actual, buffer);
@@ -85,17 +94,20 @@ void test_get_msg(void)
     free(buffer);
 }
 
-void test_log_matrix(void)
+void test_log_tee(void)
 {
-    MATRIX *A = push_matrix(5U, 5U);
-    /* TODO: need to add write to file, and compare against */
-    LOG_INFO_MATRIX(A);
+    char filename[256U];
+    time_t secs;
+    log_info(__FUNCTION__);
 
-    do {
-        /* The stack starts with a non-NULL value */
-        TEST_ASSERT_NOT_NULL(stack);
-        stack = pop_matrix(stack);
-    } while(stack != NULL);
+    time(&secs);
+    sprintf(filename, "tmp/%ld.log", secs);
+    constructor();
+    destructor();
+
+    /* Indirect test, by removing we make sure next test-run does not break */
+    remove(filename);
+    remove("tmp");
 }
 
 int main(void)
@@ -104,7 +116,7 @@ int main(void)
 
     RUN_TEST(test_get_src);
     RUN_TEST(test_get_msg);
-    RUN_TEST(test_log_matrix);
+    RUN_TEST(test_log_tee);
 
     return UNITY_END();
 }

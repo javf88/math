@@ -1,12 +1,16 @@
 /*******************************************************************************
 *
-* LOGGING SYSTEM
+* LOGGING SYSTEM - file submodule
 *
-*   SUMMARY - file submodule
-*       This single-header submodule implements the logging to file feature
-*       of the logging module.
-*       It boils down to two APIs that are automatically call before and 
-*       after the main() function.
+*   SUMMARY
+*       This submodule implements three basic APIs to enable logging to a file.
+*
+*       a) constructor that starts up stderr and an optional FILE-stream.
+*
+*       b) destructor does the opposite of the constructor to shut down all
+*          strams gracefully.
+*
+*       c) get() is a getter around the stream/file handlers.
 *
 *******************************************************************************/
 
