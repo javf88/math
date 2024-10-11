@@ -2,6 +2,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include "levels.h"
 #include "unity.h"
 #include "utilities.h"
 /* TARGET LIBRARY */
@@ -57,9 +58,11 @@ void test_transpose(void)
             A->val[pos] = pos;
         }
     }
-
+    LOG_DEBUG_MATRIX(A);
     MATRIX *B = transpose(A);
     TEST_ASSERT_NOT_NULL(B);
+    LOG_DEBUG("B = AT");
+    LOG_DEBUG_MATRIX(B);
 
     for (uint32_t i = 0; i < A->rows; i++)
     {
@@ -102,7 +105,11 @@ void test_add(void)
     C = add(NULL, NULL);
     TEST_ASSERT_NULL(C);
 
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(B);
     C = add(A, B);
+    LOG_DEBUG("C = A + B");
+    LOG_DEBUG_MATRIX(C);
     for (uint32_t i = 0; i < A->rows; i++)
     {
         for (uint32_t j = 0; j < A->cols; j++)
@@ -114,6 +121,9 @@ void test_add(void)
 
     /* Wrong sizes */
     MATRIX *D = push_matrix(2U, 2U);
+    LOG_DEBUG_MATRIX(C);
+    LOG_DEBUG_MATRIX(D);
+    LOG_DEBUG("E = C + D");
     MATRIX *E = add(C, D);
     TEST_ASSERT_NULL(E);
 }
@@ -147,8 +157,12 @@ void test_sub(void)
     C = sub(NULL, NULL);
     TEST_ASSERT_NULL(C);
 
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(B);
+    LOG_DEBUG("C = A - B");
     C = sub(A, B);
     TEST_ASSERT_NOT_NULL(C);
+    LOG_DEBUG_MATRIX(C);
 
     for (uint32_t i = 0; i < A->rows; i++)
     {
@@ -161,6 +175,9 @@ void test_sub(void)
 
     /* Wrong sizes */
     MATRIX *D = push_matrix(2U, 2U);
+    LOG_DEBUG_MATRIX(B);
+    LOG_DEBUG_MATRIX(D);
+    LOG_DEBUG("E = B - D");
     MATRIX *E = sub(B, D);
     TEST_ASSERT_NULL(E);
 }
@@ -191,8 +208,12 @@ void test_mult(void)
     TEST_ASSERT_NULL(ATA);
 
     /* dot product */
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(AT);
+    LOG_DEBUG("ATA = AT * A");
     ATA = mult(AT,A);
     TEST_ASSERT_NOT_NULL(ATA);
+    LOG_DEBUG_MATRIX(ATA);
     TEST_ASSERT_EQUAL_UINT32(1U, ATA->rows);
     TEST_ASSERT_EQUAL_UINT32(1U, ATA->cols);
     TEST_ASSERT_EQUAL_FLOAT(4.0F, ATA->val[0]);
@@ -210,7 +231,11 @@ void test_mult(void)
         B->val[i] = 2.0F;
     }
 
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(B);
+    LOG_DEBUG("C = A * B");
     MATRIX *C = mult(A, B);
+    LOG_DEBUG_MATRIX(C);
     TEST_ASSERT_EQUAL_UINT32(3U, C->rows);
     TEST_ASSERT_EQUAL_UINT32(4U, C->cols);
 
@@ -223,6 +248,9 @@ void test_mult(void)
     }
 
     MATRIX *D = push_matrix(2U, 2U);
+    LOG_DEBUG_MATRIX(D);
+    LOG_DEBUG_MATRIX(C);
+    LOG_DEBUG("E = D * C");
     MATRIX *E = mult(D, C);
     TEST_ASSERT_NULL(E);
 }
@@ -232,10 +260,12 @@ void test_id(void)
     /* TODO: to improve push when size is 0U */
     MATRIX *A = id(0U);
     log_info(__FUNCTION__);
+    LOG_DEBUG_MATRIX(A);
 
     TEST_ASSERT_NOT_NULL(A);
 
     A = id(4U);
+    LOG_DEBUG_MATRIX(A);
     TEST_ASSERT_NOT_NULL(A);
 
     for (uint32_t i = 0U; i < A->rows; i++)
@@ -269,10 +299,15 @@ void test_permute(void)
     /* wrong arguments */
     I = permute(I, 2U, 5U);
     TEST_ASSERT_NULL(I);
-    I = permute(id(5U), 2U, 5U);
+    I = id(5U);
+    I = permute(I, 2U, 5U);
+    TEST_ASSERT_NOT_NULL(I);
+    I = permute(I, 2U, 2U);
     TEST_ASSERT_NOT_NULL(I);
 
+    LOG_DEBUG_MATRIX(I);
     permute(I, 4U, 0U);
+    LOG_DEBUG_MATRIX(I);
     for (uint32_t i = 0U; i < I->rows * I->cols; i++)
     {
         TEST_ASSERT_EQUAL_FLOAT(expI[i], I->val[i]);
