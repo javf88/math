@@ -232,8 +232,6 @@ static ITEM* matrix_push(ITEM *stack, MATRIX *A)
 
     /* stack is NULL at the very first itr */
     top->next = stack;
-//    LOG_DEBUG("top->matrix = A;");
-//    LOG_INFO_MATRIX(A);
     top->matrix = A;
 
     return top;
