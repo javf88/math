@@ -52,10 +52,48 @@ MATRIX* echelon(MATRIX *A)
     if (A->cols != A->rows)
     {
         LOG_WARNING("Matrix is not a square matrix.");
+        LOG_WARNING_MATRIX(A);
         return NULL;
     }
 
+    if (A->rows == 1U)
+    {
+        if (fabs(A->val[0U]) < FLT_EPSILON)
+        {
+            LOG_WARNING("Matrix is singular");
+            LOG_WARNING_MATRIX(A);
+        }
+        else
+        {
+            LOG_INFO("Matrix is invertible");
+            MATRIX *U = A;
+            MATRIX *P, *L;
+            P = L = id(1U);
+
+            LOG_DEBUG("P = L = id(1U)");
+            LOG_DEBUG_MATRIX(L);
+
+            LOG_DEBUG("A = U");
+            LOG_DEBUG_MATRIX(U);
+        }
+
+        return A;
+    }
+
     MATRIX *U = A;
+    LOG_DEBUG_MATRIX(A);
+    /* 1) get P for P x A product, if a(0,0) is zero */
+    MATRIX *P, *PA;
+    P = get_permutation(A);
+    if (P != NULL)
+    {
+        PA = mult(P, A);
+    }
+    else
+    {
+        PA = A;
+    }
+    LOG_DEBUG_MATRIX(PA);
     for (uint32_t j = 0U; j < (A->cols - 1U); j++)
     {
         MATRIX *PA, *L, *LPA, *P;
@@ -121,6 +159,7 @@ uint32_t get_new_pivot(MATRIX *A)
         }
     }
 
+    LOG_TRACE("Pivot %f, A[%u, 0], is in row %u of %u rows", A->val[TO_C_CONT(A, row, 0U)], row, row, A->rows - 1U);
     return row;
 }
 
@@ -135,15 +174,18 @@ static MATRIX* get_permutation(MATRIX *A)
     }
     else
     {
-        P = id(A->rows);
-        /* this if might be removed due to outter for loop */
-        if (A->rows > 1U)
+        if (row == 0U)
         {
+            LOG_DEBUG("Pivot is nonzero, nothing to permute");
+        }
+        else /* The matrix is nonsingular, pivot is zero and nonscalar */
+        {
+            P = id(A->rows);
             P = PERMUTE_ROWS(P, row);
         }
     }
 
-     return P;
+    return P;
 }
 
 static MATRIX* get_lower_triangular(MATRIX *PA)
@@ -155,10 +197,12 @@ static MATRIX* get_lower_triangular(MATRIX *PA)
 
     LOG_DEBUG_MATRIX(a);
     a->val[0U] = -1.0F / a->val[0U];
+    LOG_DEBUG("1/a is %f", a->val[0U]);
     LOG_DEBUG_MATRIX(b);
 
     /* building column-vector as B * A^(-1) */
     b = mult(b, a);
+    LOG_DEBUG_MATRIX(b);
     L = set_block_matrix(L, 1U, 0U, b);
 
     return L;
