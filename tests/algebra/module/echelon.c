@@ -159,8 +159,17 @@ void test_echelon_2x2_matrix(void)
 {
     MATRIX *A = push_matrix(2U, 2U);
     log_info(__FUNCTION__);
+    float simple[4U] = {1.0F, 2.0F, 3.0F, 4.0F};
+    float expSimple[4U] = {1.0F, 2.0F, 0.0F, -2.0F};
+    memcpy(A->val, simple, sizeof(float) * A->rows * A->cols);
+    A = echelon(A);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expSimple, A->val, A->rows * A->cols);
 
-
+    float expPerm[4U] = {3.0F, 4.0F, 0.0F, 2.0F};
+    memcpy(A->val, simple, sizeof(float) * A->rows * A->cols);
+    A->val[0U] = 0.0F;
+    A = echelon(A);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expPerm, A->val, A->rows * A->cols);
 }
 
 void test_echelon_only_permutations(void)
@@ -269,6 +278,7 @@ int main(void)
     RUN_TEST(test_get_lower_triangular);
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_scalar_matrix);
+    RUN_TEST(test_echelon_2x2_matrix);
 //    RUN_TEST(test_echelon_only_permutations);
 //    RUN_TEST(test_echelon_perfect_matrix);
 //    RUN_TEST(test_echelon_singular_matrix);

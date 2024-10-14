@@ -12,7 +12,6 @@
 #ifndef ECHELON_H_
 #define ECHELON_H_
 
-#include "levels.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -87,6 +86,7 @@ MATRIX* echelon(MATRIX *A)
     P = get_permutation(A);
     if (P != NULL)
     {
+        LOG_DEBUG_MATRIX(P);
         PA = mult(P, A);
     }
     else
@@ -94,52 +94,26 @@ MATRIX* echelon(MATRIX *A)
         PA = A;
     }
     LOG_DEBUG_MATRIX(PA);
-    for (uint32_t j = 0U; j < (A->cols - 1U); j++)
-    {
-        MATRIX *PA, *L, *LPA, *P;
-        MATRIX *subA;
 
-        /* 1) get P for P x A product, if a(0,0) is zero */
-        P = get_permutation(A);
-        if (P != NULL)
-        {
-            PA = mult(P, A);
-        }
-        else
-        {
-            PA = A;
-        }
-        LOG_DEBUG_MATRIX(PA);
+    /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
+    MATRIX *L = get_lower_triangular(PA);
+    LOG_DEBUG_MATRIX(L);
+    MATRIX *LPA = mult(L, PA);
+    LOG_DEBUG_MATRIX(LPA);
 
-        /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
-        L = get_lower_triangular(PA);
-        LOG_DEBUG_MATRIX(L);
-        LPA = mult(L, PA);
-        LOG_DEBUG_MATRIX(LPA);
+    /* 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
+     *                                  [LPA(2,1) | LPA(2,2)]*/
+    MATRIX *subA = GET_BLOCK_MATRIX(LPA, 1U);
+    LOG_DEBUG_MATRIX(subA);
 
-        /* 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
-         *                                  [LPA(2,1) | LPA(2,2)]*/
-        subA = GET_BLOCK_MATRIX(LPA, j + 1U);
-        LOG_DEBUG_MATRIX(subA);
-        /* 4) call recursively */
-        U = echelon(subA);
-        LOG_INFO("return U");
-        LOG_DEBUG_MATRIX(U);
-        if (U->rows == 1U)
-        {
-            if (fabs(U->val[0U]) < FLT_EPSILON)
-            {
-                LOG_WARNING("Matrix is singular.");
-            }
-        }
+    /* 4) call recursively */
+    U = echelon(subA);
+    LOG_INFO("return U");
+    LOG_DEBUG_MATRIX(U);
 
-        /* 5) set U as LPS(2,2) in LPA */
-        U = set_block_matrix(LPA, j + 1U, j + 1U, U);
-        LOG_DEBUG_MATRIX(U);
-
-        /* 6) break iteration to return back */
-        break;
-    }
+    /* 5) set U as LPA(2,2) in LPA */
+    U = set_block_matrix(LPA, 1U, 1U, U);
+    LOG_DEBUG_MATRIX(U);
 
     /* returning upper-triangular matrix from PA = LU */
     return U;
