@@ -279,7 +279,7 @@ int main(void)
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_scalar_matrix);
     RUN_TEST(test_echelon_2x2_matrix);
-//    RUN_TEST(test_echelon_only_permutations);
+    RUN_TEST(test_echelon_only_permutations);
 //    RUN_TEST(test_echelon_perfect_matrix);
 //    RUN_TEST(test_echelon_singular_matrix);
 
