@@ -255,7 +255,6 @@ void test_echelon_perfect_matrix(void)
     } while(stack != NULL);
 }
 
-/*
 void test_echelon_singular_matrix(void)
 {
     MATRIX *A = push_matrix(5U, 5U);
@@ -287,7 +286,7 @@ void test_echelon_singular_matrix(void)
         stack = pop_matrix(stack);
     } while(stack != NULL);
 }
-*/
+
 int main(void)
 {
     UNITY_BEGIN();
@@ -299,9 +298,9 @@ int main(void)
     RUN_TEST(test_echelon_rect_matrix);
     RUN_TEST(test_echelon_scalar_matrix);
     RUN_TEST(test_echelon_2x2_matrix);
-//    RUN_TEST(test_echelon_only_permutations);
-//    RUN_TEST(test_echelon_perfect_matrix);
-//    RUN_TEST(test_echelon_singular_matrix);
+    RUN_TEST(test_echelon_only_permutations);
+    RUN_TEST(test_echelon_perfect_matrix);
+    RUN_TEST(test_echelon_singular_matrix);
 
     return UNITY_END();
 }
