@@ -48,6 +48,7 @@ static MATRIX* get_permutation(MATRIX *A);
 
 MATRIX* echelon(MATRIX *A)
 {
+    MATRIX *P, *L, *U;
     if (A->cols != A->rows)
     {
         LOG_WARNING("Matrix is not a square matrix.");
@@ -65,9 +66,8 @@ MATRIX* echelon(MATRIX *A)
         else
         {
             LOG_INFO("Matrix is invertible");
-            MATRIX *U = A;
-            MATRIX *P, *L;
             P = L = id(1U);
+            U = A;
 
             LOG_DEBUG("P = L = id(1U)");
             LOG_DEBUG_MATRIX(L);
@@ -79,10 +79,9 @@ MATRIX* echelon(MATRIX *A)
         return A;
     }
 
-    MATRIX *U = A;
     LOG_DEBUG_MATRIX(A);
     /* 1) get P for P x A product, if a(0,0) is zero */
-    MATRIX *P, *PA;
+    MATRIX *PA;
     P = get_permutation(A);
     if (P != NULL)
     {
@@ -96,13 +95,13 @@ MATRIX* echelon(MATRIX *A)
     LOG_DEBUG_MATRIX(PA);
 
     /* 2) get L(j) for L(j) x PA = L(j) x LU, to remove j-th column */
-    MATRIX *L = get_lower_triangular(PA);
+    L = get_lower_triangular(PA);
     LOG_DEBUG_MATRIX(L);
     MATRIX *LPA = mult(L, PA);
     LOG_DEBUG_MATRIX(LPA);
 
     /* 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
-     *                                  [LPA(2,1) | LPA(2,2)]*/
+     *                                  [LPA(2,1) | LPA(2,2)] */
     MATRIX *subA = GET_BLOCK_MATRIX(LPA, 1U);
     LOG_DEBUG_MATRIX(subA);
 
@@ -114,6 +113,8 @@ MATRIX* echelon(MATRIX *A)
     /* 5) set U as LPA(2,2) in LPA */
     U = set_block_matrix(LPA, 1U, 1U, U);
     LOG_DEBUG_MATRIX(U);
+    LOG_DEBUG_MATRIX(A);
+    LOG_DEBUG_MATRIX(L);
 
     /* returning upper-triangular matrix from PA = LU */
     return U;
@@ -180,6 +181,20 @@ static MATRIX* get_lower_triangular(MATRIX *PA)
     L = set_block_matrix(L, 1U, 0U, b);
 
     return L;
+}
+
+MATRIX* get_inverse_lower_triag(MATRIX *L)
+{
+    /* Copying the matrix */
+    MATRIX *invL = GET_BLOCK_MATRIX(L, 0U);
+
+    for (uint32_t i = 1U; i < L->rows; i++)
+    {
+        uint32_t pos = TO_C_CONT(invL, i, 0U);
+        invL->val[pos] = -1.0F * invL->val[pos];
+    }
+
+    return invL;
 }
 
 #ifdef __cplusplus
