@@ -198,19 +198,20 @@ MATRIX* mult(MATRIX *A, MATRIX *B)
     {
         for (uint32_t row = 0U; row < A->rows; row++)
         {
-            uint32_t vecA = A->cols * row;
+            MATRIX *rowV = GET_ROW_VECTOR(A, row);
+            LOG_TRACE_MATRIX(rowV);
 
             for (uint32_t col = 0U; col < B->cols; col++)
             {
+                MATRIX *colV = GET_COLUMN_VECTOR(B, col);
                 uint32_t pos = TO_C_CONT(C, row, col);
-                LOG_TRACE("C[%u,%u] ~ C[%u]", row, col, pos);
+                LOG_TRACE_MATRIX(colV);
 
-                for (uint32_t i = 0; i < A->cols; i++)
+                for (uint32_t k = 0; k < A->cols; k++)
                 {
-                    uint32_t vecB = B->cols * i;
-                    LOG_TRACE("A[%u,%u] * B[%u,%u] := A[%u] x B[%u]", row, i, col, vecB + col, vecA + i, vecB + col);
-                    C->val[pos] += A->val[vecA + i] * B->val[vecB + col];
+                    C->val[pos] += rowV->val[k] * colV->val[k];
                 }
+                LOG_TRACE("C[%u,%u] := %f", row, col, C->val[pos]);
             }
         }
     }
@@ -251,12 +252,22 @@ MATRIX* permute(MATRIX *I, uint32_t a, uint32_t b)
             LOG_ERROR("Permutation indecis(%u,%u) are out of range 0...%d (Id[%u])", a, b, I->rows - 1U, I->rows);
             return I;
         }
+        else
+        {
+            if (a == b)
+            {
+                LOG_WARNING("Nothing to permute, indecis are the same, a = b = %u", a);
+            }
+            else
+            {
+                /* permuting(swapping) I[a,*] with I[b,*] rows */
+                LOG_INFO("Swapping I[%u,*] and I[%u,*] rows", a, b);
+                I->val[TO_C_CONT(I, a, a)] = I->val[TO_C_CONT(I, b, b)] = 0.0F;
+                I->val[TO_C_CONT(I, a, b)] = I->val[TO_C_CONT(I, b, a)] = 1.0F;
+            }
+        }
     }
 
-    /* permuting(swapping) I[a,*] with I[b,*] rows */
-    LOG_INFO("Swapping row %u and %u", a, b);
-    I->val[TO_C_CONT(I, a, a)] = I->val[TO_C_CONT(I, b, b)] = 0.0F;
-    I->val[TO_C_CONT(I, a, b)] = I->val[TO_C_CONT(I, b, a)] = 1.0F;
 
     return I;
 }

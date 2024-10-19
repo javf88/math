@@ -6,8 +6,10 @@
 *       This single-header module implements a simple but effective memory
 *       management system, the M2S. Its functionality is boiled down to:
 *
-*       a) matrix creation, and
-*       b) matrix destruction.
+*       a) matrix creation,
+*       b) matrix destruction,
+*       c) a stack-like mechanism,
+*       d) copy/paste between (sub)matrices.
 *
 *******************************************************************************/
 
@@ -232,8 +234,6 @@ static ITEM* matrix_push(ITEM *stack, MATRIX *A)
 
     /* stack is NULL at the very first itr */
     top->next = stack;
-//    LOG_DEBUG("top->matrix = A;");
-//    LOG_INFO_MATRIX(A);
     top->matrix = A;
 
     return top;
