@@ -7,7 +7,7 @@ Some numerical math routines in C.
 
 ## How to build
 ```
-    make build
+    mkdir build
     cd build
     cmake ..
     make
