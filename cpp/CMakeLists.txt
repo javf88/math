@@ -12,13 +12,14 @@ find_package(GTest REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
 
-# initial file
-add_library(algebra INTERFACE)
+#*******************************************************************************
+# Implementation
+#*******************************************************************************
 
-target_include_directories(algebra
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(src)
 
-add_executable(initial main.cpp)
+#*******************************************************************************
+# Testing
+#*******************************************************************************
 
-target_link_libraries(initial
-    INTERFACE algebra)
+add_subdirectory(tests)
