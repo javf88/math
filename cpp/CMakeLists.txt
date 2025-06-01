@@ -8,6 +8,8 @@ project(math
     LANGUAGES CXX
     DESCRIPTION "Some math operators on apple M1")
 
+include(CTest)
+# include(GoogleTest) is not working
 find_package(GTest REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)

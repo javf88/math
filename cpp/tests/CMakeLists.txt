@@ -7,7 +7,7 @@ add_executable(memory
     memory.cpp)
 
 target_link_libraries(memory
+    PRIVATE GTest::gtest_main
     PRIVATE algebra)
 
-#add_test(NAME memory.UnitTest
-#    COMMAND memory)
+gtest_add_tests(TARGET memory)

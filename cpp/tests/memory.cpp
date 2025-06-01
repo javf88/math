@@ -1,6 +1,12 @@
+/******************************************************************************/
+/*    INCLUDED FILES                                                          */
+/******************************************************************************/
+
+#include <gtest/gtest.h>
+/* TARGET LIBRARY */
 #include "memory.hpp"
 
-int main(void)
+TEST(Matrix, Constructors)
 {
     Matrix A;
     Matrix B(3,5);
