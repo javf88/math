@@ -1,7 +1,11 @@
-#include <iostream>
+#include <memory>
 
 int main(void)
 {
-	using namespace std;
-	cout << "test" << endl;
+    Matrix A;
+    Matrix B(3,5);
+
+    using namespace std;
+    cout << string(A) << endl;
+    cout << string(B) << endl;
 }
