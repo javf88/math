@@ -8,11 +8,19 @@ project(math
     LANGUAGES CXX
     DESCRIPTION "Some math operators on apple M1")
 
+# Includes
 include(CTest)
+
+# Build options
+set(CMAKE_EXPORT_COMPILE_COMMANDS "ON" CACHE BOOL "Export commands for lsp" FORCE)
+set(CMAKE_CXX_STANDARD 11)
+
+#*******************************************************************************
+# CMake Submodules
+#*******************************************************************************
+
 # include(GoogleTest) is not working
 find_package(GTest REQUIRED)
-
-set(CMAKE_CXX_STANDARD 11)
 
 #*******************************************************************************
 # Implementation
