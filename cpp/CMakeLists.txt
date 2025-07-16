@@ -13,7 +13,7 @@ include(CTest)
 
 # Build options
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON" CACHE BOOL "Export commands for lsp" FORCE)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 #*******************************************************************************
 # CMake Submodules
