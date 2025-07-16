@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <cstdint>
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "memory.hpp"
