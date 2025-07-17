@@ -6,33 +6,9 @@
 /* TARGET LIBRARY */
 #include "matrix.hpp"
 
-
-class DummyData: public testing::Test
-{
-    private:
-        Matrix A;
-        uint32_t step = 1;
-        uint32_t init = 0;
-
-    public:
-
-        void SetUp() override
-        {
-            using namespace std;
-
-            cout << "Running SetUp()" << endl;
-
-            for (uint32_t i = 0; i < A.rows; i++)
-            {
-                for (uint32_t j = 0; j < A.cols; j++)
-                {
-                    cout << i * A.cols + step << ", ";
-                }
-
-                cout << endl;
-            }
-        }
-};
+/******************************************************************************/
+/*    TEST FUNCTIONS                                                          */
+/******************************************************************************/
 
 TEST(Matrix, Constructors)
 {

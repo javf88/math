@@ -46,7 +46,7 @@ struct Matrix
     Matrix(std::initializer_list<float> val);
 
     // Math operators
-    Matrix& reshape(uint32_t newRows, uint32_t newCols);
+    Matrix& reshape(const uint32_t newRows, const uint32_t newCols);
 
     Matrix& transpose();
 
@@ -95,17 +95,17 @@ Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
     }
     else
     {
-        // Empty else
+        std::fprintf(stderr, "Unable to reserve(%u) memory\n", 0U);
     }
 }
 
 // Empty matrix
 Matrix::Matrix() : Matrix(0, 0) {}
 
-Matrix& Matrix::reshape(uint32_t newRows, uint32_t newCols)
+Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
 {
-    uint32_t total = this->rows * this->cols;
-    uint32_t newTotal = newRows * newCols;
+    const uint32_t total = this->rows * this->cols;
+    const uint32_t newTotal = newRows * newCols;
 
     // Should I clip the matrix to force it into a smaller space?
     if (total > newTotal)
@@ -176,7 +176,7 @@ Matrix& Matrix::id(const size_t size)
     for (uint32_t i = 0; i < size; i++)
     {
         uint32_t pos = this->cols * i + i;
-        this->val[pos] = 1;
+        this->val[pos] = 1.0F;
     }
 
     return *this;
