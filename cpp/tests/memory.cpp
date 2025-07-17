@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <cstdint>
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "memory.hpp"
@@ -11,7 +10,7 @@
 /*    FIXTURES                                                                */
 /******************************************************************************/
 
-class DummyData: public testing::Test
+class DummyStack: public testing::Test
 {
 public:
     void SetUp() override
@@ -34,7 +33,7 @@ public:
 /*    TEST CASES                                                              */
 /******************************************************************************/
 
-TEST(stack, getStack)
+TEST(StaticStack, getStack)
 {
     std::stack<void*> *pStack = nullptr;
     ASSERT_EQ(pStack, nullptr);
@@ -43,7 +42,7 @@ TEST(stack, getStack)
     ASSERT_NE(pStack, nullptr);
 }
 
-TEST_F(DummyData, SetUp)
+TEST_F(DummyStack, clean)
 {
     std::stack<void*> *pStack = Static::getStack();
     ASSERT_NE(pStack, nullptr);
