@@ -1,15 +1,14 @@
 /*******************************************************************************
 *
-* Matrix
+* Matrix class
 *
 *   SUMMARY
-*       This single-header module implements a simple but effective memory
-*       management system, the M2S. It extends/generalizes the vector container
-*       to a matrix container.
+*       Implementation of a matrix in 2D.
 *
 *       The API's functionality is simple:
 *       a) matrix creation
 *       b) matrix destruction
+*       c) reshape, transpose and identity matrix
 *
 *******************************************************************************/
 
