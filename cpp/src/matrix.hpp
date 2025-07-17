@@ -21,8 +21,11 @@
 
 #include <cstdio>
 #include <initializer_list>
+#include <new>
 #include <sstream>
 #include <vector>
+
+#include "memory.hpp"
 
 /******************************************************************************/
 /*    API                                                                     */
@@ -50,6 +53,34 @@ struct Matrix
     Matrix& transpose();
 
     Matrix& id(const size_t size);
+
+    void* operator new(std::size_t count)
+    {
+        std::fprintf(stderr, "new(size_t) size = %zu\n", count);
+        Matrix *ptr = nullptr;
+
+        if (count == 0U)
+        {
+            std::fprintf(stderr, "wrong malloc(%zu)", count);
+            throw std::bad_alloc{};
+        }
+        else
+        {
+            ptr = (Matrix*)std::malloc(count);
+            if (ptr != nullptr)
+            {
+                std::fprintf(stderr, "stack.push(%p)\n", ptr);
+                std::stack<void*> *pStack = Static::getStack();
+                pStack->push(ptr);
+            }
+            else
+            {
+                throw std::bad_alloc{};
+            }
+        }
+
+        return ptr;
+    }
 
     operator std::string() const
     {
@@ -90,6 +121,7 @@ Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
 {
     if (this->rows * this->cols != 0)
     {
+        std::fprintf(stderr, "Reserving %hux%hu\n", this->rows, this->cols);
         this->val.reserve(this->rows * this->cols);
     }
     else
