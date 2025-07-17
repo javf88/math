@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "matrix.hpp"
+#include "memory.hpp"
 
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
@@ -94,4 +95,36 @@ TEST(Matrix, id)
     ASSERT_EQ(3, B.rows);
     ASSERT_EQ(3, B.cols);
     cout << string(B) << endl;
+}
+
+TEST(Matrix, new)
+{
+    using namespace std;
+
+    std::stack<void*> *pStack = Static::getStack();
+    ASSERT_EQ(0U, pStack->size());
+
+    Matrix *A = new Matrix(0U, 0U);
+    ASSERT_EQ(0U, A->rows);
+    ASSERT_EQ(0U, A->cols);
+    ASSERT_EQ(0U, A->val.capacity());
+
+    Matrix *B = new Matrix(1U, 0U);
+    ASSERT_EQ(1U, B->rows);
+    ASSERT_EQ(0U, B->cols);
+    ASSERT_EQ(0U, B->val.capacity());
+
+    Matrix *C = new Matrix(0U, 1U);
+    ASSERT_EQ(0U, C->rows);
+    ASSERT_EQ(1U, C->cols);
+    ASSERT_EQ(0U, C->val.capacity());
+
+    Matrix *D = new Matrix(3U, 7U);
+    ASSERT_EQ(3U, D->rows);
+    ASSERT_EQ(7U, D->cols);
+    ASSERT_EQ(21U, D->val.capacity());
+
+    ASSERT_EQ(4U, pStack->size());
+    Static::clean();
+    ASSERT_EQ(0U, pStack->size());
 }
