@@ -21,3 +21,13 @@ target_link_libraries(matrix
     PRIVATE algebra)
 
 gtest_add_tests(TARGET matrix)
+
+# operators submodule
+add_executable(operators
+    operators.cpp)
+
+target_link_libraries(operators
+    PRIVATE GTest::gtest_main
+    PRIVATE algebra)
+
+gtest_add_tests(TARGET operators)

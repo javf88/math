@@ -19,6 +19,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <cstdint>
 #include <cstdio>
 #include <initializer_list>
 #include <new>
@@ -115,7 +116,10 @@ struct Matrix
 /******************************************************************************/
 
 // Matrix allocation from a list
-Matrix::Matrix(std::initializer_list<float> val) : val(val), rows(1), cols(val.size()) {}
+Matrix::Matrix(std::initializer_list<float> val) : val(val), rows(1), cols(val.size())
+{
+    std::fprintf(stderr, "Constructing row vector [%hux%hu]\n", this->rows, this->cols);
+}
 
 Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
 {

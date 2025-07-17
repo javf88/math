@@ -22,13 +22,32 @@
 /*    API                                                                     */
 /******************************************************************************/
 
-Matrix& operator+(const Matrix& A, const Matrix& B)
+bool operator==(const Matrix& A, const Matrix& B)
+{
+    if ((A.rows != B.rows) || (A.cols != B.cols))
+    {
+        return false;
+    }
+    else
+    {
+        for (auto a = A.val.cbegin(), b = B.val.cbegin(); a != A.val.cend(); a++, b++)
+        {
+            if (*a != *b)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+Matrix* operator+(const Matrix& A, const Matrix& B)
 {
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        std::fprintf(stderr, "Matrices A[%hu,%hu] and B[%hu,%hu] cannot be added.",
+        std::fprintf(stderr, "Matrices A[%hu,%hu] and B[%hu,%hu] cannot be added.\n",
                 A.rows, A.cols, B.rows,B.cols);
 
     }
@@ -46,7 +65,7 @@ Matrix& operator+(const Matrix& A, const Matrix& B)
         }
     }
 
-    return *C;
+    return C;
 }
 
 #endif /* OPERATORS_H_ */
