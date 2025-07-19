@@ -3,7 +3,7 @@
 #*******************************************************************************
 
 # Matrix algebra
-add_subdirectory(algebra)
+add_library(algebra INTERFACE)
 
-# Logging system
-#add_subdirectory(log)
+target_include_directories(algebra
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
