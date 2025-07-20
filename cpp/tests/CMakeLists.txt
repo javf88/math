@@ -2,5 +2,5 @@
 # Define tests
 #*******************************************************************************
 
-#add_subdirectory(log)
-dd_subdirectory(algebra)
+add_subdirectory(log)
+add_subdirectory(algebra)
