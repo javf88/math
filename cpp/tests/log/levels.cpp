@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <ostream>
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "levels.hpp"
@@ -11,40 +10,52 @@
 /*    TEST CASES                                                              */
 /******************************************************************************/
 
-TEST(Log, getSrc)
+TEST(Log, error)
 {
-    std::ostringstream expected;
+    Log expected;
     Log error;
-    uint32_t line = __LINE__;
-    char *pMsg = nullptr;
 
-    pMsg = error.getSrc(Log::Level::ERROR, __FILE__, line);
-    expected << "[ ERROR ] " << __FILE__ << ':' <<  line;
-    ASSERT_EQ(expected.str(), pMsg);
-    expected.str("");
-    expected.clear();
+    LOG_ERROR(error, "error");
+    expected.log(Log::Level::ERROR, __FILE__, ":", __LINE__ - 1, "error");
+    ASSERT_EQ(expected.str(), error.str());
+}
 
-    pMsg = error.getSrc(Log::Level::WARNING, __FILE__, line);
-    expected << "[WARNING] " << __FILE__ << ':' <<  line;
-    ASSERT_EQ(expected.str(), pMsg);
-    expected.str("");
-    expected.clear();
+TEST(Log, warning)
+{
+    Log expected;
+    Log warning;
 
-    pMsg = error.getSrc(Log::Level::INFO, __FILE__, line);
-    expected << "[ INFO  ] " << __FILE__ << ':' <<  line;
-    ASSERT_EQ(expected.str(), pMsg);
-    expected.str("");
-    expected.clear();
+    LOG_WARNING(warning, "warning");
+    expected.log(Log::Level::WARNING, __FILE__, ":", __LINE__ - 1, "warning");
+    ASSERT_EQ(expected.str(), warning.str());
+}
 
-    pMsg = error.getSrc(Log::Level::DEBUG, __FILE__, line);
-    expected << "[ DEBUG ] " << __FILE__ << ':' <<  line;
-    ASSERT_EQ(expected.str(), pMsg);
-    expected.str("");
-    expected.clear();
+TEST(Log, info)
+{
+    Log expected;
+    Log info;
 
-    pMsg = error.getSrc(Log::Level::TRACE, __FILE__, line);
-    expected << "[ TRACE ] " << __FILE__ << ':' <<  line;
-    ASSERT_EQ(expected.str(), pMsg);
-    expected.str("");
-    expected.clear();
+    LOG_INFO(info, "info");
+    expected.log(Log::Level::INFO, __FILE__, ":", __LINE__ - 1, "info");
+    ASSERT_EQ(expected.str(), info.str());
+}
+
+TEST(Log, debug)
+{
+    Log expected;
+    Log debug;
+
+    LOG_DEBUG(debug, "debug");
+    expected.log(Log::Level::DEBUG, __FILE__, ":", __LINE__ - 1, "debug");
+    ASSERT_EQ(expected.str(), debug.str());
+}
+
+TEST(Log, trace)
+{
+    Log expected;
+    Log trace;
+
+    LOG_TRACE(trace, "trace");
+    expected.log(Log::Level::TRACE, __FILE__, ":", __LINE__ - 1, "trace");
+    ASSERT_EQ(expected.str(), trace.str());
 }
