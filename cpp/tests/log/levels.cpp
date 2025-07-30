@@ -16,7 +16,7 @@ TEST(Log, error)
     Log error;
 
     LOG_ERROR(error, "error");
-    expected.log(Log::Level::ERROR, __FILE__, ":", __LINE__ - 1, "error");
+    expected.log(Log::Level::ERROR, __FILE__, ":", __LINE__ - 1, Log::MSG::BEGIN, "error");
     ASSERT_EQ(expected.str(), error.str());
 }
 
@@ -26,7 +26,7 @@ TEST(Log, warning)
     Log warning;
 
     LOG_WARNING(warning, "warning");
-    expected.log(Log::Level::WARNING, __FILE__, ":", __LINE__ - 1, "warning");
+    expected.log(Log::Level::WARNING, __FILE__, ":", __LINE__ - 1, Log::MSG::BEGIN, "warning");
     ASSERT_EQ(expected.str(), warning.str());
 }
 
@@ -36,7 +36,7 @@ TEST(Log, info)
     Log info;
 
     LOG_INFO(info, "info");
-    expected.log(Log::Level::INFO, __FILE__, ":", __LINE__ - 1, "info");
+    expected.log(Log::Level::INFO, __FILE__, ":", __LINE__ - 1, Log::MSG::BEGIN, "info");
     ASSERT_EQ(expected.str(), info.str());
 }
 
@@ -46,7 +46,7 @@ TEST(Log, debug)
     Log debug;
 
     LOG_DEBUG(debug, "debug");
-    expected.log(Log::Level::DEBUG, __FILE__, ":", __LINE__ - 1, "debug");
+    expected.log(Log::Level::DEBUG, __FILE__, ":", __LINE__ - 1, Log::MSG::BEGIN, "debug");
     ASSERT_EQ(expected.str(), debug.str());
 }
 
@@ -56,6 +56,6 @@ TEST(Log, trace)
     Log trace;
 
     LOG_TRACE(trace, "trace");
-    expected.log(Log::Level::TRACE, __FILE__, ":", __LINE__ - 1, "trace");
+    expected.log(Log::Level::TRACE, __FILE__, ":", __LINE__ - 1, Log::MSG::BEGIN, "trace");
     ASSERT_EQ(expected.str(), trace.str());
 }

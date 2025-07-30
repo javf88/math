@@ -22,6 +22,7 @@
 
 #include <cstdint>
 #include <sstream>
+#include <iostream>
 
 /******************************************************************************/
 /*    DEFINITIONS                                                             */
@@ -46,7 +47,7 @@
  */
 #if LOG_LEVEL_ERROR <= LOG_CONFIG
     #define LOG_ERROR(LOGGER, ...) \
-        LOGGER.log(Log::Level::ERROR, __FILE__, ":", __LINE__, __VA_ARGS__)
+        LOGGER.log(Log::Level::ERROR, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
 #else
     #define LOG_ERROR(LOGGER, ...)
 #endif
@@ -56,7 +57,7 @@
  */
 #if LOG_LEVEL_WARNING <= LOG_CONFIG
     #define LOG_WARNING(LOGGER, ...) \
-        LOGGER.log(Log::Level::WARNING, __FILE__, ":", __LINE__, __VA_ARGS__)
+        LOGGER.log(Log::Level::WARNING, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
 #else
     #define LOG_WARNING(LOGGER, ...)
 #endif
@@ -66,7 +67,7 @@
  */
 #if LOG_LEVEL_INFO <= LOG_CONFIG
     #define LOG_INFO(LOGGER, ...) \
-        LOGGER.log(Log::Level::INFO, __FILE__, ":", __LINE__, __VA_ARGS__)
+        LOGGER.log(Log::Level::INFO, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
 #else
     #define LOG_INFO(LOGGER, ...)
 #endif
@@ -76,7 +77,7 @@
  */
 #if LOG_LEVEL_DEBUG <= LOG_CONFIG
     #define LOG_DEBUG(LOGGER, ...) \
-        LOGGER.log(Log::Level::DEBUG, __FILE__, ":", __LINE__, __VA_ARGS__)
+        LOGGER.log(Log::Level::DEBUG, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
 #else
     #define LOG_DEBUG(LOGGER, ...)
 #endif
@@ -86,7 +87,7 @@
  */
 #if LOG_LEVEL_TRACE <= LOG_CONFIG
     #define LOG_TRACE(LOGGER, ...) \
-        LOGGER.log(Log::Level::TRACE, __FILE__, ":", __LINE__, __VA_ARGS__)
+        LOGGER.log(Log::Level::TRACE, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
 #else
     #define LOG_TRACE(LOGGER, ...)
 #endif
@@ -133,6 +134,9 @@ void Log::log()
 {
     //Disable coloring
     *this << Log::MSG::ENDL;
+
+    // To change later for a std* or even a file
+    std::cout << this->str();
 }
 
 template<typename T, typename... Args>
