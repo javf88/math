@@ -24,8 +24,10 @@
 
 bool operator==(const Matrix& A, const Matrix& B)
 {
+    Log LogOperators;
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
+        LOG_WARNING(LogOperators, "Comparison not possible, dimensions do not match.");
         return false;
     }
     else
@@ -43,13 +45,13 @@ bool operator==(const Matrix& A, const Matrix& B)
 
 Matrix* operator+(const Matrix& A, const Matrix& B)
 {
+    Log LogOperators;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        std::fprintf(stderr, "Matrices A[%hu,%hu] and B[%hu,%hu] cannot be added.\n",
-                A.rows, A.cols, B.rows,B.cols);
-
+        LOG_WARNING(LogOperators, "Matrices A[", A.rows, ",", A.cols,
+                "] and B[", B.rows, ",", B.cols, "] cannot be added.");
     }
     else
     {
@@ -70,13 +72,13 @@ Matrix* operator+(const Matrix& A, const Matrix& B)
 
 Matrix* operator-(const Matrix& A, const Matrix &B)
 {
+    Log LogOperators;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        std::fprintf(stderr, "Matrices A[%hu,%hu] and B[%hu,%hu] cannot be substracted.\n",
-                A.rows, A.cols, B.rows,B.cols);
-
+        LOG_WARNING(LogOperators, "Matrices A[", A.rows, "x", A.cols,
+                "] and B[", B.rows, "x", B.cols, "] cannot be substracted.");
     }
     else
     {
@@ -97,12 +99,12 @@ Matrix* operator-(const Matrix& A, const Matrix &B)
 
 Matrix* operator*(const Matrix &A, const Matrix &B)
 {
+    Log LogOperators;
     Matrix *C = nullptr;
 
     if (A.cols != B.rows)
     {
-        std::printf("Matrices dimensions do not match [%ux%u] * [%ux%u]\n", A.rows, A.cols, B.rows, B.cols);
-
+        LOG_WARNING(LogOperators, "Matrices dimensions do not match [", A.rows, "x", A.cols, "] * [", B.rows, "x", B.cols, "]");
         return nullptr;
     }
     else

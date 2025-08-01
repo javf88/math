@@ -8,8 +8,7 @@ add_executable(memory
 
 target_link_libraries(memory
     PRIVATE GTest::gtest_main
-    PRIVATE algebra
-    PRIVATE log)
+    PRIVATE algebra)
 
 gtest_add_tests(TARGET memory)
 
