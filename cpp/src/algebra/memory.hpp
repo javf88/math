@@ -17,12 +17,15 @@
 
 #include <stack>
 
+#include "levels.hpp"
+
 /******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
 
 namespace Static
 {
+    Log LogMemory;
     // std::stack has pop() and push() capabilities already.
     static std::stack<void*> stack;
 
@@ -33,6 +36,7 @@ namespace Static
 
     void clean()
     {
+        LOG_INFO(LogMemory, "Cleaning the stack with ", stack.size(), " elements.");
         while (stack.empty() == false)
         {
             stack.pop();

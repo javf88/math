@@ -20,7 +20,6 @@
 /******************************************************************************/
 
 #include <cstdint>
-#include <cstdio>
 #include <initializer_list>
 #include <new>
 #include <sstream>
@@ -34,6 +33,8 @@
 
 struct Matrix
 {
+    Log LogMatrix;
+
     uint32_t    rows = 0;
     uint32_t    cols = 0;
     std::vector<float>  val;
@@ -118,19 +119,19 @@ struct Matrix
 // Matrix allocation from a list
 Matrix::Matrix(std::initializer_list<float> val) : val(val), rows(1), cols(val.size())
 {
-    std::fprintf(stderr, "Constructing row vector [%hux%hu]\n", this->rows, this->cols);
+    LOG_INFO(LogMatrix, "Constructing row vector [", this->rows, "x", this->cols, "].");
 }
 
 Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
 {
     if (this->rows * this->cols != 0)
     {
-        std::fprintf(stderr, "Reserving %hux%hu\n", this->rows, this->cols);
+        LOG_INFO(LogMatrix, "Reserving memory with ", this->rows, "x", this->cols, " elements.");
         this->val.reserve(this->rows * this->cols);
     }
     else
     {
-        std::fprintf(stderr, "Unable to reserve(%u) memory\n", 0U);
+        LOG_WARNING(LogMatrix, "Unable to reserve memory.");
     }
 }
 
@@ -145,8 +146,8 @@ Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
     // Should I clip the matrix to force it into a smaller space?
     if (total > newTotal)
     {
-        std::printf("It is not possible to reshape from [%ux%u] to [%ux%u]\n",
-                this->rows, this->cols, newRows, newCols);
+        LOG_ERROR(LogMatrix, "It is not possible to reshape from [",
+                this->rows, "x", this->cols, "] to [", newRows, "x", newCols, "].");
     }
     else
     {
@@ -163,7 +164,7 @@ Matrix& Matrix::transpose()
 {
     if (this->val.empty())
     {
-        //LOG_WARNING("Nothing to transpose: Empty matrix!");
+        LOG_WARNING(LogMatrix, "Nothing to transpose: Empty matrix!");
         return  *this;
     }
     else
@@ -199,7 +200,7 @@ Matrix& Matrix::id(const size_t size)
 {
     if (this->val.empty() != true)
     {
-        std::printf("Overwriting matrix [%ux%u] with Id(%lu)\n", this->rows, this->cols, size);
+        LOG_WARNING(LogMatrix, "Overwriting matrix [", this->rows, "x", this->cols, "] with Id(", size, ").");
         this->val.clear();
     }
 
