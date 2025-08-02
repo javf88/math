@@ -104,7 +104,8 @@ Matrix* operator*(const Matrix &A, const Matrix &B)
 
     if (A.cols != B.rows)
     {
-        LOG_WARNING(LogOperators, "Matrices dimensions do not match [", A.rows, "x", A.cols, "] * [", B.rows, "x", B.cols, "]");
+        LOG_WARNING(LogOperators, "Matrices dimensions do not match [",
+                A.rows, "x", A.cols, "] * [", B.rows, "x", B.cols, "].");
         return nullptr;
     }
     else

@@ -47,7 +47,7 @@
  */
 #if LOG_LEVEL_ERROR <= LOG_CONFIG
     #define LOG_ERROR(LOGGER, ...) \
-        LOGGER.log(Log::Level::ERROR, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
+        LOGGER.log(Log::Level::ERROR, __FILE__, ":", __LINE__, " ", Log::MSG::ENDC, Log::MSG::GRAY, __VA_ARGS__)
 #else
     #define LOG_ERROR(LOGGER, ...)
 #endif
@@ -57,7 +57,7 @@
  */
 #if LOG_LEVEL_WARNING <= LOG_CONFIG
     #define LOG_WARNING(LOGGER, ...) \
-        LOGGER.log(Log::Level::WARNING, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
+        LOGGER.log(Log::Level::WARNING, __FILE__, ":", __LINE__, " ", Log::MSG::ENDC, Log::MSG::GRAY, __VA_ARGS__)
 #else
     #define LOG_WARNING(LOGGER, ...)
 #endif
@@ -67,7 +67,7 @@
  */
 #if LOG_LEVEL_INFO <= LOG_CONFIG
     #define LOG_INFO(LOGGER, ...) \
-        LOGGER.log(Log::Level::INFO, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
+        LOGGER.log(Log::Level::INFO, __FILE__, ":", __LINE__, " ", Log::MSG::ENDC, Log::MSG::GRAY, __VA_ARGS__)
 #else
     #define LOG_INFO(LOGGER, ...)
 #endif
@@ -77,7 +77,7 @@
  */
 #if LOG_LEVEL_DEBUG <= LOG_CONFIG
     #define LOG_DEBUG(LOGGER, ...) \
-        LOGGER.log(Log::Level::DEBUG, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
+        LOGGER.log(Log::Level::DEBUG, __FILE__, ":", __LINE__, " ", Log::MSG::ENDC, Log::MSG::GRAY, __VA_ARGS__)
 #else
     #define LOG_DEBUG(LOGGER, ...)
 #endif
@@ -87,7 +87,7 @@
  */
 #if LOG_LEVEL_TRACE <= LOG_CONFIG
     #define LOG_TRACE(LOGGER, ...) \
-        LOGGER.log(Log::Level::TRACE, __FILE__, ":", __LINE__, Log::MSG::BEGIN, __VA_ARGS__)
+        LOGGER.log(Log::Level::TRACE, __FILE__, ":", __LINE__, " ", Log::MSG::ENDC, Log::MSG::GRAY, __VA_ARGS__)
 #else
     #define LOG_TRACE(LOGGER, ...)
 #endif
@@ -111,7 +111,9 @@ struct Log: public std::ostringstream
 
     enum MSG: uint32_t
     {
-        BEGIN = 0U,
+        GRAY = 0U,
+        WHITE,
+        ENDC,
         ENDL
     };
 
@@ -133,7 +135,7 @@ struct Log: public std::ostringstream
 void Log::log()
 {
     //Disable coloring
-    *this << Log::MSG::ENDL;
+    *this << Log::MSG::ENDC << Log::MSG::ENDL;
 
     // To change later for a std* or even a file
     std::cout << this->str();
@@ -167,10 +169,12 @@ std::ostream& operator<<(std::ostream& os, const Log::Level level)
 std::ostream& operator<<(std::ostream& os, const Log::MSG fmt)
 {
     // Look-up table
-    const char *color[2U] =
+    const char *color[4U] =
     {
-        "\x1b[0m \x1b[1;90m", //Bold gray
-        "\x1b[0m\n"           //Disable coloring
+        "\x1b[1;90m", //Bold gray
+        "\x1b[37m",   // White
+        "\x1b[0m",            //Disable coloring
+        "\n"
     };
 
     os << color[fmt];

@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <new>
-#include <sstream>
+#include <string>
 #include <vector>
 
 #include "memory.hpp"
@@ -56,61 +56,10 @@ struct Matrix
 
     Matrix& id(const size_t size);
 
-    void* operator new(std::size_t count)
-    {
-        std::fprintf(stderr, "new(size_t) size = %zu\n", count);
-        Matrix *ptr = nullptr;
+    void* operator new(std::size_t count);
 
-        if (count == 0U)
-        {
-            std::fprintf(stderr, "wrong malloc(%zu)", count);
-            throw std::bad_alloc{};
-        }
-        else
-        {
-            ptr = (Matrix*)std::malloc(count);
-            if (ptr != nullptr)
-            {
-                std::fprintf(stderr, "stack.push(%p)\n", ptr);
-                std::stack<void*> *pStack = Static::getStack();
-                pStack->push(ptr);
-            }
-            else
-            {
-                throw std::bad_alloc{};
-            }
-        }
-
-        return ptr;
-    }
-
-    operator std::string() const
-    {
-        std::ostringstream out;
-
-        out << "(MATRIX) in [" << this->rows <<"x" << this->cols << "]" << std::endl;
-        if (this->rows * this->cols == 0)
-        {
-            out << "\t[] empty matrix" << std::endl;
-        }
-        else
-        {
-            for (uint32_t row = 0; row < this->rows; row++)
-            {
-                out << "\t[ ";
-                for (uint32_t col = 0; col < this->cols; col++)
-                {
-                    uint32_t pos = this->cols * row + col;
-                    out << " " << std::to_string(this->val[pos]) << ",";
-                }
-                out << "]" << std::endl;
-            }
-        }
-
-        return out.str();
-    }
+    operator std::string() const;
 };
-
 
 /******************************************************************************/
 /*    IMPLEMENTATION                                                          */
@@ -216,5 +165,67 @@ Matrix& Matrix::id(const size_t size)
     }
 
     return *this;
+}
+
+void* Matrix::operator new(std::size_t count)
+{
+    Log LogOperators;
+    LOG_INFO(LogOperators, "new(", count, ") Matrix.");
+    Matrix *ptr = nullptr;
+
+    if (count == 0U)
+    {
+        // how to trigger this?
+        LOG_ERROR(LogOperators, "Wrong malloc(", count, ").");
+        throw std::bad_alloc{};
+    }
+    else
+    {
+        ptr = (Matrix*)std::malloc(count);
+        if (ptr != nullptr)
+        {
+            LOG_DEBUG(LogOperators, "stack.push(", ptr, ").");
+            std::stack<void*> *pStack = Static::getStack();
+            pStack->push(ptr);
+        }
+        else
+        {
+            // how to trigger this?
+            LOG_ERROR(LogOperators, "Wrong ptr(", ptr, ").");
+            throw std::bad_alloc{};
+        }
+    }
+
+    return ptr;
+}
+
+Matrix::operator std::string() const
+{
+    Log LogMatrix;
+
+    LOG_DEBUG(LogMatrix, "A in [", this->rows, "x", this->cols, "].");
+    if (this->rows * this->cols == 0)
+    {
+        LogMatrix << Log::Level::WARNING << __FILE__ << ":" << __LINE__ \
+                  << Log::MSG::ENDC << Log::MSG::GRAY << "\t(empty matrix)" \
+                  << Log::MSG::ENDC << Log::MSG::ENDL;
+    }
+    else
+    {
+        for (uint32_t row = 0; row < this->rows; row++)
+        {
+            uint32_t pos = this->cols * row;
+            LogMatrix << "\t[" << Log::MSG::WHITE;
+            for (uint32_t col = 0; col < this->cols - 1U; col++)
+            {
+                pos += 1U;
+                LogMatrix << " " << std::to_string(this->val[pos]) << ",";
+            }
+            pos += 1U;
+            LogMatrix << " " << std::to_string(this->val[pos]) << "]" << Log::MSG::ENDL;
+        }
+    }
+
+    return LogMatrix.str();
 }
 #endif /* MATRIX_H_ */

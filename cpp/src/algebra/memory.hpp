@@ -36,7 +36,7 @@ namespace Static
 
     void clean()
     {
-        LOG_INFO(LogMemory, "Cleaning the stack with ", stack.size(), " elements.");
+        LOG_DEBUG(LogMemory, "Cleaning the stack with ", stack.size(), " elements.");
         while (stack.empty() == false)
         {
             stack.pop();

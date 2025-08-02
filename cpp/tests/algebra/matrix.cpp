@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "matrix.hpp"
-#include "memory.hpp"
 
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
@@ -19,19 +18,19 @@ TEST(Matrix, Constructors)
     ASSERT_EQ(0, Empty.rows);
     ASSERT_EQ(0, Empty.cols);
     ASSERT_EQ(true, Empty.val.empty());
-    cout << string(Empty) << endl;
+    cout << string(Empty);
 
     Matrix A(3,5);
     ASSERT_EQ(3, A.rows);
     ASSERT_EQ(5, A.cols);
     ASSERT_EQ(A.rows * A.cols, A.val.capacity());
-    cout << string(A) << endl;
+    cout << string(A);
 
     Matrix B({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1, B.rows);
     ASSERT_EQ(7, B.cols);
     ASSERT_EQ(B.rows * B.cols, B.val.capacity());
-    cout << string(B) << endl;
+    cout << string(B);
 }
 
 TEST(Matrix, reshape)
@@ -43,17 +42,17 @@ TEST(Matrix, reshape)
     A.reshape(2,3);
     ASSERT_EQ(1, A.rows);
     ASSERT_EQ(12, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
 
     A.reshape(4,3);
     ASSERT_EQ(4, A.rows);
     ASSERT_EQ(3, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
 
     A.reshape(4,7);
     ASSERT_EQ(4, A.rows);
     ASSERT_EQ(7, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
 }
 
 TEST(Matrix, transpose)
@@ -63,21 +62,21 @@ TEST(Matrix, transpose)
     Matrix A({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1, A.rows);
     ASSERT_EQ(7, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
     A.transpose();
     ASSERT_EQ(7, A.rows);
     ASSERT_EQ(1, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
 
     Matrix B({8, 7, 6, 5, 4, 3, 2, 1});
     B.reshape(8, 3);
     ASSERT_EQ(8, B.rows);
     ASSERT_EQ(3, B.cols);
-    cout << string(B) << endl;
+    cout << string(B);
     B.transpose();
     ASSERT_EQ(3, B.rows);
     ASSERT_EQ(8, B.cols);
-    cout << string(B) << endl;
+    cout << string(B);
 }
 
 TEST(Matrix, id)
@@ -88,13 +87,13 @@ TEST(Matrix, id)
     A.id(5);
     ASSERT_EQ(5, A.rows);
     ASSERT_EQ(5, A.cols);
-    cout << string(A) << endl;
+    cout << string(A);
 
     Matrix B({1,2,3,4,5,6});
     B.id(3);
     ASSERT_EQ(3, B.rows);
     ASSERT_EQ(3, B.cols);
-    cout << string(B) << endl;
+    cout << string(B);
 }
 
 TEST(Matrix, new)
