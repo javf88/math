@@ -96,10 +96,6 @@ STATIC char* get_src(const uint32_t level, const char *src, const uint32_t line)
     {
         size += strlen(levelFormat[level]);
         str = malloc(sizeof(char) * size);
-        // log << RED(__FILE__,__LINE__);
-        // with caching posibility
-        // log << Level::ERROR << __FILE__ << __LINE__ << Message << "bla bla bla" << std::endl;
-        // LOG_ERROR("bla bla bla");
         sprintf(str, levelFormat[level], src, line);
     }
 
