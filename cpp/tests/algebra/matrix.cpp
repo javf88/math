@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "matrix.hpp"
+#include "levels.hpp"
 
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
@@ -13,24 +14,25 @@
 TEST(Matrix, Constructors)
 {
     using namespace std;
+    Log LogUnitTest;
 
     Matrix Empty;
     ASSERT_EQ(0, Empty.rows);
     ASSERT_EQ(0, Empty.cols);
     ASSERT_EQ(true, Empty.val.empty());
-    cout << string(Empty);
+    LOG_MATRIX(LogUnitTest, Empty);
 
     Matrix A(3,5);
     ASSERT_EQ(3, A.rows);
     ASSERT_EQ(5, A.cols);
     ASSERT_EQ(A.rows * A.cols, A.val.capacity());
-    cout << string(A);
+    LOG_MATRIX(LogUnitTest, A);
 
     Matrix B({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1, B.rows);
     ASSERT_EQ(7, B.cols);
     ASSERT_EQ(B.rows * B.cols, B.val.capacity());
-    cout << string(B);
+    LOG_MATRIX(LogUnitTest, B);
 }
 
 TEST(Matrix, reshape)
@@ -126,4 +128,22 @@ TEST(Matrix, new)
     ASSERT_EQ(4U, pStack->size());
     Static::clean();
     ASSERT_EQ(0U, pStack->size());
+}
+
+TEST(Matrix, build)
+{
+    using namespace std;
+
+    Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
+    ASSERT_EQ(1, A.rows);
+    ASSERT_EQ(12, A.cols);
+
+    A.build("A");
+    ASSERT_EQ("A", A.name);
+    A.build("AB");
+    ASSERT_EQ("AB", A.name);
+    A.build("Empty");
+    ASSERT_EQ("Empty", A.name);
+
+    A.build(A.val);
 }

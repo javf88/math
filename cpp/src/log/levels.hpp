@@ -20,7 +20,11 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <iomanip>
+#include <ostream>
 #include <sstream>
 #include <iostream>
 
@@ -37,6 +41,8 @@
 
 /* Define log boundaries */
 #define LOG_LEVEL_FULL      LOG_LEVEL_TRACE
+
+#define LOG_LEVEL_MARGIN (8U)
 
 /******************************************************************************/
 /*    PUBLIC MACROS                                                           */
@@ -92,6 +98,16 @@
     #define LOG_TRACE(LOGGER, ...)
 #endif
 
+/**
+ * @example    LOG_MATRIX(A);
+ */
+#if LOG_LEVEL_DEBUG <= LOG_CONFIG
+    #define LOG_MATRIX(LOGGER, A) \
+        LOG_DEBUG(LOGGER, #A, " in [", A.rows, "x", A.cols, "].", Log::MSG::ENDC, Log::MSG::ENDL, std::string(A));
+#else
+    #define LOG_TRACE(LOGGER, ...)
+#endif
+
 /******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
@@ -117,6 +133,23 @@ struct Log: public std::ostringstream
         ENDL
     };
 
+    size_t margin = LOG_LEVEL_MARGIN;
+
+    // to make it a proper fucntion and not a hack
+//    virtual Log& setMargin(const std::string &name);
+    /*
+    {
+        Log *matrixName = new Log;
+        size_t margin = 8U;
+        size_t step = margin - std::strlen(name) - 2U;
+        step /= 2U;
+
+        *matrixName << std::setw(step) << name << std::setw(step);
+
+        return *matrixName;
+    }
+    */
+
     void log();
 
     template<typename T, typename... Args>
@@ -134,11 +167,14 @@ struct Log: public std::ostringstream
 
 void Log::log()
 {
+    static ssize_t pos = 0;
     //Disable coloring
     *this << Log::MSG::ENDC << Log::MSG::ENDL;
 
     // To change later for a std* or even a file
+    this->seekp(pos);
     std::cout << this->str();
+    pos = this->tellp();
 }
 
 template<typename T, typename... Args>
@@ -173,7 +209,7 @@ std::ostream& operator<<(std::ostream& os, const Log::MSG fmt)
     {
         "\x1b[1;90m", //Bold gray
         "\x1b[37m",   // White
-        "\x1b[0m",            //Disable coloring
+        "\x1b[0m",    //Disable coloring
         "\n"
     };
 

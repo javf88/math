@@ -21,10 +21,12 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <iomanip>
 #include <new>
 #include <string>
 #include <vector>
 
+#include "levels.hpp"
 #include "memory.hpp"
 
 /******************************************************************************/
@@ -33,7 +35,9 @@
 
 struct Matrix
 {
+    // Logging capabilities
     Log LogMatrix;
+    std::string name = "A";
 
     uint32_t    rows = 0;
     uint32_t    cols = 0;
@@ -59,6 +63,60 @@ struct Matrix
     void* operator new(std::size_t count);
 
     operator std::string() const;
+
+    Log& getMargin()
+    {
+        this->LogMatrix << std::setw(this->LogMatrix.margin);
+
+        return this->LogMatrix;
+    }
+
+    // to format the whole of the matrix with N+1 Cols
+    // col0 | col1 | col2 | ... | colN
+    void build(const std::string &newName)
+    {
+        Log LogRow;
+        uint32_t margin = 3U;
+
+        this->name.clear();
+        this->name = newName;
+        LogRow << std::string(margin, ' ') << newName << " = ";
+        // 3U = size(" = ")
+        margin += newName.size() + 3U;
+
+        // it is working but how to improve the interface?
+        // should I return a string?
+        // should I change the vector a a vector of vectors?
+        // return a nullptr as a sentinel?
+        Log *pLog = this->build(this->val);
+        LogRow << pLog->str();
+        delete pLog;
+        for (uint32_t i = 1U; i < this->rows; i++)
+        {
+            uint32_t pos = this->cols * i;
+//            LogRow << std::string(margin, ' ') << this->build(this->val[pos])
+        }
+
+        std::cout << margin << std::endl;
+        std::cout << LogRow.str() << std::endl;
+    }
+
+    Log* build(const std::vector<float> &row)
+    {
+        const uint32_t width = 10U;
+        // this might be inefficient but might be less convoluted
+        Log *LogRow = new Log;
+
+        *LogRow << "[" << std::right << std::setw(width) << std::fixed << row[0U];
+        for (uint32_t i = 1U; i < this->cols; i++)
+        {
+            *LogRow << "," << std::right << std::setw(width) << std::fixed << row[i];
+        }
+        *LogRow << "]" << std::endl;
+        std::cout << LogRow->str() << std::endl;
+
+        return LogRow;
+    }
 };
 
 /******************************************************************************/
@@ -66,7 +124,7 @@ struct Matrix
 /******************************************************************************/
 
 // Matrix allocation from a list
-Matrix::Matrix(std::initializer_list<float> val) : val(val), rows(1), cols(val.size())
+Matrix::Matrix(std::initializer_list<float> val) :  val(val), rows(1), cols(val.size())
 {
     LOG_INFO(LogMatrix, "Constructing row vector [", this->rows, "x", this->cols, "].");
 }
@@ -203,26 +261,27 @@ Matrix::operator std::string() const
 {
     Log LogMatrix;
 
-    LOG_DEBUG(LogMatrix, "A in [", this->rows, "x", this->cols, "].");
     if (this->rows * this->cols == 0)
     {
-        LogMatrix << Log::Level::WARNING << __FILE__ << ":" << __LINE__ \
-                  << Log::MSG::ENDC << Log::MSG::GRAY << "\t(empty matrix)" \
-                  << Log::MSG::ENDC << Log::MSG::ENDL;
+        LogMatrix << Log::MSG::GRAY << "[] (empty matrix)" << Log::MSG::ENDC;
     }
     else
     {
+        uint32_t margin = LOG_LEVEL_MARGIN;
+
         for (uint32_t row = 0; row < this->rows; row++)
         {
             uint32_t pos = this->cols * row;
-            LogMatrix << "\t[" << Log::MSG::WHITE;
+            LogMatrix << std::setw(margin) << "[" << Log::MSG::WHITE;
             for (uint32_t col = 0; col < this->cols - 1U; col++)
             {
                 pos += 1U;
                 LogMatrix << " " << std::to_string(this->val[pos]) << ",";
             }
             pos += 1U;
-            LogMatrix << " " << std::to_string(this->val[pos]) << "]" << Log::MSG::ENDL;
+            LogMatrix << " " << std::to_string(this->val[pos]) << Log::MSG::ENDC << "]" << Log::MSG::ENDL;
+
+            margin = LOG_LEVEL_MARGIN;
         }
     }
 
