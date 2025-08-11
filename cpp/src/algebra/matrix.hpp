@@ -64,57 +64,47 @@ struct Matrix
 
     operator std::string() const;
 
-    Log& getMargin()
-    {
-        this->LogMatrix << std::setw(this->LogMatrix.margin);
-
-        return this->LogMatrix;
-    }
-
     // to format the whole of the matrix with N+1 Cols
     // col0 | col1 | col2 | ... | colN
-    void build(const std::string &newName)
+    void log(const std::string &newName)
     {
         Log LogRow;
         uint32_t margin = 3U;
 
         this->name.clear();
         this->name = newName;
-        LogRow << std::string(margin, ' ') << newName << " = ";
+        LogRow << Log::MSG::GRAY << std::string(margin, ' ') << newName << " = ";
         // 3U = size(" = ")
         margin += newName.size() + 3U;
 
-        // it is working but how to improve the interface?
-        // should I return a string?
-        // should I change the vector a a vector of vectors?
-        // return a nullptr as a sentinel?
-        //Log *pLog = this->build(this->val);
-        //LogRow << pLog->str();
-        //delete pLog;
-        for (uint32_t i = 1U; i < this->rows; i++)
+        // to chain them properly i = 0U
+        for (uint32_t i = 0U; i < this->rows; i++)
         {
             uint32_t pos = this->cols * i;
-//            LogRow << std::string(margin, ' ') << this->build(this->val[pos])
+            Log *tmp = this->log(this->val.cbegin() + pos);
+            LogRow << tmp->str();
+            LogRow << std::string(margin, ' ') << Log::MSG::GRAY;
+            delete tmp;
         }
 
-        std::cout << margin << std::endl;
         std::cout << LogRow.str() << std::endl;
     }
 
-    Log* build(const std::vector<float>::const_iterator row)
+    Log* log(const std::vector<float>::const_iterator row)
     {
         const uint32_t width = 10U;
         // this might be inefficient but might be less convoluted
         Log *LogRow = new Log;
 
-        *LogRow << "[" << std::right << std::setw(width) << std::fixed << row[0U];
-        for (uint32_t i = 1U; i < this->cols; i++)
+        *LogRow << "[" << Log::MSG::ENDC
+                << Log::MSG::WHITE << std::right << std::setw(width) << std::fixed << row[0U];
+        for (uint32_t j = 1U; j < this->cols; j++)
         {
-            *LogRow << "," << std::right << std::setw(width) << std::fixed << row[i];
+            *LogRow << "," << std::right << std::setw(width) << std::fixed << row[j];
         }
-        *LogRow << "]" << std::endl;
-        std::cout << LogRow->str() << std::endl;
+        *LogRow << Log::MSG::ENDC << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
 
+        // Delete after returning
         return LogRow;
     }
 };

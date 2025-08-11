@@ -208,7 +208,7 @@ std::ostream& operator<<(std::ostream& os, const Log::MSG fmt)
     const char *color[4U] =
     {
         "\x1b[1;90m", //Bold gray
-        "\x1b[37m",   // White
+        "\x1b[37m",   //White
         "\x1b[0m",    //Disable coloring
         "\n"
     };

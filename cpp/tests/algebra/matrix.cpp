@@ -130,26 +130,32 @@ TEST(Matrix, new)
     ASSERT_EQ(0U, pStack->size());
 }
 
-TEST(Matrix, build)
+TEST(Matrix, log)
 {
     using namespace std;
 
     Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
-    ASSERT_EQ(1, A.rows);
-    ASSERT_EQ(12, A.cols);
+    ASSERT_EQ(1U, A.rows);
+    ASSERT_EQ(12U, A.cols);
+    A.log(A.val.cbegin());
 
-    A.build("A");
+    A.log("A");
     ASSERT_EQ("A", A.name);
-    A.build("AB");
+    A.log("AB");
     ASSERT_EQ("AB", A.name);
-    A.build("Empty");
+    A.log("Empty");
     ASSERT_EQ("Empty", A.name);
 
-    A.build(A.val.cbegin());
+    A.transpose();
+    ASSERT_EQ(12U, A.rows);
+    ASSERT_EQ(1U, A.cols);
 
     Matrix B({1,1,1,2,3,4});
     B.reshape(2U, 3U);
-    B.build("B");
+    ASSERT_EQ(2U, B.rows);
+    ASSERT_EQ(3U, B.cols);
+    B.log("B");
     ASSERT_EQ("B", B.name);
-    B.build(B.val.cbegin() + B.cols);
+    B.log(B.val.cbegin() + B.cols);
+    B.log("C");
 }
