@@ -42,7 +42,7 @@
 /* Define log boundaries */
 #define LOG_LEVEL_FULL      LOG_LEVEL_TRACE
 
-#define LOG_LEVEL_MARGIN (8U)
+//#define LOG_LEVEL_MARGIN (8U)
 
 /******************************************************************************/
 /*    PUBLIC MACROS                                                           */
@@ -133,7 +133,7 @@ struct Log: public std::ostringstream
         ENDL
     };
 
-    size_t margin = LOG_LEVEL_MARGIN;
+//    size_t margin = LOG_LEVEL_MARGIN;
 
     // to make it a proper fucntion and not a hack
 //    virtual Log& setMargin(const std::string &name);

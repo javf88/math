@@ -137,7 +137,9 @@ TEST(Matrix, log)
     Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
     ASSERT_EQ(1U, A.rows);
     ASSERT_EQ(12U, A.cols);
-    A.log(A.val.cbegin());
+    // Just displaying [a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)]
+    Log *tmp = A.log(A.val.cbegin());
+    std::cout << tmp->str();
 
     A.log("A");
     ASSERT_EQ("A", A.name);
