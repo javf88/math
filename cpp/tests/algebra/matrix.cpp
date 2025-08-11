@@ -151,6 +151,7 @@ TEST(Matrix, log)
     A.transpose();
     ASSERT_EQ(12U, A.rows);
     ASSERT_EQ(1U, A.cols);
+    A.log("A'");
 
     Matrix B({1,1,1,2,3,4});
     B.reshape(2U, 3U);
@@ -158,6 +159,11 @@ TEST(Matrix, log)
     ASSERT_EQ(3U, B.cols);
     B.log("B");
     ASSERT_EQ("B", B.name);
-    B.log(B.val.cbegin() + B.cols);
+    // Just displaying [a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)]
+    tmp = B.log(B.val.cbegin() + B.cols);
+    std::cout << tmp->str();
+    delete tmp;
+
+    B.transpose();
     B.log("C");
 }
