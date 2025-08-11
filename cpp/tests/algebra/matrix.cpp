@@ -145,5 +145,11 @@ TEST(Matrix, build)
     A.build("Empty");
     ASSERT_EQ("Empty", A.name);
 
-    A.build(A.val);
+    A.build(A.val.cbegin());
+
+    Matrix B({1,1,1,2,3,4});
+    B.reshape(2U, 3U);
+    B.build("B");
+    ASSERT_EQ("B", B.name);
+    B.build(B.val.cbegin() + B.cols);
 }

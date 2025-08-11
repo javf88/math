@@ -88,9 +88,9 @@ struct Matrix
         // should I return a string?
         // should I change the vector a a vector of vectors?
         // return a nullptr as a sentinel?
-        Log *pLog = this->build(this->val);
-        LogRow << pLog->str();
-        delete pLog;
+        //Log *pLog = this->build(this->val);
+        //LogRow << pLog->str();
+        //delete pLog;
         for (uint32_t i = 1U; i < this->rows; i++)
         {
             uint32_t pos = this->cols * i;
@@ -101,7 +101,7 @@ struct Matrix
         std::cout << LogRow.str() << std::endl;
     }
 
-    Log* build(const std::vector<float> &row)
+    Log* build(const std::vector<float>::const_iterator row)
     {
         const uint32_t width = 10U;
         // this might be inefficient but might be less convoluted
