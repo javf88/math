@@ -62,59 +62,18 @@ struct Matrix
 
     void* operator new(std::size_t count);
 
+    // std::string() calls log()
     operator std::string() const;
 
+    // log(string newName) calls log()
+    void log(const std::string &newName);
+
+    // log() calls repeately log(vector<float>::c_itr row)
     // to format the whole of the matrix with N+1 Cols
     // A = [col0 | col1 | col2 | ... | colN]
-    void log(const std::string &newName)
-    {
-        Log LogRow;
-        Log *tmp = nullptr;
-        uint32_t margin = 3U;
+    void log() const;
 
-        this->name.clear();
-        this->name = newName;
-
-        //          |123 123|
-        // building "   A = "
-        LogRow << Log::MSG::GRAY << std::string(margin, ' ') << newName << " = ";
-        // 3U = size(" = ")
-        margin += newName.size() + margin;
-        tmp = this->log(this->val.cbegin());
-        LogRow << tmp->str();
-        delete tmp;
-
-        // to chain them properly i = 0U
-        for (uint32_t i = 1U; i < this->rows; i++)
-        {
-            uint32_t pos = this->cols * i;
-            LogRow << std::string(margin, ' ') << Log::MSG::GRAY;
-            Log *tmp = this->log(this->val.cbegin() + pos);
-            LogRow << tmp->str();
-            delete tmp;
-        }
-
-        std::cout << LogRow.str();
-    }
-
-    Log* log(const std::vector<float>::const_iterator row)
-    {
-        const uint32_t width = 10U;
-        // this might be inefficient but might be less convoluted
-        Log *LogRow = new Log;
-
-        // building initial element "[ row[col]"
-        *LogRow << "[" << Log::MSG::ENDC
-                << Log::MSG::WHITE << std::right << std::setw(width) << std::fixed << row[0U];
-        for (uint32_t j = 1U; j < this->cols; j++)
-        {
-            *LogRow << "," << std::right << std::setw(width) << std::fixed << row[j];
-        }
-        *LogRow << Log::MSG::ENDC << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
-
-        // Delete after returning
-        return LogRow;
-    }
+    Log* log(const std::vector<float>::const_iterator row) const;
 };
 
 /******************************************************************************/
@@ -265,24 +224,67 @@ Matrix::operator std::string() const
     }
     else
     {
-        uint32_t margin = 3U;
-
-        for (uint32_t row = 0; row < this->rows; row++)
-        {
-            uint32_t pos = this->cols * row;
-            LogMatrix << std::setw(margin) << "[" << Log::MSG::WHITE;
-            for (uint32_t col = 0; col < this->cols - 1U; col++)
-            {
-                pos += 1U;
-                LogMatrix << " " << std::to_string(this->val[pos]) << ",";
-            }
-            pos += 1U;
-            LogMatrix << " " << std::to_string(this->val[pos]) << Log::MSG::ENDC << "]" << Log::MSG::ENDL;
-
-            margin = 3U;
-        }
+        // LogMatrix << this->log() should be implemented
+        this->log();
     }
 
+    // here it goes the stream selection?
     return LogMatrix.str();
+}
+
+void Matrix::log(const std::string &newName)
+{
+    this->name.clear();
+    this->name = newName;
+
+    this->log();
+}
+
+void Matrix::log() const
+{
+    Log LogRow;
+    Log *tmp = nullptr;
+    uint32_t margin = 3U;
+
+    //          |123 123|
+    // building "   A = "
+    LogRow << Log::MSG::GRAY << std::string(margin, ' ') << this->name << " = ";
+    // 3U = size(" = ")
+    margin += this->name.size() + margin;
+    tmp = this->log(this->val.cbegin());
+    LogRow << tmp->str();
+    delete tmp;
+
+    // to loop over only when rows > 0
+    for (uint32_t i = 1U; i < this->rows; i++)
+    {
+        uint32_t pos = this->cols * i;
+        LogRow << std::string(margin, ' ') << Log::MSG::GRAY;
+        Log *tmp = this->log(this->val.cbegin() + pos);
+        LogRow << tmp->str();
+        delete tmp;
+    }
+
+    // TODO: to enable stream selection when file capability comes into play
+    std::cout << LogRow.str();
+}
+
+Log* Matrix::log(const std::vector<float>::const_iterator row) const
+{
+    const uint32_t width = 10U;
+    // this might be inefficient but might be less convoluted
+    Log *LogRow = new Log;
+
+    // building initial element "[ row[col]"
+    *LogRow << "[" << Log::MSG::ENDC
+            << Log::MSG::WHITE << std::right << std::setw(width) << std::fixed << row[0U];
+    for (uint32_t j = 1U; j < this->cols; j++)
+    {
+        *LogRow << "," << std::right << std::setw(width) << std::fixed << row[j];
+    }
+    *LogRow << Log::MSG::ENDC << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
+
+    // Delete after returning
+    return LogRow;
 }
 #endif /* MATRIX_H_ */
