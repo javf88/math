@@ -20,10 +20,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <cstddef>
 #include <cstdint>
-#include <cstring>
-#include <iomanip>
 #include <ostream>
 #include <sstream>
 #include <iostream>
@@ -96,17 +93,6 @@
     #define LOG_TRACE(LOGGER, ...)
 #endif
 
-/**
- * @example    LOG_MATRIX(A);
- */
-#if LOG_LEVEL_DEBUG <= LOG_CONFIG
-    #define LOG_MATRIX(LOGGER, A) \
-        LOG_DEBUG(LOGGER, #A, " in [", A.rows, "x", A.cols, "]."); \
-        LOGGER << A.log(#A);
-#else
-    #define LOG_TRACE(LOGGER, ...)
-#endif
-
 /******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
@@ -132,10 +118,17 @@ struct Log: public std::ostringstream
         ENDL
     };
 
-    void log();
+   ~Log()
+   {
+       // to add stream-selection feature
+        std::cout << this->str();
+   }
 
     template<typename T, typename... Args>
     void log(const T& first, const Args&... args);
+
+private:
+    void log();
 
     // friend keyword is readable when implementation is split.
     friend std::ostream& operator<<(std::ostream& os, const Log::Level level);
@@ -147,15 +140,12 @@ struct Log: public std::ostringstream
 /*    IMPLEMENTATION                                                          */
 /******************************************************************************/
 
-// log() triggers the endc << endl
 void Log::log()
 {
     static ssize_t pos = 0;
 
     // To change later for a std* or even a file
     this->seekp(pos);
-    // to return to the main class
-    std::cout << this->str();
     pos = this->tellp();
 }
 
