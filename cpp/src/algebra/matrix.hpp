@@ -62,16 +62,13 @@ struct Matrix
 
     void* operator new(std::size_t count);
 
-    // std::string() calls log()
-    operator std::string() const;
-
     // log(string newName) calls log()
-    void log(const std::string &newName);
+    std::string log(const std::string &newName);
 
     // log() calls repeately log(vector<float>::c_itr row)
     // to format the whole of the matrix with N+1 Cols
     // A = [col0 | col1 | col2 | ... | colN]
-    void log() const;
+    Log* log() const;
 
     Log* log(const std::vector<float>::const_iterator row) const;
 };
@@ -214,77 +211,84 @@ void* Matrix::operator new(std::size_t count)
     return ptr;
 }
 
-Matrix::operator std::string() const
+std::string Matrix::log(const std::string &newName)
 {
-    Log LogMatrix;
+    Log logMatrix;
 
-    if (this->rows * this->cols == 0)
-    {
-        LogMatrix << Log::MSG::GRAY << "[] (empty matrix)" << Log::MSG::ENDC;
-    }
-    else
-    {
-        // LogMatrix << this->log() should be implemented
-        this->log();
-    }
-
-    // here it goes the stream selection?
-    return LogMatrix.str();
-}
-
-void Matrix::log(const std::string &newName)
-{
     this->name.clear();
     this->name = newName;
 
-    this->log();
+    if (this->rows * this->cols == 0)
+    {
+        logMatrix << Log::MSG::GRAY << "[] (empty matrix)" << Log::MSG::ENDC << Log::MSG::ENDL;
+    }
+    else
+    {
+        Log *tmp = this->log();
+        logMatrix << tmp->str();
+        delete tmp;
+    }
+
+    // here it goes the stream selection?
+    //std::cout << logMatrix.str() << std::endl;
+
+    return logMatrix.str();
 }
 
-void Matrix::log() const
+Log* Matrix::log() const
 {
-    Log LogRow;
-    Log *tmp = nullptr;
+    Log *pRow = nullptr;
+    // the first/edge case could be handle at initialization(new) level?
+    Log *pMatrix = new Log;
     uint32_t margin = 3U;
 
-    //          |123 123|
-    // building "   A = "
-    LogRow << Log::MSG::GRAY << std::string(margin, ' ') << this->name << " = ";
+    // edge case, first iteration
+    //          |123 1234|
+    // building "   A = ["
+    *pMatrix << Log::MSG::GRAY << std::string(margin, ' ') << this->name << " = [" << Log::MSG::ENDC;
     // 3U = size(" = ")
     margin += this->name.size() + margin;
-    tmp = this->log(this->val.cbegin());
-    LogRow << tmp->str();
-    delete tmp;
+
+    pRow = this->log(this->val.cbegin());
+    *pMatrix << pRow->str();
+    delete pRow;
+
+    *pMatrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
 
     // to loop over only when rows > 0
     for (uint32_t i = 1U; i < this->rows; i++)
     {
         uint32_t pos = this->cols * i;
-        LogRow << std::string(margin, ' ') << Log::MSG::GRAY;
-        Log *tmp = this->log(this->val.cbegin() + pos);
-        LogRow << tmp->str();
-        delete tmp;
+        *pMatrix << Log::MSG::GRAY << std::string(margin, ' ') << "[" << Log::MSG::ENDC;
+
+        Log *pRow = this->log(this->val.cbegin() + pos);
+        *pMatrix << pRow->str();
+        delete pRow;
+
+        *pMatrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
     }
 
-    // TODO: to enable stream selection when file capability comes into play
-    std::cout << LogRow.str();
+    return pMatrix;
 }
 
+// It returns only the content of [ a, b, ..., i, ..., n], without the "[]"
 Log* Matrix::log(const std::vector<float>::const_iterator row) const
 {
     const uint32_t width = 10U;
-    // this might be inefficient but might be less convoluted
-    Log *LogRow = new Log;
+    Log *pRow = new Log;
 
-    // building initial element "[ row[col]"
-    *LogRow << "[" << Log::MSG::ENDC
-            << Log::MSG::WHITE << std::right << std::setw(width) << std::fixed << row[0U];
+    // building initial element
+    *pRow << Log::MSG::WHITE;
+
+    *pRow << std::right << std::setw(width) << std::fixed << row[0U];
     for (uint32_t j = 1U; j < this->cols; j++)
     {
-        *LogRow << "," << std::right << std::setw(width) << std::fixed << row[j];
+        *pRow << "," << std::right << std::setw(width) << std::fixed << row[j];
     }
-    *LogRow << Log::MSG::ENDC << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
+
+    *pRow << Log::MSG::ENDC;
 
     // Delete after returning
-    return LogRow;
+    return pRow;
 }
 #endif /* MATRIX_H_ */

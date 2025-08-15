@@ -101,7 +101,8 @@
  */
 #if LOG_LEVEL_DEBUG <= LOG_CONFIG
     #define LOG_MATRIX(LOGGER, A) \
-        LOG_DEBUG(LOGGER, #A, " in [", A.rows, "x", A.cols, "].", Log::MSG::ENDC, Log::MSG::ENDL);
+        LOG_DEBUG(LOGGER, #A, " in [", A.rows, "x", A.cols, "]."); \
+        LOGGER << A.log(#A);
 #else
     #define LOG_TRACE(LOGGER, ...)
 #endif
@@ -131,23 +132,6 @@ struct Log: public std::ostringstream
         ENDL
     };
 
-//    size_t margin = LOG_LEVEL_MARGIN;
-
-    // to make it a proper fucntion and not a hack
-//    virtual Log& setMargin(const std::string &name);
-    /*
-    {
-        Log *matrixName = new Log;
-        size_t margin = 8U;
-        size_t step = margin - std::strlen(name) - 2U;
-        step /= 2U;
-
-        *matrixName << std::setw(step) << name << std::setw(step);
-
-        return *matrixName;
-    }
-    */
-
     void log();
 
     template<typename T, typename... Args>
@@ -170,6 +154,7 @@ void Log::log()
 
     // To change later for a std* or even a file
     this->seekp(pos);
+    // to return to the main class
     std::cout << this->str();
     pos = this->tellp();
 }

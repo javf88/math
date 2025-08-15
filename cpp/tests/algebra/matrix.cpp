@@ -44,17 +44,17 @@ TEST(Matrix, reshape)
     A.reshape(2,3);
     ASSERT_EQ(1, A.rows);
     ASSERT_EQ(12, A.cols);
-    cout << string(A);
+    cout << A.log("A");
 
     A.reshape(4,3);
     ASSERT_EQ(4, A.rows);
     ASSERT_EQ(3, A.cols);
-    cout << string(A);
+    cout << A.log("A");
 
     A.reshape(4,7);
     ASSERT_EQ(4, A.rows);
     ASSERT_EQ(7, A.cols);
-    cout << string(A);
+    cout << A.log("A");
 }
 
 TEST(Matrix, transpose)
@@ -64,21 +64,21 @@ TEST(Matrix, transpose)
     Matrix A({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1, A.rows);
     ASSERT_EQ(7, A.cols);
-    cout << string(A);
+    cout << A.log("A");
     A.transpose();
     ASSERT_EQ(7, A.rows);
     ASSERT_EQ(1, A.cols);
-    cout << string(A);
+    cout << A.log("A");
 
     Matrix B({8, 7, 6, 5, 4, 3, 2, 1});
     B.reshape(8, 3);
     ASSERT_EQ(8, B.rows);
     ASSERT_EQ(3, B.cols);
-    cout << string(B);
+    cout << B.log("B");
     B.transpose();
     ASSERT_EQ(3, B.rows);
     ASSERT_EQ(8, B.cols);
-    cout << string(B);
+    cout << B.log("B");
 }
 
 TEST(Matrix, id)
@@ -89,13 +89,13 @@ TEST(Matrix, id)
     A.id(5);
     ASSERT_EQ(5, A.rows);
     ASSERT_EQ(5, A.cols);
-    cout << string(A);
+    cout << A.log("A");
 
     Matrix B({1,2,3,4,5,6});
     B.id(3);
     ASSERT_EQ(3, B.rows);
     ASSERT_EQ(3, B.cols);
-    cout << string(B);
+    cout << B.log("B");
 }
 
 TEST(Matrix, new)
@@ -137,9 +137,9 @@ TEST(Matrix, log)
     Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
     ASSERT_EQ(1U, A.rows);
     ASSERT_EQ(12U, A.cols);
-    // Just displaying [a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)]
+    // Just displaying a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)
     Log *tmp = A.log(A.val.cbegin());
-    std::cout << tmp->str();
+    std::cout << tmp->str() << std::endl;;
 
     A.log("A");
     ASSERT_EQ("A", A.name);
@@ -161,7 +161,7 @@ TEST(Matrix, log)
     ASSERT_EQ("B", B.name);
     // Just displaying [a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)]
     tmp = B.log(B.val.cbegin() + B.cols);
-    std::cout << tmp->str();
+    std::cout << tmp->str() << std::endl;;
     delete tmp;
 
     B.transpose();
