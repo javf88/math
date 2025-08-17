@@ -118,12 +118,6 @@ struct Log: public std::ostringstream
         ENDL
     };
 
-   ~Log()
-   {
-       // to add stream-selection feature
-        std::cout << this->str();
-   }
-
     template<typename T, typename... Args>
     void log(const T& first, const Args&... args);
 
