@@ -97,6 +97,7 @@
 /*    API                                                                     */
 /******************************************************************************/
 
+// Deriving from std::ostringstream because of the str() method
 struct Log: public std::ostringstream
 {
     // enums as key for the look-up tables.
@@ -125,6 +126,7 @@ private:
     void log();
 
     // friend keyword is readable when implementation is split.
+    // friend functions to ostream because it implements operator<<
     friend std::ostream& operator<<(std::ostream& os, const Log::Level level);
 
     friend std::ostream& operator<<(std::ostream& os, const Log::MSG fmt);
