@@ -30,13 +30,31 @@
 #include "memory.hpp"
 
 /******************************************************************************/
+/*    PUBLIC MACROS                                                           */
+/******************************************************************************/
+
+/**
+ * @example    LOG_MATRIX(A);
+ */
+#if LOG_LEVEL_DEBUG <= LOG_CONFIG
+    #define LOG_MATRIX(A) \
+        LOG_DEBUG(A.logMatrix, #A, " in [", A.rows, "x", A.cols, "]."); \
+        A.log(#A);
+    #define LOG_PMATRIX(A) \
+        LOG_DEBUG((A).logMatrix, #A, " in [", (A).rows, "x", (A).cols, "]."); \
+        (A).log(#A);
+#else
+    #define LOG_DEBUG(A.logMatrix, ...)
+#endif
+
+/******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
 
 struct Matrix
 {
     // Logging capabilities
-    Log LogMatrix;
+    Log logMatrix;
     std::string name = "A";
 
     uint32_t    rows = 0;
@@ -47,8 +65,28 @@ struct Matrix
     // Memory allocation for a matrix
     Matrix(uint32_t rows, uint32_t cols);
 
+    // would this be private?
+    Matrix(Matrix& A): Matrix(A.rows, A.cols)
+    {
+        // is there a cleaner way to get the logging from the other ctor?
+        A.logMatrix << this->logMatrix.str();
+        this->logMatrix.str("");
+
+        LOG_INFO(A.logMatrix, "Copying matrix.");
+        for (auto src = A.val.cbegin(); src != A.val.cend(); src++)
+        {
+            this->val.push_back(*src);
+        }
+    };
+
     // Empty matrix
     Matrix();
+
+    // to move to implementation section
+    ~Matrix()
+    {
+        std::cout << this->logMatrix.str();
+    }
 
     // Matrix allocation from a list
     Matrix(std::initializer_list<float> val);
@@ -62,8 +100,9 @@ struct Matrix
 
     void* operator new(std::size_t count);
 
+    // log is the public API
     // log(string newName) calls log()
-    std::string log(const std::string &newName);
+    void log(const std::string &newName);
 
     // log() calls repeately log(vector<float>::c_itr row)
     // to format the whole of the matrix with N+1 Cols
@@ -80,24 +119,27 @@ struct Matrix
 // Matrix allocation from a list
 Matrix::Matrix(std::initializer_list<float> val) :  val(val), rows(1), cols(val.size())
 {
-    LOG_INFO(LogMatrix, "Constructing row vector [", this->rows, "x", this->cols, "].");
+    LOG_INFO(this->logMatrix, "Constructing row vector [", this->rows, "x", this->cols, "].");
 }
 
 Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
 {
     if (this->rows * this->cols != 0)
     {
-        LOG_INFO(LogMatrix, "Reserving memory with ", this->rows, "x", this->cols, " elements.");
+        LOG_INFO(this->logMatrix, "Reserving memory with ", this->rows, "x", this->cols, " elements.");
         this->val.reserve(this->rows * this->cols);
     }
     else
     {
-        LOG_WARNING(LogMatrix, "Unable to reserve memory.");
+        LOG_WARNING(this->logMatrix, "Unable to reserve memory.");
     }
 }
 
 // Empty matrix
-Matrix::Matrix() : Matrix(0, 0) {}
+Matrix::Matrix() : Matrix(0, 0)
+{
+    LOG_INFO(this->logMatrix, "Creating an empty matrix");
+}
 
 Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
 {
@@ -107,7 +149,7 @@ Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
     // Should I clip the matrix to force it into a smaller space?
     if (total > newTotal)
     {
-        LOG_ERROR(LogMatrix, "It is not possible to reshape from [",
+        LOG_ERROR(this->logMatrix, "It is not possible to reshape from [",
                 this->rows, "x", this->cols, "] to [", newRows, "x", newCols, "].");
     }
     else
@@ -125,43 +167,38 @@ Matrix& Matrix::transpose()
 {
     if (this->val.empty())
     {
-        LOG_WARNING(LogMatrix, "Nothing to transpose: Empty matrix!");
+        LOG_WARNING(this->logMatrix, "Nothing to transpose: Empty matrix!");
         return  *this;
     }
     else
     {
-        // There is no need to transpose a row or a column vector. Their
-        // memory layout is the same.
+        // There is no need to transpose a row or a column vector
         if ((this->rows > 1) && (this->cols > 1))
         {
-            for (uint32_t row = 0; row < this->rows; row++)
+            Matrix A(*this);
+            for (uint32_t row = 0; row < A.rows; row++)
             {
-                for (uint32_t col = 0; col < this->cols; col++)
+                for (uint32_t col = 0; col < A.cols; col++)
                 {
-                    uint32_t pos = this->cols * row + col;
-                    float val = this->val[pos];
+                    uint32_t pos = A.cols * row + col;
+                    uint32_t newPos = this->cols * col + row;
 
-                    uint32_t newPos = this->rows * col + row;
-                    float newVal = this->val[newPos];
-
-                    this->val[newPos] = val;
-                    this->val[pos] = newVal;
+                    this->val[newPos] = A.val[pos];
                 }
             }
         }
 
-        // Swapping dimensions
         this->reshape(this->cols, this->rows);
-
-        return *this;
     }
+
+    return *this;
 }
 
 Matrix& Matrix::id(const size_t size)
 {
     if (this->val.empty() != true)
     {
-        LOG_WARNING(LogMatrix, "Overwriting matrix [", this->rows, "x", this->cols, "] with Id(", size, ").");
+        LOG_WARNING(this->logMatrix, "Overwriting matrix [", this->rows, "x", this->cols, "] with Id(", size, ").");
         this->val.clear();
     }
 
@@ -181,58 +218,55 @@ Matrix& Matrix::id(const size_t size)
 
 void* Matrix::operator new(std::size_t count)
 {
-    Log LogOperators;
-    LOG_INFO(LogOperators, "new(", count, ") Matrix.");
-    Matrix *ptr = nullptr;
+    Log tmp;
+    LOG_INFO(tmp, "new(", count, ") Matrix.");
+    Matrix *pMatrix = nullptr;
 
     if (count == 0U)
     {
         // how to trigger this?
-        LOG_ERROR(LogOperators, "Wrong malloc(", count, ").");
+        LOG_ERROR(tmp, "Wrong malloc(", count, ").");
         throw std::bad_alloc{};
     }
     else
     {
-        ptr = (Matrix*)std::malloc(count);
-        if (ptr != nullptr)
+        pMatrix = (Matrix*)std::malloc(count);
+        if (pMatrix != nullptr)
         {
-            LOG_DEBUG(LogOperators, "stack.push(", ptr, ").");
+            LOG_DEBUG(tmp, "stack.push(", pMatrix, ").");
             std::stack<void*> *pStack = Static::getStack();
-            pStack->push(ptr);
+            pStack->push(pMatrix);
         }
         else
         {
             // how to trigger this?
-            LOG_ERROR(LogOperators, "Wrong ptr(", ptr, ").");
+            LOG_ERROR(tmp, "Wrong pMatrix(", pMatrix, ").");
             throw std::bad_alloc{};
         }
     }
 
-    return ptr;
+    std::cout << tmp.str();
+    return pMatrix;
 }
 
-std::string Matrix::log(const std::string &newName)
+void Matrix::log(const std::string &newName)
 {
-    Log logMatrix;
-
-    this->name.clear();
-    this->name = newName;
+    if (this->name != newName)
+    {
+        this->name.clear();
+        this->name = newName;
+    }
 
     if (this->rows * this->cols == 0)
     {
-        logMatrix << Log::MSG::GRAY << "[] (empty matrix)" << Log::MSG::ENDC << Log::MSG::ENDL;
+        this->logMatrix << Log::MSG::GRAY << std::string(3U, ' ') << "[] (empty matrix)" << Log::MSG::ENDC << Log::MSG::ENDL;
     }
     else
     {
         Log *tmp = this->log();
-        logMatrix << tmp->str();
+        this->logMatrix << tmp->str();
         delete tmp;
     }
-
-    // here it goes the stream selection?
-    //std::cout << logMatrix.str() << std::endl;
-
-    return logMatrix.str();
 }
 
 Log* Matrix::log() const
