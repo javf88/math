@@ -38,9 +38,6 @@
  */
 #if LOG_LEVEL_DEBUG <= LOG_CONFIG
     #define LOG_MATRIX(A) \
-        LOG_DEBUG(A.logMatrix, #A, " in [", A.rows, "x", A.cols, "]."); \
-        A.log(#A);
-    #define LOG_PMATRIX(A) \
         LOG_DEBUG((A).logMatrix, #A, " in [", (A).rows, "x", (A).cols, "]."); \
         (A).log(#A);
 #else
@@ -118,7 +115,7 @@ struct Matrix
             block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
         }
 
-        LOG_PMATRIX(*block);
+        LOG_MATRIX(*block);
         return block;
     }
 

@@ -189,28 +189,28 @@ TEST(Matrix, new)
     ASSERT_EQ(0U, A->rows);
     ASSERT_EQ(0U, A->cols);
     ASSERT_EQ(0U, A->val.capacity());
-    LOG_PMATRIX(*A);
+    LOG_MATRIX(*A);
     delete A;
 
     Matrix *B = new Matrix(1U, 0U);
     ASSERT_EQ(1U, B->rows);
     ASSERT_EQ(0U, B->cols);
     ASSERT_EQ(0U, B->val.capacity());
-    LOG_PMATRIX(*B);
+    LOG_MATRIX(*B);
     delete B;
 
     Matrix *C = new Matrix(0U, 1U);
     ASSERT_EQ(0U, C->rows);
     ASSERT_EQ(1U, C->cols);
     ASSERT_EQ(0U, C->val.capacity());
-    LOG_PMATRIX(*C);
+    LOG_MATRIX(*C);
     delete C;
 
     Matrix *D = new Matrix(3U, 7U);
     ASSERT_EQ(3U, D->rows);
     ASSERT_EQ(7U, D->cols);
     ASSERT_EQ(21U, D->val.capacity());
-    LOG_PMATRIX(*D);
+    LOG_MATRIX(*D);
     delete D;
 
     ASSERT_EQ(4U, pStack->size());
