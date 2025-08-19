@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "operators.hpp"
-#include "memory.hpp"
+#include "matrix.hpp"
 
 /******************************************************************************/
 /*    FIXTURES                                                                */
@@ -39,13 +39,17 @@ TEST(operators, equality)
     Matrix A;
     Matrix B;
     A.id(2U);
+    LOG_MATRIX(A);
     B.id(3U);
+    LOG_MATRIX(B);
     ASSERT_FALSE(A == B);
 
     A.id(3);
+    LOG_MATRIX(A);
     ASSERT_EQ(A, B);
 }
 
+/*
 TEST(operators, add)
 {
     Matrix *A = new Matrix;
@@ -161,13 +165,12 @@ TEST(operators, multiply)
     ASSERT_EQ(4U, E->cols);
     std::cout << std::string(*E) << std::endl;
 
-/*
     Matrix F({3,6,9,12,15,18,21,24,27,30,33,36});
     F.reshape(3U, 4U);
     std::cout << std::string(F) << std::endl;
     ASSERT_EQ(3U, F.rows);
     ASSERT_EQ(4U, F.cols);
     ASSERT_EQ(F, *E);
-*/
     Static::clean();
 }
+*/

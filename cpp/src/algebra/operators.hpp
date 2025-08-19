@@ -24,11 +24,15 @@
 
 bool operator==(const Matrix& A, const Matrix& B)
 {
-    Log LogOperators;
+    bool ret = true;
+    Log local;
+
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(LogOperators, "Comparison not possible, dimensions do not match.");
-        return false;
+        LOG_WARNING(local, "Comparison not possible, dimensions do not match.");
+        LOG_WARNING(local, "Comparison between ", A.name, " and ", B.name, " not possible.");
+
+        ret = false;
     }
     else
     {
@@ -36,13 +40,17 @@ bool operator==(const Matrix& A, const Matrix& B)
         {
             if (*a != *b)
             {
-                return false;
+                ret = false;
             }
         }
     }
-    return true;
+
+    // stream selection here.
+    std::cout << local.str();
+    return ret;
 }
 
+/*
 Matrix* operator+(const Matrix& A, const Matrix& B)
 {
     Log LogOperators;
@@ -163,4 +171,5 @@ Matrix* operator*(Matrix &A, const float b)
 
     return C;
 }
+*/
 #endif /* OPERATORS_H_ */
