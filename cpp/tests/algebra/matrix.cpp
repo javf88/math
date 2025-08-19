@@ -133,13 +133,13 @@ TEST(Matrix, getBlock)
 
     Matrix expCol({2, 5, 8, 11});
     expCol.transpose();
-    Matrix *aCol = A.getBlock(0U, A.rows, A.cols - 1U, A.cols);
+    Matrix *aCol = GET_COLUMN_VECTOR(A, A.cols - 1U);
     ASSERT_NE(aCol, nullptr);
     ASSERT_EQ(expCol.val, aCol->val);
     delete aCol;
 
     Matrix expRow({9, 10, 11});
-    Matrix *aRow = A.getBlock(A.rows - 1U, A.rows, 0U, A.cols);
+    Matrix *aRow = GET_ROW_VECTOR(A, A.rows - 1U);
     ASSERT_NE(aRow, nullptr);
     ASSERT_EQ(expRow.val, aRow->val);
     delete aRow;

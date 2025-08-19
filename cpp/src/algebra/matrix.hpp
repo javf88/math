@@ -34,6 +34,18 @@
 /******************************************************************************/
 
 /**
+ * @brief   Macro to get a row-vector from a matrix.
+ */
+#define GET_ROW_VECTOR(A, row) \
+    (A).getBlock(row, row + 1U, 0U, (A).cols)
+
+/**
+ * @brief   Macro to get a column-vector from a matrix.
+ */
+#define GET_COLUMN_VECTOR(matrix, col) \
+    (A).getBlock(0U, (A).rows, col, col + 1U)
+
+/**
  * @example    LOG_MATRIX(A);
  */
 #if LOG_LEVEL_DEBUG <= LOG_CONFIG
