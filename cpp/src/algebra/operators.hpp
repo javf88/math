@@ -50,16 +50,14 @@ bool operator==(const Matrix& A, const Matrix& B)
     return ret;
 }
 
-/*
 Matrix* operator+(const Matrix& A, const Matrix& B)
 {
-    Log LogOperators;
+    Log local;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(LogOperators, "Matrices A[", A.rows, ",", A.cols,
-                "] and B[", B.rows, ",", B.cols, "] cannot be added.");
+        LOG_WARNING(local, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
     }
     else
     {
@@ -73,20 +71,23 @@ Matrix* operator+(const Matrix& A, const Matrix& B)
                 C->val[pos] = A.val[pos] + B.val[pos];
             }
         }
+
+        LOG_PMATRIX(*C);
     }
 
+    // stream selection here.
+    std::cout << local.str();
     return C;
 }
 
 Matrix* operator-(const Matrix& A, const Matrix &B)
 {
-    Log LogOperators;
+    Log local;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(LogOperators, "Matrices A[", A.rows, "x", A.cols,
-                "] and B[", B.rows, "x", B.cols, "] cannot be substracted.");
+        LOG_WARNING(local, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
     }
     else
     {
@@ -100,11 +101,16 @@ Matrix* operator-(const Matrix& A, const Matrix &B)
                 C->val[pos] = A.val[pos] - B.val[pos];
             }
         }
+
+        LOG_PMATRIX(*C);
     }
 
+    // stream selection here.
+    std::cout << local.str();
     return C;
 }
 
+/*
 Matrix* operator*(const Matrix &A, const Matrix &B)
 {
     Log LogOperators;
