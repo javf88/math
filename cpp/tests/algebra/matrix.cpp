@@ -40,8 +40,6 @@ TEST(Matrix, Constructors)
 
 TEST(Matrix, reshape)
 {
-    using namespace std;
-
     Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
 
     A.reshape(2,3);
@@ -62,8 +60,6 @@ TEST(Matrix, reshape)
 
 TEST(Matrix, transpose)
 {
-    using namespace std;
-
     Matrix A({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1U, A.rows);
     ASSERT_EQ(7U, A.cols);
@@ -98,8 +94,6 @@ TEST(Matrix, transpose)
 
 TEST(Matrix, id)
 {
-    using namespace std;
-
     Matrix A;
     LOG_MATRIX(A);
     A.id(5);
@@ -115,10 +109,79 @@ TEST(Matrix, id)
     LOG_MATRIX(B);
 }
 
+TEST(Matrix, getBlock)
+{
+    Matrix A({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    LOG_MATRIX(A);
+    A.reshape(4U, 3U);
+    LOG_MATRIX(A);
+
+    Matrix *invalidRow = A.getBlock(0U, 0U, 0U, 2U);
+    ASSERT_EQ(invalidRow, nullptr);
+
+    Matrix *invalidRow2 = A.getBlock(0U, A.rows + 1U, 0U, 2U);
+    ASSERT_EQ(invalidRow2, nullptr);
+
+    Matrix *invalidCol2 = A.getBlock(0U, 2U, 0U, A.cols + 1U);
+    ASSERT_EQ(invalidCol2, nullptr);
+
+    Matrix *AA = A.getBlock(0U, A.rows, 0U, A.cols);
+    ASSERT_NE(AA, nullptr);
+    ASSERT_EQ(A.val, AA->val);
+    // delete might clean the stack too, as new adds pointers to it
+    delete AA;
+
+    Matrix expCol({2, 5, 8, 11});
+    expCol.transpose();
+    Matrix *aCol = A.getBlock(0U, A.rows, A.cols - 1U, A.cols);
+    ASSERT_NE(aCol, nullptr);
+    ASSERT_EQ(expCol.val, aCol->val);
+    delete aCol;
+
+    Matrix expRow({9, 10, 11});
+    Matrix *aRow = A.getBlock(A.rows - 1U, A.rows, 0U, A.cols);
+    ASSERT_NE(aRow, nullptr);
+    ASSERT_EQ(expRow.val, aRow->val);
+    delete aRow;
+
+    Matrix expa22({4, 7});
+    expa22.transpose();
+    Matrix *a22 = A.getBlock(1U, A.rows - 1U, 1U, A.cols - 1U);
+    ASSERT_NE(a22, nullptr);
+    ASSERT_EQ(expa22.val, a22->val);
+    delete a22;
+
+    Matrix expA11({0});
+    Matrix *A11 = A.getBlock(0U, 1U, 0U, 1U);
+    ASSERT_NE(A11, nullptr);
+    ASSERT_EQ(expA11.val, A11->val);
+    delete A11;
+
+    Matrix expA12({1, 2});
+    Matrix *A12 = A.getBlock(0U, 1U, 1U, A.cols);
+    ASSERT_NE(A12, nullptr);
+    ASSERT_EQ(expA12.val, A12->val);
+    delete A12;
+
+    Matrix expA21({3, 6, 9});
+    expA21.transpose();
+    Matrix *A21 = A.getBlock(1U, A.rows, 0U, 1U);
+    ASSERT_NE(A21, nullptr);
+    ASSERT_EQ(expA21.val, A21->val);
+    delete A21;
+
+    Matrix expA22({4, 5, 7, 8, 10, 11});
+    expA22.reshape(3U, 2U);
+    Matrix *A22 = A.getBlock(1U, A.rows, 1U, A.cols);
+    ASSERT_NE(A22, nullptr);
+    ASSERT_EQ(expA22.val, A22->val);
+    delete A22;
+
+    Static::clean();
+}
+
 TEST(Matrix, new)
 {
-    using namespace std;
-
     std::stack<void*> *pStack = Static::getStack();
     ASSERT_EQ(0U, pStack->size());
 
@@ -157,8 +220,6 @@ TEST(Matrix, new)
 
 TEST(Matrix, log)
 {
-    using namespace std;
-
     Matrix A({0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3});
     ASSERT_EQ(1U, A.rows);
     ASSERT_EQ(12U, A.cols);

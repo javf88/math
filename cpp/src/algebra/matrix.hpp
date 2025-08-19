@@ -98,6 +98,30 @@ struct Matrix
 
     Matrix& id(const size_t size);
 
+    Matrix* getBlock(const uint32_t row, const uint32_t rowEnd,
+                     const uint32_t col, const uint32_t colEnd)
+    {
+        Matrix *block = nullptr;
+
+        // row < rowEnd <= S->rows, the same holds for cols, to be a valid call
+        if ((rowEnd <= row) || (colEnd <= col) ||
+            (this->rows < rowEnd) || (this->cols < colEnd))
+        {
+            return block;
+        }
+
+        block = new Matrix(rowEnd - row, colEnd - col);
+        for (uint32_t i = row; i < rowEnd; i++)
+        {
+            auto pRowSrc = this->val.cbegin() + this->cols * i + col;
+            auto pRowDst = block->val.cbegin() + block->cols * (i - row);
+            block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
+        }
+
+        LOG_PMATRIX(*block);
+        return block;
+    }
+
     void* operator new(std::size_t count);
 
     // log is the public API
