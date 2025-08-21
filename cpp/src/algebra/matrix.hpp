@@ -42,7 +42,7 @@
 /**
  * @brief   Macro to get a column-vector from a matrix.
  */
-#define GET_COLUMN_VECTOR(matrix, col) \
+#define GET_COLUMN_VECTOR(A, col) \
     (A).getBlock(0U, (A).rows, col, col + 1U)
 
 /**
