@@ -22,9 +22,11 @@
 /*    API                                                                     */
 /******************************************************************************/
 
+// When removing const, googletest complains
 bool operator==(const Matrix& A, const Matrix& B)
 {
     bool ret = true;
+    // local logging is required because of the const qualifiers
     Log local;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
@@ -50,14 +52,16 @@ bool operator==(const Matrix& A, const Matrix& B)
     return ret;
 }
 
-Matrix* operator+(const Matrix& A, const Matrix& B)
+Matrix* operator+(Matrix& A, Matrix& B)
 {
-    Log local;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(local, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
+        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
+        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
     }
     else
     {
@@ -72,22 +76,23 @@ Matrix* operator+(const Matrix& A, const Matrix& B)
             }
         }
 
-        LOG_PMATRIX(*C);
+        LOG_MATRIX(*C);
     }
 
-    // stream selection here.
-    std::cout << local.str();
     return C;
 }
 
-Matrix* operator-(const Matrix& A, const Matrix &B)
+// same case as with + operator
+Matrix* operator-(Matrix& A, Matrix &B)
 {
-    Log local;
     Matrix *C = nullptr;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(local, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
+        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
+        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
     }
     else
     {
@@ -102,55 +107,49 @@ Matrix* operator-(const Matrix& A, const Matrix &B)
             }
         }
 
-        LOG_PMATRIX(*C);
+        LOG_MATRIX(*C);
     }
 
-    // stream selection here.
-    std::cout << local.str();
     return C;
 }
 
-/*
-Matrix* operator*(const Matrix &A, const Matrix &B)
+// same case as with + operator
+Matrix* operator*(Matrix &A, Matrix &B)
 {
-    Log LogOperators;
     Matrix *C = nullptr;
 
     if (A.cols != B.rows)
     {
-        LOG_WARNING(LogOperators, "Matrices dimensions do not match [",
-                A.rows, "x", A.cols, "] * [", B.rows, "x", B.cols, "].");
-        return nullptr;
+        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be multiplied.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
+        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be multiplied.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
     }
     else
     {
         C = new Matrix(A.rows, B.cols);
-        std::cout << std::string(B) << std::endl;
-        std::cout << std::string(A) << std::endl;
-        std::cout << std::string(*C) << std::endl;
 
-        for (uint32_t row = 0; row < C->rows; row++)
+        for (uint32_t row = 0; row < A.rows; row++)
         {
-            uint32_t i = C->cols * row;
+            auto pRow = A.val.cbegin() + A.cols * row;
 
-            for (uint32_t col = 0; col < C->cols; col++)
+            for (uint32_t col = 0U; col < B.cols; col++)
             {
-                uint32_t pos = i + col;
-                std::fprintf(stderr, "(i,j) = (%hu,%hu) = %hu\n", i, col, pos);
+                auto pCol = B.val.cbegin() + col;
 
-                C->val[pos] = 0.0F;
-
-                for (uint32_t k = 0; k < A.cols; k++)
+                auto pC = C->val.begin() + (C->cols * row) + col;
+                *pC = 0.0F;
+                LOG_DEBUG(C->logMatrix, "C[", row, ",", col, "] = ", *pC);
+                for (uint32_t k = 0U; k < A.cols; k++)
                 {
-                    uint32_t j = B.cols * k + col;
-
-                    std::fprintf(stderr, "[pos] <- [i,k]*[k,j] = %hu <- [%hu,%hu]*[%hu,%hu]\n",
-                            pos, i, k, B.cols * k, col);
-                    C->val[pos] += A.val[i + k] * B.val[j];
+                    *pC += pRow[k] * pCol[B.cols * k];
+                    LOG_TRACE(C->logMatrix, "C[", row, ",", col, "] += ",
+                                            "A[", A.cols * row, ",", k, "] * ",
+                                            "B[", B.cols * k, ",", col, "] = ",
+                                            pRow[k] * pCol[B.cols * k]);
                 }
+                LOG_DEBUG(C->logMatrix, "C[", row, ",", col, "] = ", *pC);
             }
-
-            std::cout << std::string(*C) << std::endl;
         }
     }
 
@@ -177,5 +176,4 @@ Matrix* operator*(Matrix &A, const float b)
 
     return C;
 }
-*/
 #endif /* OPERATORS_H_ */
