@@ -15,7 +15,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <stack>
+#include <deque>
 
 #include "levels.hpp"
 
@@ -23,25 +23,32 @@
 /*    API                                                                     */
 /******************************************************************************/
 
+// this might become a class?
 namespace Static
 {
+    // This Log might become static Log
     Log logMemory;
-    // std::stack has pop() and push() capabilities already.
-    // I might need to repalce the stack with a deque
-    static std::stack<void*> stack;
+    static std::deque<void*> list;
 
-    std::stack<void*>* getStack()
+    std::deque<void*>* getList()
     {
-        return &stack;
+        return &list;
     }
 
+    // This is use only at the end of the program
+    // the delete operator is also cleaning the stack in an element-wise fashion
     void clean()
     {
-        LOG_DEBUG(logMemory, "Cleaning the stack with ", stack.size(), " elements.");
-        while (stack.empty() == false)
+        LOG_DEBUG(logMemory, "Cleaning the list with ", list.size(), " elements.");
+        while (list.empty() == false)
         {
-            stack.pop();
+            auto element = list.cbegin();
+            LOG_DEBUG(logMemory, "Freeing (void*)", *element);
+            std::free(*element);
+            list.pop_front();
         }
+
+        std::cout << logMemory.str();
     }
 }
 

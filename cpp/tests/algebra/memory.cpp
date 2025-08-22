@@ -10,7 +10,7 @@
 /*    FIXTURES                                                                */
 /******************************************************************************/
 
-class DummyStack: public testing::Test
+class DummyList: public testing::Test
 {
 public:
     void SetUp() override
@@ -18,13 +18,14 @@ public:
         using namespace std;
 
         // To improve logging message.
-        cout << "Running SetUp()" << endl;
+        LOG_INFO(Static::logMemory, "Running SetUp()");
 
-        stack<void*> *pStack = Static::getStack();
+        deque<void*> *pList = Static::getList();
         for (uint32_t i = 0U; i < 32U; i++)
         {
             void *pInt = new int(i);
-            pStack->push(pInt);
+            LOG_DEBUG(Static::logMemory, "push_back(", pInt, ")");
+            pList->push_back(pInt);
         }
     }
 };
@@ -33,22 +34,22 @@ public:
 /*    TEST CASES                                                              */
 /******************************************************************************/
 
-TEST(StaticStack, getStack)
+TEST(StaticList, getList)
 {
-    std::stack<void*> *pStack = nullptr;
-    ASSERT_EQ(pStack, nullptr);
+    std::deque<void*> *pList = nullptr;
+    ASSERT_EQ(pList, nullptr);
 
-    pStack = Static::getStack();
-    ASSERT_NE(pStack, nullptr);
+    pList = Static::getList();
+    ASSERT_NE(pList, nullptr);
 }
 
-TEST_F(DummyStack, clean)
+TEST_F(DummyList, clean)
 {
-    std::stack<void*> *pStack = Static::getStack();
-    ASSERT_NE(pStack, nullptr);
-    ASSERT_EQ(pStack->empty(), false);
+    std::deque<void*> *pList = Static::getList();
+    ASSERT_NE(pList, nullptr);
+    ASSERT_EQ(pList->empty(), false);
 
     Static::clean();
-    ASSERT_EQ(pStack->empty(), true);
-    ASSERT_EQ(pStack->size(), 0U);
+    ASSERT_EQ(pList->empty(), true);
+    ASSERT_EQ(pList->size(), 0U);
 }
