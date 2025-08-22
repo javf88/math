@@ -98,6 +98,8 @@ struct Matrix
 
     void* operator new(std::size_t count);
 
+    void operator delete(void* ptr) noexcept;
+
     // log is the public API
     // log(string newName) calls log()
     void log(const std::string &newName);
@@ -277,20 +279,48 @@ void* Matrix::operator new(std::size_t count)
         pMatrix = (Matrix*)std::malloc(count);
         if (pMatrix != nullptr)
         {
-            LOG_DEBUG(tmp, "stack.push(", pMatrix, ").");
-            std::stack<void*> *pStack = Static::getStack();
-            pStack->push(pMatrix);
+            LOG_DEBUG(tmp, "deque.push_back(", pMatrix, ").");
+            std::deque<void*> *pList = Static::getList();
+            pList->push_back(pMatrix);
         }
         else
         {
             // how to trigger this?
-            LOG_ERROR(tmp, "Wrong pMatrix(", pMatrix, ").");
+            LOG_ERROR(tmp, "Wrong (pMatrix*)", pMatrix);
             throw std::bad_alloc{};
         }
     }
 
+    // how to log this into the right object
     std::cout << tmp.str();
     return pMatrix;
+}
+
+void Matrix::operator delete(void* ptr) noexcept
+{
+    Log tmp;
+    if (ptr != nullptr)
+    {
+        LOG_INFO(tmp, "Looking for (Matrix*)", ptr);
+        std::deque<void*> *pList = Static::getList();
+        for (auto pMatrix = pList->cbegin(); pMatrix != pList->cend(); pMatrix++)
+        {
+            if (ptr == *pMatrix)
+            {
+                LOG_INFO(tmp, "Freeing (Matrix*)", ptr);
+                pList->erase(pMatrix);
+                std::free(ptr);
+
+                break;
+            }
+        }
+    }
+    else
+    {
+        LOG_INFO(tmp, "Avoiding to delete (Matrix*)", ptr);
+    }
+
+    std::cout << tmp.str();
 }
 
 void Matrix::log(const std::string &newName)

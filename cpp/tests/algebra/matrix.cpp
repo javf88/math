@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "matrix.hpp"
-#include "levels.hpp"
 
 /******************************************************************************/
 /*    TEST FUNCTIONS                                                          */
@@ -128,7 +127,6 @@ TEST(Matrix, getBlock)
     Matrix *AA = A.getBlock(0U, A.rows, 0U, A.cols);
     ASSERT_NE(AA, nullptr);
     ASSERT_EQ(A.val, AA->val);
-    // delete might clean the stack too, as new adds pointers to it
     delete AA;
 
     Matrix expCol({2, 5, 8, 11});
@@ -176,14 +174,12 @@ TEST(Matrix, getBlock)
     ASSERT_NE(A22, nullptr);
     ASSERT_EQ(expA22.val, A22->val);
     delete A22;
-
-    Static::clean();
 }
 
-TEST(Matrix, new)
+TEST(Matrix, newAndDelete)
 {
-    std::stack<void*> *pStack = Static::getStack();
-    ASSERT_EQ(0U, pStack->size());
+    std::deque<void*> *pList = Static::getList();
+    ASSERT_EQ(0U, pList->size());
 
     Matrix *A = new Matrix(0U, 0U);
     ASSERT_EQ(0U, A->rows);
@@ -213,9 +209,7 @@ TEST(Matrix, new)
     LOG_MATRIX(*D);
     delete D;
 
-    ASSERT_EQ(4U, pStack->size());
-    Static::clean();
-    ASSERT_EQ(0U, pStack->size());
+    ASSERT_EQ(0U, pList->size());
 }
 
 TEST(Matrix, log)
