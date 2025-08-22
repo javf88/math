@@ -75,32 +75,18 @@ struct Matrix
     Matrix(uint32_t rows, uint32_t cols);
 
     // would this be private?
-    Matrix(Matrix& A): Matrix(A.rows, A.cols)
-    {
-        // is there a cleaner way to get the logging from the other ctor?
-        A.logMatrix << this->logMatrix.str();
-        this->logMatrix.str("");
-
-        LOG_INFO(A.logMatrix, "Copying matrix.");
-        for (auto src = A.val.cbegin(); src != A.val.cend(); src++)
-        {
-            this->val.push_back(*src);
-        }
-    };
+    Matrix(Matrix& A);
 
     // Empty matrix
     Matrix();
 
     // to move to implementation section
-    ~Matrix()
-    {
-        std::cout << this->logMatrix.str();
-    }
+    ~Matrix();
 
     // Matrix allocation from a list
     Matrix(std::initializer_list<float> val);
 
-    // Math operators
+    // Matrix operators to manipulate dimensions and memory layout.
     Matrix& reshape(const uint32_t newRows, const uint32_t newCols);
 
     Matrix& transpose();
@@ -108,28 +94,7 @@ struct Matrix
     Matrix& id(const size_t size);
 
     Matrix* getBlock(const uint32_t row, const uint32_t rowEnd,
-                     const uint32_t col, const uint32_t colEnd)
-    {
-        Matrix *block = nullptr;
-
-        // row < rowEnd <= S->rows, the same holds for cols, to be a valid call
-        if ((rowEnd <= row) || (colEnd <= col) ||
-            (this->rows < rowEnd) || (this->cols < colEnd))
-        {
-            return block;
-        }
-
-        block = new Matrix(rowEnd - row, colEnd - col);
-        for (uint32_t i = row; i < rowEnd; i++)
-        {
-            auto pRowSrc = this->val.cbegin() + this->cols * i + col;
-            auto pRowDst = block->val.cbegin() + block->cols * (i - row);
-            block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
-        }
-
-        LOG_MATRIX(*block);
-        return block;
-    }
+                     const uint32_t col, const uint32_t colEnd);
 
     void* operator new(std::size_t count);
 
@@ -168,10 +133,28 @@ Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
     }
 }
 
+Matrix::Matrix(Matrix& A): Matrix(A.rows, A.cols)
+{
+    // is there a cleaner way to get the logging from the other ctor?
+    A.logMatrix << this->logMatrix.str();
+    this->logMatrix.str("");
+
+    LOG_INFO(A.logMatrix, "Copying matrix.");
+    for (auto src = A.val.cbegin(); src != A.val.cend(); src++)
+    {
+        this->val.push_back(*src);
+    }
+}
+
 // Empty matrix
 Matrix::Matrix() : Matrix(0, 0)
 {
     LOG_INFO(this->logMatrix, "Creating an empty matrix");
+}
+
+Matrix::~Matrix()
+{
+    std::cout << this->logMatrix.str();
 }
 
 Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
@@ -247,6 +230,34 @@ Matrix& Matrix::id(const size_t size)
     }
 
     return *this;
+}
+
+Matrix* Matrix::getBlock(const uint32_t row, const uint32_t rowEnd,
+                         const uint32_t col, const uint32_t colEnd)
+{
+    Matrix *block = nullptr;
+
+    // row < rowEnd <= this->rows, the same holds for cols, to be a valid call
+    if ((rowEnd <= row) || (colEnd <= col) ||
+        (this->rows < rowEnd) || (this->cols < colEnd))
+    {
+        LOG_WARNING(this->logMatrix, "Unable to extract block Matrix. Requested dimensions are wrong!");
+        block = nullptr;
+    }
+    else
+    {
+        block = new Matrix(rowEnd - row, colEnd - col);
+        for (uint32_t i = row; i < rowEnd; i++)
+        {
+            auto pRowSrc = this->val.cbegin() + this->cols * i + col;
+            auto pRowDst = block->val.cbegin() + block->cols * (i - row);
+            block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
+        }
+
+        LOG_MATRIX(*block);
+    }
+
+    return block;
 }
 
 void* Matrix::operator new(std::size_t count)

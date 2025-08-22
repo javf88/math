@@ -25,8 +25,9 @@
 
 namespace Static
 {
-    Log LogMemory;
+    Log logMemory;
     // std::stack has pop() and push() capabilities already.
+    // I might need to repalce the stack with a deque
     static std::stack<void*> stack;
 
     std::stack<void*>* getStack()
@@ -36,7 +37,7 @@ namespace Static
 
     void clean()
     {
-        LOG_DEBUG(LogMemory, "Cleaning the stack with ", stack.size(), " elements.");
+        LOG_DEBUG(logMemory, "Cleaning the stack with ", stack.size(), " elements.");
         while (stack.empty() == false)
         {
             stack.pop();
