@@ -5,30 +5,6 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "operators.hpp"
-#include "matrix.hpp"
-
-/******************************************************************************/
-/*    FIXTURES                                                                */
-/******************************************************************************/
-
-class DummyStack: public testing::Test
-{
-public:
-    void SetUp() override
-    {
-        using namespace std;
-
-        // To improve logging message.
-        cout << "Running SetUp()" << endl;
-
-        stack<void*> *pStack = Static::getStack();
-        for (uint32_t i = 0U; i < 32U; i++)
-        {
-            void *pInt = new int(i);
-            pStack->push(pInt);
-        }
-    }
-};
 
 /******************************************************************************/
 /*    TEST CASES                                                              */
