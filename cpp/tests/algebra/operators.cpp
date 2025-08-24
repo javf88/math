@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
 #include "operators.hpp"
+#include "matrix.hpp"
 
 /******************************************************************************/
 /*    TEST CASES                                                              */
@@ -164,4 +165,35 @@ TEST(operators, scalar)
     delete G;
 
     Static::clean();
+}
+
+TEST(operators, echelon)
+{
+    Matrix A({1,2,3,4,5,6,7,8});
+    A.transpose();
+    LOG_MATRIX(A);
+
+    Matrix *ret = A.echelon();
+    ASSERT_EQ(nullptr, ret);
+
+    // no permutation case
+    Matrix B;//({0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0});
+    B.id(4U);
+    LOG_MATRIX(B);
+    ret = B.echelon();
+    ASSERT_EQ(nullptr, ret);
+
+    // singular case, no permuatation
+    Matrix C({0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0});
+    C.reshape(4U, 4U);
+    LOG_MATRIX(C);
+    ret = C.echelon();
+    ASSERT_EQ(nullptr, ret);
+
+    // Permutation case
+    Matrix D({0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0});
+    D.reshape(4U, 4U);
+    LOG_MATRIX(D);
+    ret = D.echelon();
+    ASSERT_NE(nullptr, ret);
 }

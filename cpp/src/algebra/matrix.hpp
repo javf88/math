@@ -19,6 +19,7 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <cfloat>
 #include <cstdint>
 #include <initializer_list>
 #include <iomanip>
@@ -96,6 +97,56 @@ struct Matrix
     Matrix* getBlock(const uint32_t row, const uint32_t rowEnd,
                      const uint32_t col, const uint32_t colEnd);
 
+    Matrix* echelon();
+
+    Matrix* rowPermute()
+    {
+        Matrix *PA = nullptr;
+
+        uint32_t row = 0U;
+        for (row = 0U; row < this->rows; row++)
+        {
+            auto entry = this->val.cbegin() + (this->cols * row);
+            if (std::abs(*entry) > 2.0F * FLT_EPSILON)
+            {
+                LOG_DEBUG(this->logMatrix, "Pivot is in row ", row);
+                break;
+            }
+        }
+
+        if (0U < row)
+        {
+            if (row < this->rows)
+            {
+                Matrix P;
+                P.id(this->rows);
+
+                P.val[0U] = 0.0F;
+                P.val[row] = 1.0F;
+                P.val[this->cols * row] = 1.0F;
+                P.val[this->cols * row + row] = 0.0F;
+                LOG_MATRIX(P);
+
+                //to split hpp into hpp and cpp
+                PA = P * *this;
+                // which matrix to return when this is made a function?
+                return PA;
+            }
+            else
+            {
+                LOG_DEBUG(this->logMatrix, "The matrix is singular, nothing to permute.");
+                return PA;
+            }
+        }
+        else
+        {
+            LOG_DEBUG(this->logMatrix, "Nothing to permute.");
+            PA = this;
+        }
+
+        return PA;
+    }
+
     void* operator new(std::size_t count);
 
     void operator delete(void* ptr) noexcept;
@@ -110,6 +161,8 @@ struct Matrix
     Log* log() const;
 
     Log* log(const std::vector<float>::const_iterator row) const;
+
+    friend Matrix* operator*(Matrix &A, Matrix &B);
 };
 
 /******************************************************************************/
