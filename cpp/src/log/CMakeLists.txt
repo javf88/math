@@ -3,7 +3,8 @@
 #*******************************************************************************
 
 # Matrix algebra
-add_library(log INTERFACE)
+add_library(log OBJECT
+    levels.cpp)
 
 target_include_directories(log
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

@@ -36,9 +36,6 @@
 #define LOG_LEVEL_DEBUG   (3U)
 #define LOG_LEVEL_TRACE   (4U)
 
-/* Define log boundaries */
-#define LOG_LEVEL_FULL      LOG_LEVEL_TRACE
-
 /******************************************************************************/
 /*    PUBLIC MACROS                                                           */
 /******************************************************************************/
@@ -119,8 +116,14 @@ struct Log: public std::ostringstream
         ENDL
     };
 
+    // This is horrible, templates cannot be split into hpp/cpp files
     template<typename T, typename... Args>
-    void log(const T& first, const Args&... args);
+    void log(const T& first, const Args&... args)
+    {
+        *this << first;
+        log(args...);
+    }
+
 
 private:
     void log();
@@ -131,54 +134,5 @@ private:
 
     friend std::ostream& operator<<(std::ostream& os, const Log::MSG fmt);
 };
-
-/******************************************************************************/
-/*    IMPLEMENTATION                                                          */
-/******************************************************************************/
-
-void Log::log()
-{
-    *this << Log::MSG::ENDL;
-}
-
-template<typename T, typename... Args>
-void Log::log(const T& first, const Args&... args)
-{
-    *this << first;
-    log(args...);
-}
-
-// no need of friend keyword. When splitting implementations and declarations
-// it doesnt look that messy.
-std::ostream& operator<<(std::ostream& os, const Log::Level level)
-{
-    // Look-up table
-    const char *label[6U] =
-    {
-        "\x1b[31m[ ERROR ] ",
-        "\x1b[33m[WARNING] ",
-        "\x1b[32m[ INFO  ] ",
-        "\x1b[36m[ DEBUG ] ",
-        "\x1b[94m[ TRACE ] "
-    };
-
-    os << label[level];
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Log::MSG fmt)
-{
-    // Look-up table
-    const char *color[4U] =
-    {
-        "\x1b[1;90m", //Bold gray
-        "\x1b[37m",   //White
-        "\x1b[0m",    //Disable coloring
-        "\n"
-    };
-
-    os << color[fmt];
-    return os;
-}
 
 #endif /* LEVELS_H_ */
