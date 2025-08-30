@@ -13,20 +13,20 @@
 class DummyList: public testing::Test
 {
 public:
-    Memory<void*> list;
+    Memory<void*> manager;
 
     void SetUp() override
     {
         using namespace std;
 
         // To improve logging message.
-        LOG_INFO(list.logMemory, "Running SetUp()");
+        LOG_INFO(manager.logMemory, "Running SetUp()");
 
         for (uint32_t i = 0U; i < 32U; i++)
         {
             void *pInt = new int(i);
-            LOG_DEBUG(list.logMemory, "push_back(", pInt, ")");
-            list.push_back(pInt);
+            LOG_DEBUG(manager.logMemory, "push_back(", pInt, ")");
+            manager.push_back(pInt);
         }
     }
 };
@@ -37,10 +37,10 @@ public:
 
 TEST_F(DummyList, clean)
 {
-    ASSERT_EQ(list.size(), 32U);
-    ASSERT_EQ(list.empty(), false);
+    ASSERT_EQ(manager.size(), 32U);
+    ASSERT_EQ(manager.empty(), false);
 
-    list.clean();
-    ASSERT_EQ(list.empty(), true);
-    ASSERT_EQ(list.size(), 0U);
+    manager.clean();
+    ASSERT_EQ(manager.empty(), true);
+    ASSERT_EQ(manager.size(), 0U);
 }
