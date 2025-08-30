@@ -2,11 +2,21 @@
 # Define libraries
 #*******************************************************************************
 
-# Matrix algebra
-add_library(algebra INTERFACE)
+# Memory
+add_library(memory INTERFACE)
 
-target_include_directories(algebra
+target_include_directories(memory
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(algebra
+target_link_libraries(memory
     INTERFACE log)
+
+# Matrix algebra
+add_library(algebra OBJECT
+    matrix.cpp)
+
+target_include_directories(algebra
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(algebra
+    PRIVATE log)

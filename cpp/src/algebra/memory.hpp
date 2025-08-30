@@ -23,33 +23,24 @@
 /*    API                                                                     */
 /******************************************************************************/
 
-// this might become a class?
-namespace Static
+template<typename T>
+struct Memory: public std::deque<T>
 {
-    // This Log might become static Log
+    // Do I need this here?
     Log logMemory;
-    static std::deque<void*> list;
 
-    std::deque<void*>* getList()
-    {
-        return &list;
-    }
-
-    // This is use only at the end of the program
-    // the delete operator is also cleaning the stack in an element-wise fashion
     void clean()
     {
-        LOG_DEBUG(logMemory, "Cleaning the list with ", list.size(), " elements.");
-        while (list.empty() == false)
+        while (this->empty() == false)
         {
-            auto element = list.cbegin();
-            LOG_DEBUG(logMemory, "Freeing (void*)", *element);
+            auto element = this->cbegin();
+            LOG_DEBUG(this->logMemory, "Freeing (void*)", *element);
             std::free(*element);
-            list.pop_front();
+            this->pop_front();
         }
 
-        std::cout << logMemory.str();
+        std::cout << this->logMemory.str();
     }
-}
+};
 
 #endif /* MEMORY_H_ */
