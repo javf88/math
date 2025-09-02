@@ -56,9 +56,6 @@ TEST(operators, add)
     LOG_MATRIX(D);
     ASSERT_EQ(D, *C);
     delete C;
-
-    // delete might move to stack
-    Static::clean();
 }
 
 TEST(operators, substract)
@@ -88,8 +85,6 @@ TEST(operators, substract)
     LOG_MATRIX(D);
     ASSERT_EQ(D, *C);
     delete C;
-
-    Static::clean();
 }
 
 TEST(operators, multiply)
@@ -121,8 +116,6 @@ TEST(operators, multiply)
     ASSERT_EQ(3U, E->rows);
     ASSERT_EQ(4U, E->cols);
     delete E;
-
-    Static::clean();
 }
 
 TEST(operators, scalar)
@@ -162,6 +155,4 @@ TEST(operators, scalar)
     ASSERT_EQ(D, *G);
     LOG_MATRIX(*G);
     delete G;
-
-    Static::clean();
 }

@@ -13,7 +13,8 @@ target_link_libraries(memory
 
 # Matrix algebra
 add_library(algebra OBJECT
-    matrix.cpp)
+    matrix.cpp
+    operators.cpp)
 
 target_include_directories(algebra
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
