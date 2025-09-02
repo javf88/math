@@ -7,7 +7,7 @@ add_library(log OBJECT
     levels.cpp)
 
 target_include_directories(log
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_definitions(log
     PUBLIC LOG_CONFIG=${LOG_CONFIG})
