@@ -3,12 +3,13 @@
 #*******************************************************************************
 
 # memory management submodule
-add_executable(memory
+add_executable(memoryTest
     memory.cpp)
 
-target_link_libraries(memory
+target_link_libraries(memoryTest
     PRIVATE GTest::gtest_main
-    PRIVATE algebra)
+    PRIVATE memory
+    PRIVATE log)
 
 gtest_add_tests(TARGET memory)
 
@@ -18,7 +19,8 @@ add_executable(matrix
 
 target_link_libraries(matrix
     PRIVATE GTest::gtest_main
-    PRIVATE algebra)
+    PRIVATE algebra
+    PRIVATE log)
 
 gtest_add_tests(TARGET matrix)
 
@@ -28,6 +30,7 @@ add_executable(operators
 
 target_link_libraries(operators
     PRIVATE GTest::gtest_main
-    PRIVATE algebra)
+    PRIVATE algebra
+    PRIVATE log)
 
 gtest_add_tests(TARGET operators)
