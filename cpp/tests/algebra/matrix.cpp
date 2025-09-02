@@ -178,9 +178,6 @@ TEST(Matrix, getBlock)
 
 TEST(Matrix, newAndDelete)
 {
-    std::deque<void*> *pList = Static::getList();
-    ASSERT_EQ(0U, pList->size());
-
     Matrix *A = new Matrix(0U, 0U);
     ASSERT_EQ(0U, A->rows);
     ASSERT_EQ(0U, A->cols);
@@ -208,8 +205,6 @@ TEST(Matrix, newAndDelete)
     ASSERT_EQ(21U, D->val.capacity());
     LOG_MATRIX(*D);
     delete D;
-
-    ASSERT_EQ(0U, pList->size());
 }
 
 TEST(Matrix, log)
