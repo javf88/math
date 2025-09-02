@@ -244,3 +244,11 @@ TEST(Matrix, log)
     B.transpose();
     B.log("C");
 }
+
+TEST(Matrix, rowPermute)
+{
+    Matrix A({1,2,3,4,5,0,2,3,4,5,0,3,3,4,5,0,4,4,4,5,5,5,5,5,5});
+    A.reshape(5U, 5U);
+    LOG_MATRIX(A);
+    ASSERT_EQ(&A, A.rowPermute());
+}
