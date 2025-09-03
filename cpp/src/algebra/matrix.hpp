@@ -131,21 +131,41 @@ struct Matrix
                 //to split hpp into hpp and cpp
                 PA = P * *this;
                 // which matrix to return when this is made a function?
-                return PA;
+                LOG_MATRIX(*PA);
             }
             else
             {
                 LOG_DEBUG(this->logMatrix, "The matrix is singular, nothing to permute.");
-                return PA;
+                PA = nullptr;
             }
         }
         else
         {
-            LOG_DEBUG(this->logMatrix, "Nothing to permute.");
+            LOG_DEBUG(this->logMatrix, "Nothing to permute (A = PA => P = I).");
             PA = this;
         }
 
         return PA;
+    }
+
+    Matrix* rowReduction()
+    {
+        Matrix L_inv;
+        L_inv.id(this->rows);
+        auto a = this->val.cbegin(); // A[0,0]
+        for (uint32_t row = 1U; row < this->rows; row++)
+        {
+            uint32_t pos = this->cols * row;
+            auto l = L_inv.val.begin() + pos; // L^{-1}[i,0]
+            auto b = this->val.cbegin() + pos; // A[i,0]
+            *l = *b / *a * -1.0F;
+        }
+        LOG_MATRIX(L_inv);
+
+        Matrix *L_invPA = L_inv * *this;
+        LOG_MATRIX(*L_invPA);
+
+        return L_invPA;
     }
 
     void* operator new(std::size_t count);

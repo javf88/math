@@ -247,8 +247,37 @@ TEST(Matrix, log)
 
 TEST(Matrix, rowPermute)
 {
-    Matrix A({1,2,3,4,5,0,2,3,4,5,0,3,3,4,5,0,4,4,4,5,5,5,5,5,5});
+    Matrix A({1,2,3,4,5,0,2,2,2,2,0,3,3,3,4,0,4,4,4,4,5,5,5,5,5});
     A.reshape(5U, 5U);
     LOG_MATRIX(A);
+    // nothing to permute, A = PA
     ASSERT_EQ(&A, A.rowPermute());
+
+    A.val[0U] = 0.0F;
+    LOG_MATRIX(A);
+    Matrix *tmp = A.rowPermute();
+    // Permutation
+    ASSERT_NE(nullptr, tmp);
+    ASSERT_NE(&A, tmp);
+
+    A.val[A.rows * 4U] = 0.0F;
+    LOG_MATRIX(A);
+    // singular matrix
+    tmp = A.rowPermute();
+    ASSERT_EQ(nullptr, tmp);
+    delete tmp;
+}
+
+TEST(Matrix, rowReduction)
+{
+    Matrix A({1,2,3,4,5,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5});
+    A.reshape(5U, 5U);
+    LOG_MATRIX(A);
+    Matrix *L1PA = A.rowReduction();
+    for (uint32_t k = 1U; k < L1PA->rows; k++)
+    {
+        auto a = L1PA->val.cbegin() + (L1PA->cols * k);
+        ASSERT_EQ(0.0F, *a);
+    }
+    delete L1PA;
 }
