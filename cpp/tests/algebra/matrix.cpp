@@ -176,6 +176,22 @@ TEST(Matrix, getBlock)
     delete A22;
 }
 
+TEST(Matrix, setBlock)
+{
+    Matrix A;
+    A.id(5U);
+    LOG_MATRIX(A);
+
+    Matrix B({1,2,3,4,2,2,2,2,4,3,2,1,4,4,4,4});
+    B.reshape(4U, 4U);
+    LOG_MATRIX(B);
+    A.setBlock(&B);
+    LOG_MATRIX(A);
+
+    Matrix R({1,0,0,0,0,0,1,2,3,4,0,2,2,2,2,0,4,3,2,1,0,4,4,4,4});
+    ASSERT_EQ(R.val, A.val);
+}
+
 TEST(Matrix, newAndDelete)
 {
     Matrix *A = new Matrix(0U, 0U);

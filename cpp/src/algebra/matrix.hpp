@@ -98,6 +98,8 @@ struct Matrix
     Matrix* getBlock(const uint32_t row, const uint32_t rowEnd,
                      const uint32_t col, const uint32_t colEnd);
 
+    Matrix* setBlock(Matrix *S);
+
     Matrix* echelon();
 
     Matrix* rowPermute()
@@ -152,20 +154,23 @@ struct Matrix
     {
         Matrix L_inv;
         L_inv.id(this->rows);
+
         auto a = this->val.cbegin(); // A[0,0]
         for (uint32_t row = 1U; row < this->rows; row++)
         {
             uint32_t pos = this->cols * row;
             auto l = L_inv.val.begin() + pos; // L^{-1}[i,0]
             auto b = this->val.cbegin() + pos; // A[i,0]
+
             *l = *b / *a * -1.0F;
         }
         LOG_MATRIX(L_inv);
 
-        Matrix *L_invPA = L_inv * *this;
-        LOG_MATRIX(*L_invPA);
+        // PA = LU => L^{-1} PA = U
+        Matrix *U = L_inv * *this;
+        LOG_MATRIX(*U);
 
-        return L_invPA;
+        return U;
     }
 
     void* operator new(std::size_t count);

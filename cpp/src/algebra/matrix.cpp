@@ -155,6 +155,21 @@ Matrix* Matrix::getBlock(const uint32_t row, const uint32_t rowEnd,
     return block;
 }
 
+Matrix* Matrix::setBlock(Matrix *S)
+{
+    for (uint32_t i = 1U; i < this->rows; i++)
+    {
+        auto pRowDst = this->val.begin() + this->cols * i + 1U;
+        auto pRowSrc = S->val.cbegin() + S->cols * (i - 1U);
+        for (uint32_t j = 0U; j < S->cols; j++)
+        {
+            pRowDst[j] = pRowSrc[j];
+        }
+    }
+
+    return this;
+}
+
 void* Matrix::operator new(std::size_t count)
 {
     Log tmp;
