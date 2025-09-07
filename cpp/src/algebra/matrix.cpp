@@ -2,6 +2,9 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <cfloat>
+#include <iomanip>
+
 #include "matrix.hpp"
 #include "memory.hpp"
 
@@ -168,6 +171,137 @@ Matrix* Matrix::setBlock(Matrix *S)
     }
 
     return this;
+}
+
+Matrix* Matrix::rowPermute()
+{
+    Matrix *PA = nullptr;
+
+    uint32_t row = 0U;
+    for (row = 0U; row < this->rows; row++)
+    {
+        auto entry = this->val.cbegin() + (this->cols * row);
+        if (std::abs(*entry) > 2.0F * FLT_EPSILON)
+        {
+            LOG_DEBUG(this->logMatrix, "Pivot is in row ", row);
+            break;
+        }
+    }
+
+    if (0U < row)
+    {
+        if (row < this->rows)
+        {
+            Matrix P;
+            P.id(this->rows);
+
+            P.val[0U] = 0.0F;
+            P.val[row] = 1.0F;
+            P.val[this->cols * row] = 1.0F;
+            P.val[this->cols * row + row] = 0.0F;
+            LOG_MATRIX(P);
+
+            PA = P * *this;
+            // which matrix to return when this is made a function?
+            LOG_MATRIX(*PA);
+        }
+        else
+        {
+            LOG_DEBUG(this->logMatrix, "The matrix is singular, nothing to permute.");
+            PA = nullptr;
+        }
+    }
+    else
+    {
+        LOG_DEBUG(this->logMatrix, "Nothing to permute (A = PA => P = I).");
+        PA = this;
+    }
+
+    return PA;
+}
+
+Matrix* Matrix::rowReduction()
+{
+    Matrix L_inv;
+    L_inv.id(this->rows);
+
+    auto a = this->val.cbegin(); // A[0,0]
+    for (uint32_t row = 1U; row < this->rows; row++)
+    {
+        uint32_t pos = this->cols * row;
+        auto l = L_inv.val.begin() + pos; // L^{-1}[i,0]
+        auto b = this->val.cbegin() + pos; // A[i,0]
+
+        *l = *b / *a * -1.0F;
+    }
+    LOG_MATRIX(L_inv);
+
+    // PA = LU => L^{-1} PA = U
+    Matrix *U = L_inv * *this;
+    LOG_MATRIX(*U);
+
+    return U;
+}
+
+Matrix* Matrix::echelon()
+{
+    // overdertemined case
+    if (this->rows > this->cols)
+    {
+        LOG_WARNING(this->logMatrix, "The matrix is an overdetermiend system.");
+        LOG_WARNING(this->logMatrix, "There are more rows than unknows (rows = ", this->rows, ", cols = ", this->cols, ").");
+
+        // Returning nullptr to signal wrong input
+        return nullptr;
+    }
+    else
+    {
+        // scalar case
+        if (this->rows == 1U)
+        {
+            float scalar = this->val[0U];
+            if (std::abs(scalar) < 2 * FLT_EPSILON)
+            {
+                LOG_ERROR(this->logMatrix, "Scalar zero-matrix.");
+            }
+            else
+            {
+                LOG_WARNING(this->logMatrix, "Scalar matrix");
+            }
+
+            // Returning itself to signal end of recursion
+            return this;
+        }
+        else
+        {
+            // general case
+            // 1) get P for P x A product, if a(0,0) is zero
+            Matrix *PA = this->rowPermute();
+            if (PA == nullptr)
+            {
+                return nullptr;
+            }
+            else
+            {
+                LOG_MATRIX(*PA);
+                // 2) get L(0) for L(0) x PA = L(0) x LU, to remove 0-th column
+                Matrix *LiPA = PA->rowReduction();
+                LOG_MATRIX(*LiPA);
+                delete PA;
+                // 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
+                //                                  [LPA(2,1) | LPA(2,2)]
+                Matrix *subA = LiPA->getBlock(1U, LiPA->rows, 1U, LiPA->cols);
+                LOG_MATRIX(*subA);
+                // 4) call recursively
+                Matrix *U = subA->echelon();
+                LOG_MATRIX(*U);
+
+                // LiPA is U from previous iteration
+                LiPA->setBlock(U);
+                return LiPA;
+            }
+        }
+    }
 }
 
 void* Matrix::operator new(std::size_t count)

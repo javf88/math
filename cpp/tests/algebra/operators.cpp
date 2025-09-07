@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
-#include "operators.hpp"
 #include "matrix.hpp"
 
 /******************************************************************************/
