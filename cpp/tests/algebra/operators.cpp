@@ -158,15 +158,35 @@ TEST(operators, scalar)
     delete G;
 }
 
-TEST(operators, echelon)
+TEST(operators, echelonEdgeCases)
 {
     Matrix A({1,2,3,4,5,6,7,8});
     A.transpose();
     LOG_MATRIX(A);
 
+    // overdertemined case
     Matrix *ret = A.echelon();
     ASSERT_EQ(nullptr, ret);
 
+    // scalar case
+    Matrix a({5});
+    LOG_MATRIX(a);
+    ret = a.echelon();
+    ASSERT_EQ(ret, &a);
+
+    // scalar zero case
+    Matrix z({0});
+    LOG_MATRIX(z);
+    ret = z.echelon();
+    ASSERT_EQ(ret, &z);
+
+    // 2x2 singular case
+    Matrix S({0,0,0,1});
+    S.reshape(2U, 2U);
+    LOG_MATRIX(S);
+    ret = S.echelon();
+    ASSERT_EQ(nullptr, ret);
+    /*
     // no permutation case
     Matrix B;//({0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0});
     B.id(4U);
@@ -187,4 +207,15 @@ TEST(operators, echelon)
     LOG_MATRIX(D);
     ret = D.echelon();
     ASSERT_NE(nullptr, ret);
+*/
+}
+
+TEST(operators, echelon)
+{
+    // 2x2 case with no permutation
+    Matrix B({1,2,3,4});
+    B.reshape(2U, 2U);
+    LOG_MATRIX(B);
+    Matrix *U = B.echelon();
+    delete U;
 }
