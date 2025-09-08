@@ -6,9 +6,10 @@
 *       Implementation of a matrix in 2D.
 *
 *       The API's functionality is simple:
-*       a) matrix creation
-*       b) matrix destruction
-*       c) reshape, transpose and identity matrix
+*       a) matrix creation and destruction,
+*       b) memory management,
+*       c) minimal set of matrix operators to manipulate matrices
+*       d) logging capabilities
 *
 *******************************************************************************/
 
@@ -79,13 +80,14 @@ struct Matrix
     Matrix& reshape(const uint32_t newRows, const uint32_t newCols);
     Matrix& transpose();
     Matrix& id(const size_t size);
-    Matrix* getBlock(const uint32_t row, const uint32_t rowEnd,
-                     const uint32_t col, const uint32_t colEnd);
+    // Echelon specific functions
+    Matrix* getBlock();
     Matrix* setBlock(Matrix *S);
     Matrix* rowPermute();
     Matrix* rowReduction();
     Matrix* echelon();
 
+    // Glue code for the memory management
     void* operator new(std::size_t count);
     void operator delete(void* ptr) noexcept;
 

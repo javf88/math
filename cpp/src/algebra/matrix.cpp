@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <cfloat>
+#include <cstdint>
 #include <iomanip>
 
 #include "matrix.hpp"
@@ -130,25 +131,24 @@ Matrix& Matrix::id(const size_t size)
     return *this;
 }
 
-Matrix* Matrix::getBlock(const uint32_t row, const uint32_t rowEnd,
-                         const uint32_t col, const uint32_t colEnd)
+Matrix* Matrix::getBlock()
 {
     Matrix *block = nullptr;
 
-    // row < rowEnd <= this->rows, the same holds for cols, to be a valid call
-    if ((rowEnd <= row) || (colEnd <= col) ||
-        (this->rows < rowEnd) || (this->cols < colEnd))
+    if ((this->rows < 2U) || (this->cols < 2U))
     {
-        LOG_WARNING(this->logMatrix, "Unable to extract block Matrix. Requested dimensions are wrong!");
+        LOG_WARNING(this->logMatrix, "Unable to extract block Matrix from dimensions [", this->rows, "x", this->cols, "]");
         block = nullptr;
     }
     else
     {
-        block = new Matrix(rowEnd - row, colEnd - col);
-        for (uint32_t i = row; i < rowEnd; i++)
+        uint32_t rows = this->rows - 1U;
+        uint32_t cols = this->cols - 1U;
+        block = new Matrix(rows, cols);
+        for (uint32_t i = 0U; i < block->rows; i++)
         {
-            auto pRowSrc = this->val.cbegin() + this->cols * i + col;
-            auto pRowDst = block->val.cbegin() + block->cols * (i - row);
+            auto pRowSrc = this->val.cbegin() + this->cols * (i + 1U) + 1U;
+            auto pRowDst = block->val.begin() + block->cols * i;
             block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
         }
 
@@ -290,7 +290,7 @@ Matrix* Matrix::echelon()
                 delete PA;
                 // 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
                 //                                  [LPA(2,1) | LPA(2,2)]
-                Matrix *subA = LiPA->getBlock(1U, LiPA->rows, 1U, LiPA->cols);
+                Matrix *subA = LiPA->getBlock();
                 LOG_MATRIX(*subA);
                 // 4) call recursively
                 Matrix *U = subA->echelon();
