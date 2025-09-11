@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
-#include "operators.hpp"
 #include "matrix.hpp"
 
 /******************************************************************************/
@@ -186,36 +185,41 @@ TEST(operators, echelonEdgeCases)
     LOG_MATRIX(S);
     ret = S.echelon();
     ASSERT_EQ(nullptr, ret);
-    /*
+
     // no permutation case
-    Matrix B;//({0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0});
-    B.id(4U);
+    Matrix B({2,0,0,4});
+    B.reshape(2U,2U);
     LOG_MATRIX(B);
     ret = B.echelon();
-    ASSERT_EQ(nullptr, ret);
+    LOG_MATRIX(*ret);
+    ASSERT_EQ(B.val, ret->val);
+    delete ret;
 
-    // singular case, no permuatation
-    Matrix C({0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0});
-    C.reshape(4U, 4U);
-    LOG_MATRIX(C);
-    ret = C.echelon();
-    ASSERT_EQ(nullptr, ret);
-
-    // Permutation case
-    Matrix D({0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0});
+    // Only permutation case
+    Matrix D({0,0,0,8,0,0,6,0,0,4,0,0,2,0,0,0});
     D.reshape(4U, 4U);
     LOG_MATRIX(D);
     ret = D.echelon();
     ASSERT_NE(nullptr, ret);
-*/
+    delete ret;
 }
 
 TEST(operators, echelon)
 {
-    // 2x2 case with no permutation
-    Matrix B({1,2,3,4});
-    B.reshape(2U, 2U);
+    // case with permutation
+    Matrix A({0,2,3,4,2,2,3,4,5,6,7,8,3,4,5,5});
+    A.reshape(4U, 4U);
+    LOG_MATRIX(A);
+    Matrix *U = A.echelon();
+    LOG_MATRIX(*U);
+    Matrix ret({2,2,3,4,0,2,3,4,0,0,-2,-4,0,0,0,-1});
+    ASSERT_EQ(ret.val, U->val);
+    delete U;
+
+    Matrix B({0,1,2,3,2,2,2,2,4,5,6,7,4,4,4,4});
+    B.reshape(4U,4U);
     LOG_MATRIX(B);
-    Matrix *U = B.echelon();
+    U = B.echelon();
+    ASSERT_EQ(nullptr, U);
     delete U;
 }

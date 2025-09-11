@@ -14,7 +14,7 @@ target_link_libraries(memory
 # Matrix algebra
 add_library(algebra OBJECT
     matrix.cpp
-    operators.cpp)
+    operators.cpp) # as friend functions
 
 target_include_directories(algebra
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

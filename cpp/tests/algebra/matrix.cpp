@@ -108,72 +108,68 @@ TEST(Matrix, id)
     LOG_MATRIX(B);
 }
 
+// There is a bug here with the memory management
 TEST(Matrix, getBlock)
 {
     Matrix A({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
     LOG_MATRIX(A);
-    A.reshape(4U, 3U);
-    LOG_MATRIX(A);
-
-    Matrix *invalidRow = A.getBlock(0U, 0U, 0U, 2U);
+    Matrix *invalidRow = A.getBlock();
     ASSERT_EQ(invalidRow, nullptr);
 
-    Matrix *invalidRow2 = A.getBlock(0U, A.rows + 1U, 0U, 2U);
-    ASSERT_EQ(invalidRow2, nullptr);
+    A.transpose();
+    LOG_MATRIX(A);
+    Matrix *invalidCol = A.getBlock();
+    ASSERT_EQ(invalidCol, nullptr);
 
-    Matrix *invalidCol2 = A.getBlock(0U, 2U, 0U, A.cols + 1U);
-    ASSERT_EQ(invalidCol2, nullptr);
+    Matrix s({3});
+    Matrix B({0, 1, 2, 3});
+    B.reshape(2U, 2U);
+    LOG_MATRIX(B);
+    Matrix *scalar = B.getBlock();
+    ASSERT_EQ(scalar->rows, 1U);
+    ASSERT_EQ(scalar->cols, 1U);
+    ASSERT_EQ(s.val, scalar->val);
+    delete scalar;
 
-    Matrix *AA = A.getBlock(0U, A.rows, 0U, A.cols);
-    ASSERT_NE(AA, nullptr);
-    ASSERT_EQ(A.val, AA->val);
-    delete AA;
+    Matrix cRow({7,8,9,10,11});
+    Matrix C({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    C.reshape(2U, 6U);
+    LOG_MATRIX(C);
+    Matrix *row = C.getBlock();
+    ASSERT_EQ(row->rows, 1U);
+    ASSERT_EQ(row->cols, 5U);
+    ASSERT_EQ(cRow.val, row->val);
+    delete row;
 
-    Matrix expCol({2, 5, 8, 11});
-    expCol.transpose();
-    Matrix *aCol = GET_COLUMN_VECTOR(A, A.cols - 1U);
-    ASSERT_NE(aCol, nullptr);
-    ASSERT_EQ(expCol.val, aCol->val);
-    delete aCol;
+    Matrix cCol({3,5,7,9,11});
+    C.transpose();
+    LOG_MATRIX(C);
+    Matrix *col = C.getBlock();
+    ASSERT_EQ(col->rows, 5U);
+    ASSERT_EQ(col->cols, 1U);
+    ASSERT_EQ(cCol.val, col->val);
+    delete col;
 
-    Matrix expRow({9, 10, 11});
-    Matrix *aRow = GET_ROW_VECTOR(A, A.rows - 1U);
-    ASSERT_NE(aRow, nullptr);
-    ASSERT_EQ(expRow.val, aRow->val);
-    delete aRow;
+    Matrix d1({5,6,7,9,10,11});
+    d1.reshape(2U, 3U);
+    Matrix D({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    D.reshape(3U, 4U);
+    LOG_MATRIX(D);
+    Matrix *block = D.getBlock();
+    ASSERT_EQ(block->rows, 2U);
+    ASSERT_EQ(block->cols, 3U);
+    ASSERT_EQ(d1.val, block->val);
+    delete block;
 
-    Matrix expa22({4, 7});
-    expa22.transpose();
-    Matrix *a22 = A.getBlock(1U, A.rows - 1U, 1U, A.cols - 1U);
-    ASSERT_NE(a22, nullptr);
-    ASSERT_EQ(expa22.val, a22->val);
-    delete a22;
-
-    Matrix expA11({0});
-    Matrix *A11 = A.getBlock(0U, 1U, 0U, 1U);
-    ASSERT_NE(A11, nullptr);
-    ASSERT_EQ(expA11.val, A11->val);
-    delete A11;
-
-    Matrix expA12({1, 2});
-    Matrix *A12 = A.getBlock(0U, 1U, 1U, A.cols);
-    ASSERT_NE(A12, nullptr);
-    ASSERT_EQ(expA12.val, A12->val);
-    delete A12;
-
-    Matrix expA21({3, 6, 9});
-    expA21.transpose();
-    Matrix *A21 = A.getBlock(1U, A.rows, 0U, 1U);
-    ASSERT_NE(A21, nullptr);
-    ASSERT_EQ(expA21.val, A21->val);
-    delete A21;
-
-    Matrix expA22({4, 5, 7, 8, 10, 11});
-    expA22.reshape(3U, 2U);
-    Matrix *A22 = A.getBlock(1U, A.rows, 1U, A.cols);
-    ASSERT_NE(A22, nullptr);
-    ASSERT_EQ(expA22.val, A22->val);
-    delete A22;
+    Matrix d2({1,5,7,2,10,11});
+    d2.reshape(3U, 2U);
+    D.transpose();
+    LOG_MATRIX(D);
+    block = D.getBlock();
+    ASSERT_EQ(block->rows, 3U);
+    ASSERT_EQ(block->cols, 2U);
+    ASSERT_EQ(d2.val, block->val);
+    delete block;
 }
 
 TEST(Matrix, setBlock)
