@@ -133,29 +133,29 @@ Matrix& Matrix::id(const size_t size)
 
 Matrix* Matrix::getBlock()
 {
-    Matrix *block = nullptr;
+    Matrix *subA = nullptr;
 
     if ((this->rows < 2U) || (this->cols < 2U))
     {
         LOG_WARNING(this->logMatrix, "Unable to extract block Matrix from dimensions [", this->rows, "x", this->cols, "]");
-        block = nullptr;
+        subA = nullptr;
     }
     else
     {
         uint32_t rows = this->rows - 1U;
         uint32_t cols = this->cols - 1U;
-        block = new Matrix(rows, cols);
-        for (uint32_t i = 0U; i < block->rows; i++)
+        subA = new Matrix(rows, cols);
+        for (uint32_t i = 0U; i < subA->rows; i++)
         {
             auto pRowSrc = this->val.cbegin() + this->cols * (i + 1U) + 1U;
-            auto pRowDst = block->val.begin() + block->cols * i;
-            block->val.insert(pRowDst, pRowSrc, pRowSrc + block->cols);
+            auto pRowDst = subA->val.begin() + subA->cols * i;
+            subA->val.insert(pRowDst, pRowSrc, pRowSrc + subA->cols);
         }
 
-        LOG_MATRIX(*block);
+        LOG_MATRIX(*subA);
     }
 
-    return block;
+    return subA;
 }
 
 Matrix* Matrix::setBlock(Matrix *S)
@@ -170,6 +170,7 @@ Matrix* Matrix::setBlock(Matrix *S)
         }
     }
 
+    LOG_MATRIX(*this);
     return this;
 }
 
@@ -214,6 +215,7 @@ Matrix* Matrix::rowPermute()
     else
     {
         LOG_DEBUG(this->logMatrix, "Nothing to permute (A = PA => P = I).");
+        // Do not free!
         PA = this;
     }
 
@@ -237,10 +239,10 @@ Matrix* Matrix::rowReduction()
     LOG_MATRIX(L_inv);
 
     // PA = LU => L^{-1} PA = U
-    Matrix *U = L_inv * *this;
-    LOG_MATRIX(*U);
+    Matrix *LiPA = L_inv * *this;
+    LOG_MATRIX(*LiPA);
 
-    return U;
+    return LiPA;
 }
 
 Matrix* Matrix::echelon()
@@ -256,6 +258,7 @@ Matrix* Matrix::echelon()
     }
     else
     {
+
         // scalar case
         if (this->rows == 1U)
         {
@@ -286,16 +289,13 @@ Matrix* Matrix::echelon()
                 LOG_MATRIX(*PA);
                 // 2) get L(0) for L(0) x PA = L(0) x LU, to remove 0-th column
                 Matrix *LiPA = PA->rowReduction();
-                LOG_MATRIX(*LiPA);
-                delete PA;
+
                 // 3) get LPA(2,2) as subA in LPA = [LPA(1,1) | LPA(1,2)]
                 //                                  [LPA(2,1) | LPA(2,2)]
                 Matrix *subA = LiPA->getBlock();
-                LOG_MATRIX(*subA);
                 // 4) call recursively
                 Matrix *U = subA->echelon();
                 LOG_MATRIX(*U);
-
                 // LiPA is U from previous iteration
                 LiPA->setBlock(U);
                 return LiPA;
