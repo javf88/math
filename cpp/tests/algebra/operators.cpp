@@ -206,13 +206,20 @@ TEST(operators, echelonEdgeCases)
 
 TEST(operators, echelon)
 {
-    // 2x2 case with no permutation
-    Matrix B({0,2,3,4,2,2,3,4,5,6,7,8,3,4,5,5});
-    B.reshape(4U, 4U);
-    LOG_MATRIX(B);
-    Matrix *U = B.echelon();
+    // case with permutation
+    Matrix A({0,2,3,4,2,2,3,4,5,6,7,8,3,4,5,5});
+    A.reshape(4U, 4U);
+    LOG_MATRIX(A);
+    Matrix *U = A.echelon();
     LOG_MATRIX(*U);
     Matrix ret({2,2,3,4,0,2,3,4,0,0,-2,-4,0,0,0,-1});
     ASSERT_EQ(ret.val, U->val);
+    delete U;
+
+    Matrix B({0,1,2,3,2,2,2,2,4,5,6,7,4,4,4,4});
+    B.reshape(4U,4U);
+    LOG_MATRIX(B);
+    U = B.echelon();
+    ASSERT_EQ(nullptr, U);
     delete U;
 }
