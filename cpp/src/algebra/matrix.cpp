@@ -3,7 +3,6 @@
 /******************************************************************************/
 
 #include <cfloat>
-#include <cstdint>
 #include <iomanip>
 
 #include "matrix.hpp"
