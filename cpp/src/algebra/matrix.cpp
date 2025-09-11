@@ -295,10 +295,17 @@ Matrix* Matrix::echelon()
                 Matrix *subA = LiPA->getBlock();
                 // 4) call recursively
                 Matrix *U = subA->echelon();
-                LOG_MATRIX(*U);
-                // LiPA is U from previous iteration
-                LiPA->setBlock(U);
-                return LiPA;
+                if (U == nullptr)
+                {
+                    return nullptr;
+                }
+                else
+                {
+                    LOG_MATRIX(*U);
+                    // LiPA is U from previous iteration
+                    LiPA->setBlock(U);
+                    return LiPA;
+                }
             }
         }
     }
