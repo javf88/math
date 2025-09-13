@@ -226,10 +226,11 @@ TEST(Matrix, log)
     ASSERT_EQ(1U, A.rows);
     ASSERT_EQ(12U, A.cols);
     // Just displaying a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)
-    std::string tmp = A.log(A.val.cbegin());
-    A.logMatrix << tmp << std::endl;;
+    std::string row = A.log(A.val.cbegin());
+    A.logMatrix.log(row);
 
-    /*
+    std::string matrix = A.log();
+    A.logMatrix.log(matrix);
     A.log("A");
     ASSERT_EQ("A", A.name);
     A.log("AB");
@@ -250,13 +251,10 @@ TEST(Matrix, log)
     B.log("B");
     ASSERT_EQ("B", B.name);
     // Just displaying [a(0,0), a(0,1), ..., a(0,i), ..., a(0,n-1)]
-    tmp = B.log(B.val.cbegin() + B.cols);
-    B.logMatrix << tmp->str() << std::endl;;
-    delete tmp;
+    B.logMatrix.log(B.log(B.val.cbegin() + B.cols));
 
     B.transpose();
     B.log("C");
-    */
 }
 
 TEST(Matrix, rowPermute)

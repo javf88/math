@@ -371,7 +371,6 @@ void Matrix::operator delete(void* ptr) noexcept
     std::cout << tmp.str();
 }
 
-/*
 void Matrix::log(const std::string &newName)
 {
     if (this->name != newName)
@@ -386,48 +385,41 @@ void Matrix::log(const std::string &newName)
     }
     else
     {
-        Log *tmp = this->log();
-        this->logMatrix.log(tmp->str());
-        delete tmp;
+        std::string matrix = this->log();
+        this->logMatrix.log(matrix);
     }
 }
 
-Log* Matrix::log() const
+std::string Matrix::log() const
 {
-    Log *pRow = nullptr;
+    std::string row;
     // the first/edge case could be handle at initialization(new) level?
-    Log *pMatrix = new Log;
+    Log matrix;
     uint32_t margin = 3U;
 
     // edge case, first iteration
     //          |123 1234|
     // building "   A = ["
-    *pMatrix << Log::MSG::GRAY << std::string(margin, ' ') << this->name << " = [" << Log::MSG::ENDC;
+    matrix << Log::MSG::GRAY << std::string(margin, ' ') << this->name << " = [" << Log::MSG::ENDC;
+    // building "a(0), ..., a(i), ..., a(n-1)" entries of a Matrix
+    matrix << this->log(this->val.cbegin());
+    // building "]"
+    matrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC;
+
     // 3U = size(" = ")
     margin += this->name.size() + margin;
-
-    pRow = this->log(this->val.cbegin());
-    *pMatrix << pRow->str();
-    delete pRow;
-
-    *pMatrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
-
     // to loop over only when rows > 0
     for (uint32_t i = 1U; i < this->rows; i++)
     {
         uint32_t pos = this->cols * i;
-        *pMatrix << Log::MSG::GRAY << std::string(margin, ' ') << "[" << Log::MSG::ENDC;
-
-        Log *pRow = this->log(this->val.cbegin() + pos);
-        *pMatrix << pRow->str();
-        delete pRow;
-
-        *pMatrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC << Log::MSG::ENDL;
+        // Log::MSG::ENDL need to be the first to have a prettier print
+        matrix << Log::MSG::ENDL << Log::MSG::GRAY << std::string(margin, ' ') << "[" << Log::MSG::ENDC;
+        matrix << this->log(this->val.cbegin() + pos);
+        matrix << Log::MSG::GRAY << "]" << Log::MSG::ENDC;
     }
 
-    return pMatrix;
+    return matrix.str();
 }
-*/
 
 // It returns only the content of [ a, b, ..., i, ..., n], without the "[]"
 std::string Matrix::log(const std::vector<float>::const_iterator pRow) const
