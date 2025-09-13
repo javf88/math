@@ -23,7 +23,6 @@ TEST(Matrix, Constructors)
     ASSERT_EQ(A.rows * A.cols, A.val.capacity());
     LOG_MATRIX(A);
 
-/*
     Matrix B({1, 2, 3, 4, 5, 6, 7});
     ASSERT_EQ(1, B.rows);
     ASSERT_EQ(7, B.cols);
@@ -35,7 +34,6 @@ TEST(Matrix, Constructors)
     ASSERT_EQ(B.cols, copy.cols);
     ASSERT_EQ(B.val, copy.val);
     LOG_MATRIX(copy);
-*/
 }
 
 TEST(Matrix, reshape)
@@ -132,23 +130,23 @@ TEST(Matrix, getBlock)
     ASSERT_EQ(s.val, scalar->val);
     delete scalar;
 
-    Matrix cRow({7,8,9,10,11});
+    Matrix blockRow({7,8,9,10,11});
     Matrix C({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
     C.reshape(2U, 6U);
     LOG_MATRIX(C);
     Matrix *row = C.getBlock();
     ASSERT_EQ(row->rows, 1U);
     ASSERT_EQ(row->cols, 5U);
-    ASSERT_EQ(cRow.val, row->val);
+    ASSERT_EQ(blockRow.val, row->val);
     delete row;
 
-    Matrix cCol({3,5,7,9,11});
+    Matrix blockCol({7,8,9,10,11});
     C.transpose();
     LOG_MATRIX(C);
     Matrix *col = C.getBlock();
     ASSERT_EQ(col->rows, 5U);
     ASSERT_EQ(col->cols, 1U);
-    ASSERT_EQ(cCol.val, col->val);
+    ASSERT_EQ(blockCol.val, col->val);
     delete col;
 
     Matrix d1({5,6,7,9,10,11});
@@ -162,7 +160,7 @@ TEST(Matrix, getBlock)
     ASSERT_EQ(d1.val, block->val);
     delete block;
 
-    Matrix d2({1,5,7,2,10,11});
+    Matrix d2({5,9,6,10,7,11});
     d2.reshape(3U, 2U);
     D.transpose();
     LOG_MATRIX(D);
@@ -182,6 +180,9 @@ TEST(Matrix, setBlock)
     Matrix B({1,2,3,4,2,2,2,2,4,3,2,1,4,4,4,4});
     B.reshape(4U, 4U);
     LOG_MATRIX(B);
+    B.setBlock(&A);
+    LOG_MATRIX(B);
+
     A.setBlock(&B);
     LOG_MATRIX(A);
 
@@ -259,7 +260,7 @@ TEST(Matrix, log)
 
 TEST(Matrix, rowPermute)
 {
-    Matrix A({1,2,3,4,5,0,2,2,2,2,0,3,3,3,4,0,4,4,4,4,5,5,5,5,5});
+    Matrix A({1,2,3,4,5,0,2,2,2,2,0,3,3,3,3,0,4,4,4,4,5,5,5,5,5});
     A.reshape(5U, 5U);
     LOG_MATRIX(A);
     // nothing to permute, A = PA
@@ -267,10 +268,12 @@ TEST(Matrix, rowPermute)
 
     A.val[0U] = 0.0F;
     LOG_MATRIX(A);
+    Matrix PA({5,5,5,5,5,0,2,2,2,2,0,3,3,3,3,0,4,4,4,4,0,2,3,4,5});
     Matrix *tmp = A.rowPermute();
     // Permutation
     ASSERT_NE(nullptr, tmp);
     ASSERT_NE(&A, tmp);
+    ASSERT_EQ(PA.val, tmp->val);
 
     A.val[A.rows * 4U] = 0.0F;
     LOG_MATRIX(A);
@@ -282,14 +285,11 @@ TEST(Matrix, rowPermute)
 
 TEST(Matrix, rowReduction)
 {
+    Matrix U({1,2,3,4,5,0,0,-1,-2,-3,0,-1,-3,-5,-7,0,-2,-5,-8,-11,0,-3,-7,-11,-15});
     Matrix A({1,2,3,4,5,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5});
     A.reshape(5U, 5U);
     LOG_MATRIX(A);
-    Matrix *L1PA = A.rowReduction();
-    for (uint32_t k = 1U; k < L1PA->rows; k++)
-    {
-        auto a = L1PA->val.cbegin() + (L1PA->cols * k);
-        ASSERT_EQ(0.0F, *a);
-    }
-    delete L1PA;
+    Matrix *LiPA = A.rowReduction();
+    ASSERT_EQ(U.val, LiPA->val);
+    delete LiPA;
 }

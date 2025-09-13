@@ -15,7 +15,7 @@
 // Matrix allocation from a list
 Matrix::Matrix(std::initializer_list<float> val) :  val(val), rows(1), cols(val.size())
 {
-    LOG_INFO(this->logMatrix, "Constructing row vector [", this->rows, "x", this->cols, "].");
+    LOG_INFO(this->logMatrix, "Constructing a row vector [", this->rows, "x", this->cols, "].");
 }
 
 Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
@@ -37,7 +37,7 @@ Matrix::Matrix(Matrix& A): Matrix(A.rows, A.cols)
     A.logMatrix << this->logMatrix.str();
     this->logMatrix.str("");
 
-    LOG_INFO(A.logMatrix, "Copying matrix.");
+    LOG_INFO(A.logMatrix, "Copying a matrix.");
     for (auto src = A.val.cbegin(); src != A.val.cend(); src++)
     {
         this->val.push_back(*src);
@@ -47,7 +47,7 @@ Matrix::Matrix(Matrix& A): Matrix(A.rows, A.cols)
 // Empty matrix
 Matrix::Matrix() : Matrix(0, 0)
 {
-    LOG_INFO(this->logMatrix, "Creating an empty matrix");
+    LOG_INFO(this->logMatrix, "Creating an empty matrix.");
 }
 
 Matrix::~Matrix()
@@ -68,6 +68,8 @@ Matrix& Matrix::reshape(const uint32_t newRows, const uint32_t newCols)
     }
     else
     {
+        LOG_INFO(this->logMatrix, "Reshaping from [",
+                this->rows, "x", this->cols, "] to [", newRows, "x", newCols, "].");
         this->rows = newRows;
         this->cols = newCols;
 
@@ -86,10 +88,13 @@ Matrix& Matrix::transpose()
     }
     else
     {
+        LOG_INFO(this->logMatrix, "Transposing from [",
+                this->rows, "x", this->cols, "] to [", this->cols, "x", this->rows, "].");
         // There is no need to transpose a row or a column vector
         if ((this->rows > 1) && (this->cols > 1))
         {
             Matrix A(*this);
+            this->reshape(this->cols, this->rows);
             for (uint32_t row = 0; row < A.rows; row++)
             {
                 for (uint32_t col = 0; col < A.cols; col++)
@@ -101,8 +106,10 @@ Matrix& Matrix::transpose()
                 }
             }
         }
-
-        this->reshape(this->cols, this->rows);
+        else
+        {
+            this->reshape(this->cols, this->rows);
+        }
     }
 
     return *this;
@@ -136,11 +143,13 @@ Matrix* Matrix::getBlock()
 
     if ((this->rows < 2U) || (this->cols < 2U))
     {
-        LOG_WARNING(this->logMatrix, "Unable to extract block Matrix from dimensions [", this->rows, "x", this->cols, "]");
+        LOG_WARNING(this->logMatrix, "Unable to extract block from Matrix in [", this->rows, "x", this->cols, "]");
         subA = nullptr;
     }
     else
     {
+        LOG_INFO(this->logMatrix, "Extracting block of [", this->rows - 1U, "x", this->cols - 1U,
+                "] from [", this->rows, "x", this->cols, "]");
         uint32_t rows = this->rows - 1U;
         uint32_t cols = this->cols - 1U;
         subA = new Matrix(rows, cols);
@@ -159,17 +168,26 @@ Matrix* Matrix::getBlock()
 
 Matrix* Matrix::setBlock(Matrix *S)
 {
-    for (uint32_t i = 1U; i < this->rows; i++)
+    if ((this->rows - S->rows != 1U) || (this->cols - S->rows != 1U))
     {
-        auto pRowDst = this->val.begin() + this->cols * i + 1U;
-        auto pRowSrc = S->val.cbegin() + S->cols * (i - 1U);
-        for (uint32_t j = 0U; j < S->cols; j++)
+        LOG_WARNING(this->logMatrix, "Unable to set block from [", S->rows, "x", S->cols,
+                "] in [", this->rows, "x", this->cols, "]");
+    }
+    else
+    {
+        LOG_INFO(this->logMatrix, "Setting block of [", S->rows, "x", S->cols,
+                "] into [", this->rows, "x", this->cols, "]");
+        for (uint32_t i = 1U; i < this->rows; i++)
         {
-            pRowDst[j] = pRowSrc[j];
+            auto pRowDst = this->val.begin() + this->cols * i + 1U;
+            auto pRowSrc = S->val.cbegin() + S->cols * (i - 1U);
+            for (uint32_t j = 0U; j < S->cols; j++)
+            {
+                pRowDst[j] = pRowSrc[j];
+            }
         }
     }
 
-    LOG_MATRIX(*this);
     return this;
 }
 
