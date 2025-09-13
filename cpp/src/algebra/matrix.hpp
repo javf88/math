@@ -47,7 +47,7 @@
         LOG_DEBUG((A).logMatrix, #A, " in [", (A).rows, "x", (A).cols, "]."); \
         (A).log(#A);
 #else
-    #define LOG_DEBUG(A.logMatrix, ...)
+    #define LOG_MATRIX(A)
 #endif
 
 /******************************************************************************/
@@ -93,12 +93,12 @@ struct Matrix
 
     // log is the public API
     // log(string newName) calls log()
-    void log(const std::string &newName);
+//    void log(const std::string &newName);
     // log() calls repeately log(vector<float>::c_itr row)
     // to format the whole of the matrix with N+1 Cols
     // A = [col0 | col1 | col2 | ... | colN]
-    Log* log() const;
-    Log* log(const std::vector<float>::const_iterator row) const;
+//    Log* log() const;
+    std::string log(const std::vector<float>::const_iterator row) const;
 
     // When removing const, googletest complains
     friend bool operator==(const Matrix& A, const Matrix& B);

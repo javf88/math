@@ -371,6 +371,7 @@ void Matrix::operator delete(void* ptr) noexcept
     std::cout << tmp.str();
 }
 
+/*
 void Matrix::log(const std::string &newName)
 {
     if (this->name != newName)
@@ -381,12 +382,12 @@ void Matrix::log(const std::string &newName)
 
     if (this->rows * this->cols == 0)
     {
-        this->logMatrix << Log::MSG::GRAY << std::string(3U, ' ') << "[] (empty matrix)" << Log::MSG::ENDC << Log::MSG::ENDL;
+        this->logMatrix.log(Log::MSG::GRAY, std::string(3U, ' '), "[] (empty matrix)", Log::MSG::ENDC);
     }
     else
     {
         Log *tmp = this->log();
-        this->logMatrix << tmp->str();
+        this->logMatrix.log(tmp->str());
         delete tmp;
     }
 }
@@ -426,24 +427,25 @@ Log* Matrix::log() const
 
     return pMatrix;
 }
+*/
 
 // It returns only the content of [ a, b, ..., i, ..., n], without the "[]"
-Log* Matrix::log(const std::vector<float>::const_iterator row) const
+std::string Matrix::log(const std::vector<float>::const_iterator pRow) const
 {
     const uint32_t width = 10U;
-    Log *pRow = new Log;
+    Log row;
 
     // building initial element
-    *pRow << Log::MSG::WHITE;
+    row << Log::MSG::WHITE;
 
-    *pRow << std::right << std::setw(width) << std::fixed << row[0U];
+    row << std::right << std::setw(width) << std::fixed << pRow[0U];
     for (uint32_t j = 1U; j < this->cols; j++)
     {
-        *pRow << "," << std::right << std::setw(width) << std::fixed << row[j];
+        row << "," << std::right << std::setw(width) << std::fixed << pRow[j];
     }
 
-    *pRow << Log::MSG::ENDC;
+    row << Log::MSG::ENDC;
 
     // Delete after returning
-    return pRow;
+    return row.str();
 }

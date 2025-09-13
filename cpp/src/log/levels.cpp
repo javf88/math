@@ -2,6 +2,9 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <iostream>
+#include <string>
+
 #include "levels.hpp"
 
 /******************************************************************************/
@@ -11,6 +14,10 @@
 void Log::log()
 {
     *this << Log::MSG::ENDL;
+
+    std::cout << this->str();
+    this->str(std::string());
+    this->clear();
 }
 
 // no need of friend keyword. When splitting implementations and declarations
