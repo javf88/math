@@ -203,7 +203,11 @@ TEST(operators, echelonEdgeCases)
     D.reshape(4U, 4U);
     LOG_MATRIX(D);
     ret = D.echelon();
+    LOG_MATRIX(*ret);
     ASSERT_NE(nullptr, ret);
+    Matrix E({2,0,0,0,0,4,0,0,0,0,6,0,0,0,0,8});
+    E.reshape(4U, 4U);
+    ASSERT_EQ(*ret, E);
     delete ret;
 }
 

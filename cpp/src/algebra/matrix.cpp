@@ -225,7 +225,7 @@ Matrix* Matrix::rowPermute()
         }
         else
         {
-            LOG_DEBUG(this->logMatrix, "The matrix is singular, nothing to permute.");
+            LOG_WARNING(this->logMatrix, "The matrix is singular, nothing to permute.");
             PA = nullptr;
         }
     }
@@ -303,7 +303,6 @@ Matrix* Matrix::echelon()
             }
             else
             {
-                LOG_MATRIX(*PA);
                 // 2) get L(0) for L(0) x PA = L(0) x LU, to remove 0-th column
                 Matrix *LiPA = PA->rowReduction();
 
