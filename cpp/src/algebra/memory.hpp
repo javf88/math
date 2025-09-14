@@ -15,29 +15,33 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <stack>
+#include <deque>
+#include <iostream>
+
+#include "levels.hpp"
 
 /******************************************************************************/
 /*    API                                                                     */
 /******************************************************************************/
 
-namespace Static
+template<typename T>
+struct Memory: public std::deque<T>
 {
-    // std::stack has pop() and push() capabilities already.
-    static std::stack<void*> stack;
-
-    std::stack<void*>* getStack()
-    {
-        return &stack;
-    }
+    // Do I need this here?
+    Log logMemory;
 
     void clean()
     {
-        while (stack.empty() == false)
+        while (this->empty() == false)
         {
-            stack.pop();
+            auto element = this->cbegin();
+            LOG_DEBUG(this->logMemory, "Freeing (void*)", *element);
+            std::free(*element);
+            this->pop_front();
         }
+
+        std::cout << this->logMemory.str();
     }
-}
+};
 
 #endif /* MEMORY_H_ */

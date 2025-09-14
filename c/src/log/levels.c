@@ -96,7 +96,6 @@ STATIC char* get_src(const uint32_t level, const char *src, const uint32_t line)
     {
         size += strlen(levelFormat[level]);
         str = malloc(sizeof(char) * size);
-
         sprintf(str, levelFormat[level], src, line);
     }
 
