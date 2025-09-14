@@ -22,7 +22,7 @@ TEST(operators, equality)
 
     A.id(3);
     LOG_MATRIX(A);
-    ASSERT_EQ(A, B);
+    ASSERT_TRUE(A == B);
 }
 
 TEST(operators, add)
@@ -115,6 +115,9 @@ TEST(operators, multiply)
     LOG_MATRIX(*E);
     ASSERT_EQ(3U, E->rows);
     ASSERT_EQ(4U, E->cols);
+    Matrix F({3,6,9,12,15,18,21,24,27,30,33,36});
+    F.reshape(3U, 4U);
+    ASSERT_EQ(*E, F);
     delete E;
 }
 

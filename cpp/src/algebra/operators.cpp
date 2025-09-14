@@ -14,6 +14,7 @@ bool operator==(const Matrix& A, const Matrix& B)
 {
     bool ret = true;
     // local logging is required because of the const qualifiers
+    // To remove this when logging into file/screen
     Log local;
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
@@ -25,11 +26,13 @@ bool operator==(const Matrix& A, const Matrix& B)
     }
     else
     {
+        LOG_INFO(local, "Comparing matrices.");
         for (auto a = A.val.cbegin(), b = B.val.cbegin(); a != A.val.cend(); a++, b++)
         {
             if (*a != *b)
             {
                 ret = false;
+                break;
             }
         }
     }
@@ -45,13 +48,15 @@ Matrix* operator+(Matrix& A, Matrix& B)
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
-        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
-        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be added.");
-        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
+        LOG_WARNING(A.logMatrix, "Matrices A and B cannot be added.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in [", A.rows, "x", A.cols, "].");
+        LOG_WARNING(B.logMatrix, "Matrices A and B cannot be added.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in [", B.rows, "x", B.cols, "].");
     }
     else
     {
+        LOG_WARNING(A.logMatrix, "Adding matrices.");
+        LOG_WARNING(B.logMatrix, "Adding matrices.");
         C = new Matrix(A.rows, A.cols);
 
         for (uint32_t i = 0U; i < A.rows; i++)
@@ -76,13 +81,15 @@ Matrix* operator-(Matrix& A, Matrix &B)
 
     if ((A.rows != B.rows) || (A.cols != B.cols))
     {
-        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
-        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
-        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be substracted.");
-        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
+        LOG_WARNING(A.logMatrix, "Matrices A and B cannot be substracted.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in [", A.rows, "x", A.cols, "].");
+        LOG_WARNING(B.logMatrix, "Matrices A and B cannot be substracted.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in [", B.rows, "x", B.cols, "].");
     }
     else
     {
+        LOG_WARNING(A.logMatrix, "Substracting matrices.");
+        LOG_WARNING(B.logMatrix, "Substracting matrices.");
         C = new Matrix(A.rows, A.cols);
 
         for (uint32_t i = 0U; i < A.rows; i++)
@@ -107,13 +114,15 @@ Matrix* operator*(Matrix &A, Matrix &B)
 
     if (A.cols != B.rows)
     {
-        LOG_WARNING(A.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be multiplied.");
-        LOG_WARNING(A.logMatrix, "Matrix A is in ", A.rows, "x", A.cols);
-        LOG_WARNING(B.logMatrix, "Matrices A[", A.rows, ",", A.cols, "] and B[", B.rows, ",", B.cols, "] cannot be multiplied.");
-        LOG_WARNING(B.logMatrix, "Matrix B is in ", B.rows, "x", B.cols);
+        LOG_WARNING(A.logMatrix, "Matrices A and B cannot be multiply.");
+        LOG_WARNING(A.logMatrix, "Matrix A is in [", A.rows, "x", A.cols, "].");
+        LOG_WARNING(B.logMatrix, "Matrices A and B cannot be multiply.");
+        LOG_WARNING(B.logMatrix, "Matrix B is in [", B.rows, "x", B.cols, "].");
     }
     else
     {
+        LOG_WARNING(A.logMatrix, "Multiplying matrices.");
+        LOG_WARNING(B.logMatrix, "Multiplying matrices.");
         // C = new Matrix(A.rows, B.cols) behaves oddly when mixing iterators
         // the iterator does point to the memory, but the vector never grows
         // size remains zero
