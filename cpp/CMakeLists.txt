@@ -21,7 +21,7 @@ set(LOG_CONFIG "LOG_LEVEL_${LOG_LEVEL}")
 message(STATUS "LOG_CONFIG is ${LOG_CONFIG}")
 
 ## Sanitizer options
-set(CHECK_TYPE "address" CACHE STRING "Choose the sanitizer, options are: address")
+set(CHECK_TYPE "address" CACHE STRING "Choose the sanitizer, options are: address, undefined")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${CHECK_TYPE}")
 
 #*******************************************************************************
