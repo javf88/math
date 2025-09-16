@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <cfloat>
+#include <cstdint>
 #include <iomanip>
 
 #include "matrix.hpp"
@@ -23,7 +24,7 @@ Matrix::Matrix(uint32_t rows, uint32_t cols) : rows(rows), cols(cols)
     if (this->rows * this->cols != 0)
     {
         LOG_INFO(this->logMatrix, "Reserving memory with ", this->rows, "x", this->cols, " elements.");
-        this->val.reserve(this->rows * this->cols);
+        this->val.insert(this->val.begin(), this->rows * this->cols, 0.0F);
     }
     else
     {
@@ -38,9 +39,9 @@ Matrix::Matrix(Matrix& A): Matrix(A.rows, A.cols)
     this->logMatrix.str("");
 
     LOG_INFO(A.logMatrix, "Copying a matrix.");
-    for (auto src = A.val.cbegin(); src != A.val.cend(); src++)
+    for (auto src = A.val.begin(), dst = this->val.begin(); src != A.val.cend(); src++, dst++)
     {
-        this->val.push_back(*src);
+        *dst = *src;
     }
 }
 
@@ -157,7 +158,10 @@ Matrix* Matrix::getBlock()
         {
             auto pRowSrc = this->val.cbegin() + this->cols * (i + 1U) + 1U;
             auto pRowDst = subA->val.begin() + subA->cols * i;
-            subA->val.insert(pRowDst, pRowSrc, pRowSrc + subA->cols);
+            for (uint32_t j = 0U; j < subA->cols; j++)
+            {
+                pRowDst[j] = pRowSrc[j];
+            }
         }
 
         LOG_MATRIX(*subA);
@@ -445,9 +449,7 @@ std::string Matrix::log(const std::vector<float>::const_iterator pRow) const
     Log row;
 
     // building initial element
-    row << Log::MSG::WHITE;
-
-    row << std::right << std::setw(width) << std::fixed << pRow[0U];
+    row << Log::MSG::WHITE << std::right << std::setw(width) << std::fixed << *pRow;
     for (uint32_t j = 1U; j < this->cols; j++)
     {
         row << "," << std::right << std::setw(width) << std::fixed << pRow[j];

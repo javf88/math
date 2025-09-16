@@ -13,11 +13,16 @@ include(CTest)
 
 # Build options
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON" CACHE BOOL "Export commands for lsp" FORCE)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
+## Logging options
 set(LOG_LEVEL "TRACE" CACHE STRING "Choose the logging-level, options are: ERROR WARNING INFO DEBUG TRACE")
 set(LOG_CONFIG "LOG_LEVEL_${LOG_LEVEL}")
 message(STATUS "LOG_CONFIG is ${LOG_CONFIG}")
+
+## Sanitizer options
+set(CHECK_TYPE "address" CACHE STRING "Choose the sanitizer, options are: address, undefined")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${CHECK_TYPE}")
 
 #*******************************************************************************
 # CMake Submodules
