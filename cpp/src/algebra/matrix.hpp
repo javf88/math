@@ -57,7 +57,7 @@
 struct Matrix
 {
     // Memory management
-    Memory<Matrix*> manager;
+    static inline Memory<Matrix*> manager;
 
     // Logging capabilities
     Log logMatrix;
