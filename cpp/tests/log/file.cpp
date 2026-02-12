@@ -4,39 +4,18 @@
 
 #include <gtest/gtest.h>
 /* TARGET LIBRARY */
-#include "levels.hpp"
-
-/******************************************************************************/
-/*    FIXTURES                                                                */
-/******************************************************************************/
-
-class Verbose: public testing::Test
-{
-protected:
-    Log expected;
-
-    // The Dtor triggers the flush to the stream. This is only for displaying
-    // purpose. It was moved from the Log class in levels.hpp.
-    ~Verbose()
-    {
-        std::cout << expected.str();
-    }
-};
+#include "file.hpp"
 
 /******************************************************************************/
 /*    TEST CASES                                                              */
 /******************************************************************************/
 
-TEST(levels, get)
+TEST(file, Constructor)
 {
-    Log::get("No parameter.");
+    File file(LOG_TO_FILE);
 }
 
-TEST(levels, invalidGet)
-{
-    Log::get("Missing % parameter.");
-}
-
+/*
 #if LOG_LEVEL_ERROR <= LOG_CONFIG
 TEST_F(Verbose, error)
 {
@@ -91,3 +70,4 @@ TEST_F(Verbose, trace)
     ASSERT_EQ(this->expected.str(), trace.str());
 }
 #endif
+*/

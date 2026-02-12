@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/src/algebra",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/algebra -I/Users/ujtja16/Documents/playground/math/cpp/src/log -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/algebra.dir/matrix.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/src/algebra/matrix.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/src/algebra/matrix.cpp",
+  "output": "src/algebra/CMakeFiles/algebra.dir/matrix.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/src/algebra",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/algebra -I/Users/ujtja16/Documents/playground/math/cpp/src/log -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/algebra.dir/operators.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/src/algebra/operators.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/src/algebra/operators.cpp",
+  "output": "src/algebra/CMakeFiles/algebra.dir/operators.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/src/log",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -DLOG_TO_FILE=1U -I/Users/ujtja16/Documents/playground/math/cpp/src/log -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/log.dir/levels.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/src/log/levels.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/src/log/levels.cpp",
+  "output": "src/log/CMakeFiles/log.dir/levels.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/tests/log",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/log -isystem /usr/local/include -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/levels.dir/levels.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/tests/log/levels.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/tests/log/levels.cpp",
+  "output": "tests/log/CMakeFiles/levels.dir/levels.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/tests/algebra",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/algebra -I/Users/ujtja16/Documents/playground/math/cpp/src/log -isystem /usr/local/include -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/memoryTest.dir/memory.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/tests/algebra/memory.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/tests/algebra/memory.cpp",
+  "output": "tests/algebra/CMakeFiles/memoryTest.dir/memory.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/tests/algebra",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/algebra -I/Users/ujtja16/Documents/playground/math/cpp/src/log -isystem /usr/local/include -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/matrix.dir/matrix.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/tests/algebra/matrix.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/tests/algebra/matrix.cpp",
+  "output": "tests/algebra/CMakeFiles/matrix.dir/matrix.cpp.o"
+},
+{
+  "directory": "/Users/ujtja16/Documents/playground/math/cpp/build/tests/algebra",
+  "command": "/Applications/Xcode16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DLOG_CONFIG=LOG_LEVEL_TRACE -I/Users/ujtja16/Documents/playground/math/cpp/src/algebra -I/Users/ujtja16/Documents/playground/math/cpp/src/log -isystem /usr/local/include -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode16.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/operators.dir/operators.cpp.o -c /Users/ujtja16/Documents/playground/math/cpp/tests/algebra/operators.cpp",
+  "file": "/Users/ujtja16/Documents/playground/math/cpp/tests/algebra/operators.cpp",
+  "output": "tests/algebra/CMakeFiles/operators.dir/operators.cpp.o"
+}
+]

@@ -20,7 +20,11 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
+#include <iostream>
+#include <ostream>
 #include <sstream>
+#include <stdexcept>
+#include <string>
 
 /******************************************************************************/
 /*    DEFINITIONS                                                             */
@@ -112,6 +116,61 @@ struct Log: public std::ostringstream
         ENDC,
         ENDL
     };
+
+    static void get(const std::string fmt)
+    {
+        const char *str = fmt.c_str();
+        while (*str)
+        {
+            if (*str == '%')
+            {
+                throw std::runtime_error("Missing parameters.");
+            }
+            std::cout << *str;
+            str++;
+        }
+
+        std::cout << std::endl;
+        return;
+    }
+
+    template<typename T, typename... Args>
+    static void get(const char *fmt, const T arg, const Args&... args)
+    {
+        while (*fmt)
+        {
+            if (*fmt == '%')
+            {
+                std::cout << arg;
+                fmt++;
+                get(fmt, args...);
+
+                return;
+            }
+        }
+    }
+
+    template<typename... Args>
+    static std::string get(Log::Level level, const std::string file, const std::string line,
+                           const std::string fmt, const Args&... args)
+    {
+        // Look-up table
+        const char *label[6U] =
+        {
+            "\x1b[31m[ ERROR ] ",
+            "\x1b[33m[WARNING] ",
+            "\x1b[32m[ INFO  ] ",
+            "\x1b[36m[ DEBUG ] ",
+            "\x1b[94m[ TRACE ] "
+        };
+
+        // Disable coloring
+        const std::string endc = "\x1b[0m";
+        const std::string grey = "\x1b[1;90m";
+
+        std::string srcStr(label[level]);
+        srcStr = srcStr + file + ":" + line + endc +  ' ';
+    }
 
     // This is horrible, templates cannot be split into hpp/cpp files
     template<typename T, typename... Args>

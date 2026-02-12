@@ -1,0 +1,106 @@
+# Device address space
+
+A device address refers to a buffer memory.
+The buffer memory are pull out from a pool.
+The pool is readble and writeable.
+
+A device address pointer/object/ref to variables.
+
+device float4 *color;
+
+struct Foo
+{
+    float a[3];
+    int   a[3];
+};
+
+device Foo *info;
+
+NB:
+    textures do not need device attribute. Textures elements are not addressable
+    one needs built-in functions.
+
+# Constant adress space
+
+The same device address but they are read-only. Constant attribute behaves like
+const in C.
+
+# Thread address space
+
+this refers to per-thread memory address space. They are not visible to others
+threads. Variables inside a graphics or kernel function are allocated in the
+thread memory space.
+
+# Threadgroup address space
+
+A GPU compute unit(?) can execute multiple threads concurrently in a threadgroup,
+and a GPU can execute a different threadgroup for each of its compute units.
+
+Threadgroup memory is faster than device memory. Use the threadgroup address
+space to:
+- Allocate a threadgroup var in a kernel, mesh, or object function.
+- Define a kernel, fragment, or object function parameter that is a pointer to
+  the threadgroup address
+
+Threadgroup variables in a kernel, mesh, or object function only exist for the
+lifetime of the threadgroup that executes the kernel.
+
+Threadgroup variables in a mid-render kernel function are persistent across
+mid-render and fragment kernel functions over a tile.
+
+kernel void
+my_kernel(threadgroup float *sharedParameter [[threadgroup(0)]],
+…)
+{
+    // Allocate a float in the threadgroup address space.
+    threadgroup float sharedFloat;
+    // Allocate an array of 10 floats in the threadgroup address
+    space.
+    threadgroup float sharedFloatArray[10];
+}
+
+NB:
+    it seems a GPU has several compute units.
+
+## SIMD- and Quad-groups
+
+Within a threadgroup, you can divide threads into SIMD-groups, which are
+collections of threads that execute concurrently. The mapping to SIMD-groups is
+invariant for the duration of a kernel’s execution,across dispatches of a given
+kernel with the same launch parameters.
+
+In addition, all SIMD-groups within a threadgroup needs to be the same size,
+apart from the SIMD-group with the maximum index, which may be smaller, if the
+size of the threadgroup is not evenly divisible by the size of the SIMD-groups.
+
+NB:
+    A quad-group is a SIMD-group with the thread execution width of 4.
+
+# Threadgroup imageblock address space
+
+This address space refers to objects allocated in threadgroup memory that are
+only accessible using an imageblock<T, L> object.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

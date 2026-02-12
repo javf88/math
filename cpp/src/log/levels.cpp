@@ -2,7 +2,6 @@
 /*    INCLUDED FILES                                                          */
 /******************************************************************************/
 
-#include <iostream>
 #include <string>
 
 #include "levels.hpp"

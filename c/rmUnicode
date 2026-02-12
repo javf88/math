@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cat $1 | sed -E "s/\\\U[[:digit:]]*b\[[[:digit:]]*m//g" \
+    | sed -E "s/\\\U[[:digit:]]*b\[.;[[:digit:]]*m//g" > \
+    noUnicode.log

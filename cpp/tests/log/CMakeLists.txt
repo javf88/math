@@ -11,3 +11,12 @@ target_link_libraries(levels
     PRIVATE log)
 
 gtest_add_tests(TARGET levels)
+
+# file submodule
+add_executable(file
+    file.cpp)
+
+target_link_libraries(file
+    PRIVATE GTest::gtest_main
+    PRIVATE fileInt
+    PRIVATE log)

@@ -20,6 +20,9 @@ set(LOG_LEVEL "TRACE" CACHE STRING "Choose the logging-level, options are: ERROR
 set(LOG_CONFIG "LOG_LEVEL_${LOG_LEVEL}")
 message(STATUS "LOG_CONFIG is ${LOG_CONFIG}")
 
+set(LOG_TO_FILE "ON" CACHE BOOL "Logging to file is active by defult")
+message(STATUS "LOG_TO_FILE is ${LOG_TO_FILE}")
+
 ## Sanitizer options
 set(CHECK_TYPE "address" CACHE STRING "Choose the sanitizer, options are: address, undefined")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${CHECK_TYPE}")
